@@ -1,127 +1,174 @@
-// Configure AWS SDK (Replace 'YOUR_ACCESS_KEY_ID' and 'YOUR_SECRET_ACCESS_KEY' with your actual AWS credentials)
+// Configure AWS SDK (replace with your actual credentials)
 AWS.config.update({
     accessKeyId: 'AKIAVA5YK7KISYJY3ZOL',
     secretAccessKey: 'hnrbhv/qcla0xlXhePxAvSXLRTugcM1NjoIv3o9S',
     region: 'us-east-1' // Match your DynamoDB region
 });
 
-var dynamodb = new AWS.DynamoDB();
-var grantsData = [];
+const dynamodb = new AWS.DynamoDB();
+let grantsData = [];
 
-// Dynamically get table description to discover attributes
-function getTableAttributes(callback) {
-    dynamodb.describeTable({ TableName: 'grants' }, function(err, data) {
+// Get unique values for an attribute
+function getUniqueValues(attribute, callback) {
+    const params = {
+        TableName: 'grants',
+        ProjectionExpression: attribute
+    };
+    dynamodb.scan(params, (err, data) => {
         if (err) {
-            console.error('Error describing table:', err);
+            console.error(`Error scanning for ${attribute}:`, err);
             callback(err, null);
         } else {
-            // Extract attribute definitions (simplified for this use case, assumes partition key is grantId)
-            const attributeDefinitions = data.Table.AttributeDefinitions;
-            const attributes = attributeDefinitions.map(attr => attr.AttributeName);
-            callback(null, attributes);
+            const values = [...new Set(data.Items.map(item => item[attribute]?.S).filter(val => val))];
+            callback(null, values);
         }
     });
 }
 
-// Sort grants alphabetically by Grant Name if available
-function sortGrantsByGrantName(grants) {
-    if (grants.length > 0 && 'Grant Name' in grants[0]) {
-        return grants.sort((a, b) => (a['Grant Name'].S || '').localeCompare(b['Grant Name'].S || ''));
-    }
-    return grants; // Return unsorted if no Grant Name attribute
+// Create filter inputs dynamically
+function createFilterInputs() {
+    const filterForm = document.getElementById('filterForm');
+    filterForm.innerHTML = '';
+
+    // Example attributes (replace with actual DynamoDB describeTable call if needed)
+    const attributes = ['Grant Name', 'County', 'Status', 'amount']; // Adjust based on your table
+
+    attributes.forEach(attr => {
+        if (attr !== 'grantId') { // Skip partition key
+            const label = document.createElement('label');
+            label.textContent = `${attr.replace(/([A-Z])/g, ' $1').trim()}: `;
+            filterForm.appendChild(label);
+
+            if (attr === 'amount') {
+                const minInput = document.createElement('input');
+                minInput.type = 'number';
+                minInput.placeholder = 'Min Amount';
+                minInput.id = `min_${attr}`;
+                filterForm.appendChild(minInput);
+
+                const maxInput = document.createElement('input');
+                maxInput.type = 'number';
+                maxInput.placeholder = 'Max Amount';
+                maxInput.id = `max_${attr}`;
+                filterForm.appendChild(maxInput);
+            } else {
+                getUniqueValues(attr, (err, values) => {
+                    if (err) return;
+                    const select = document.createElement('select');
+                    select.id = attr;
+                    select.innerHTML = `<option value="">Select ${attr}</option>` + 
+                                      values.map(val => `<option value="${val}">${val}</option>`).join('');
+                    filterForm.appendChild(select);
+                });
+            }
+            filterForm.appendChild(document.createElement('br'));
+        }
+    });
 }
 
-// Dynamically display grants in boxes based on available attributes
-function displayGrants(grants) {
-    const grantsContainer = document.getElementById('grantsContainer');
-    grantsContainer.innerHTML = ''; // Clear current content
+// Sort grants by Grant Name
+function sortGrants(grants) {
+    return grants.sort((a, b) => (a['Grant Name']?.S || '').localeCompare(b['Grant Name']?.S || ''));
+}
 
-    console.log('Grants data for display:', grants); // Debug: Log grants data
+// Display grants
+function displayGrants(grants) {
+    const container = document.getElementById('grantsContainer');
+    container.innerHTML = '';
 
     if (grants.length === 0) {
-        grantsContainer.innerHTML = '<div class="grant-block"><p>No grants found.</p></div>';
-    } else {
-        grants.forEach(function(grant) {
-            const grantBox = document.createElement('div');
-            grantBox.className = 'grant-block';
-            let content = '<h3>' + (grant['Grant Name'] && grant['Grant Name'].S ? grant['Grant Name'].S : 'Untitled Grant') + '</h3>';
-
-            // Dynamically add all attributes as rows, skipping grantId
-            for (let key in grant) {
-                if (grant.hasOwnProperty(key) && key !== 'grantId') { // Skip partition key for display
-                    let value = '';
-                    if (grant[key].S) value = grant[key].S; // String
-                    else if (grant[key].N) value = parseInt(grant[key].N).toLocaleString(); // Number with commas
-                    else if (grant[key].B) value = grant[key].B.toString('base64'); // Binary, if any
-                    else value = JSON.stringify(grant[key]); // Fallback for other types
-
-                    content += `<p>${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}</p>`;
-                }
-            }
-
-            grantBox.innerHTML = content;
-            grantsContainer.appendChild(grantBox);
-        });
+        container.innerHTML = '<div class="grant-block"><p>No grants found.</p></div>';
+        return;
     }
-}
 
-// Search grants dynamically based on Grant Name
-function searchGrants() {
-    var searchTerm = document.getElementById('grantSearch').value.trim();
-    
-    // Dynamically determine searchable attributes (prioritize Grant Name)
-    getTableAttributes((err, attributes) => {
-        if (err) {
-            console.error('Error getting table attributes:', err);
-            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants. Check console for details.</p></div>';
-            return;
-        }
-
-        let filterExpression = 'contains(#grantName, :searchTerm)';
-        let expressionAttributeNames = { '#grantName': 'Grant Name' }; // Use Grant Name for search
-        let expressionAttributeValues = { ':searchTerm': { S: searchTerm } };
-
-        // Fallback if Grant Name isn’t an attribute, try other string attributes
-        if (!attributes.includes('Grant Name')) {
-            filterExpression = 'contains(#anyAttr, :searchTerm)';
-            const stringAttrs = attributes.filter(attr => attr !== 'grantId' && dynamodb.describeTable({ TableName: 'grants' }).Table.AttributeDefinitions.some(def => def.AttributeName === attr && def.AttributeType === 'S'));
-            expressionAttributeNames = { '#anyAttr': stringAttrs[0] || 'grantId' }; // Fallback to first String attribute or grantId
-        }
-
-        var params = {
-            TableName: 'grants',
-            FilterExpression: filterExpression,
-            ExpressionAttributeNames: expressionAttributeNames,
-            ExpressionAttributeValues: expressionAttributeValues
-        };
-
-        document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading grants...</p></div>';
-
-        dynamodb.scan(params, function(err, data) {
-            if (err) {
-                console.error('Error querying DynamoDB:', err);
-                document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants. Check console for details.</p></div>';
-            } else {
-                console.log('Scan results:', data); // Debug: Log DynamoDB response
-                grantsData = data.Items || [];
-                displayGrants(sortGrantsByGrantName(grantsData));
+    grants.forEach(grant => {
+        const grantBox = document.createElement('div');
+        grantBox.className = 'grant-block';
+        let content = `<h3>${grant['Grant Name']?.S || 'Untitled Grant'}</h3>`;
+        for (const key in grant) {
+            if (key !== 'grantId') {
+                const value = grant[key].S || (grant[key].N ? Number(grant[key].N).toLocaleString() : '');
+                content += `<p>${key.replace(/([A-Z])/g, ' $1').trim()}: ${value}</p>`;
             }
-        });
+        }
+        grantBox.innerHTML = content;
+        container.appendChild(grantBox);
     });
 }
 
-// Load all grants on page load, sorted alphabetically by Grant Name
-window.onload = function() {
-    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading grants...</p></div>';
+// Search grants with filters
+function searchGrants() {
+    const filterInputs = document.querySelectorAll('#filterForm input, #filterForm select');
+    const logicType = document.getElementById('logicType').value;
+    let filterExpressions = [];
+    let expressionAttributeNames = {};
+    let expressionAttributeValues = {};
 
-    dynamodb.scan({ TableName: 'grants' }, function(err, data) {
-        if (err) {
-            console.error('Error querying DynamoDB:', err);
-            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants. Check console for details.</p></div>';
-        } else {
-            console.log('Initial scan results:', data); // Debug: Log initial data
-            grantsData = data.Items || [];
-            displayGrants(sortGrantsByGrantName(grantsData));
+    filterInputs.forEach(input => {
+        const attr = input.id.replace('min_', '').replace('max_', '');
+        if (input.type === 'number' && input.value) {
+            const operator = input.id.startsWith('min_') ? '>=' : '<=';
+            const placeholder = input.id.startsWith('min_') ? 'min' : 'max';
+            filterExpressions.push(`#${attr} ${operator} :${placeholder}_${attr}`);
+            expressionAttributeNames[`#${attr}`] = attr;
+            expressionAttributeValues[`:${placeholder}_${attr}`] = { N: input.value };
+        } else if (input.type === 'select-one' && input.value) {
+            filterExpressions.push(`#${attr} = :${attr}`);
+            expressionAttributeNames[`#${attr}`] = attr;
+            expressionAttributeValues[`:${attr}`] = { S: input.value };
         }
     });
+
+    if (filterExpressions.length === 0) {
+        loadAllGrants();
+        return;
+    }
+
+    const params = {
+        TableName: 'grants',
+        FilterExpression: filterExpressions.join(` ${logicType} `),
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues
+    };
+
+    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
+    dynamodb.scan(params, (err, data) => {
+        if (err) {
+            console.error('Query error:', err);
+            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
+        } else {
+            grantsData = data.Items || [];
+            displayGrants(sortGrants(grantsData));
+        }
+    });
+}
+
+// Load all grants
+function loadAllGrants() {
+    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
+    dynamodb.scan({ TableName: 'grants' }, (err, data) => {
+        if (err) {
+            console.error('Load error:', err);
+            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
+        } else {
+            grantsData = data.Items || [];
+            displayGrants(sortGrants(grantsData));
+        }
+    });
+}
+
+// Clear search
+function clearSearch() {
+    document.querySelectorAll('#filterForm input, #filterForm select').forEach(input => {
+        if (input.type === 'number') input.value = '';
+        else if (input.type === 'select-one') input.selectedIndex = 0;
+    });
+    document.getElementById('logicType').value = 'AND';
+    loadAllGrants();
+}
+
+// Initialize on page load
+window.onload = () => {
+    createFilterInputs();
+    loadAllGrants();
 };
