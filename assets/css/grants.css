@@ -84,24 +84,6 @@
   line-height: 1.4;
 }
 
-/* Specific Styling for Grant Details */
-.grant-block .amount {
-  font-weight: 600;
-  color: var(--accent-blue);
-}
-
-.grant-block .deadline {
-  color: #cc0000; /* Red for urgency, consistent with accessibility */
-  font-style: italic;
-  font-weight: 500;
-}
-
-.grant-block .eligibility,
-.grant-block .description {
-  font-size: 0.95rem;
-  color: var(--secondary-text);
-}
-
 /* Accessibility Enhancements */
 .grant-block:focus {
   outline: 3px solid var(--accent-blue);
@@ -148,12 +130,12 @@
 }
 
 /* Future-Proof Enhancements */
-/* Dark Mode Support - Updated for Light Text Readability */
+/* Dark Mode Support - Corrected for Accessible Light Text */
 @media (prefers-color-scheme: dark) {
   .grant-block {
     background-color: #2c2c2c;
     border-color: #444444;
-    color: #e0e0e0; /* Light gray for readable text */
+    color: #ffffff; /* White text for all grant details (high contrast) */
   }
 
   .grant-block::before {
@@ -165,20 +147,7 @@
   }
 
   .grant-block p {
-    color: #e0e0e0; /* Light gray for all text */
-  }
-
-  .grant-block .amount {
-    color: #4d8cff; /* Light blue for amounts */
-  }
-
-  .grant-block .deadline {
-    color: #ff4444; /* Light red for deadlines */
-  }
-
-  .grant-block .eligibility,
-  .grant-block .description {
-    color: #b0b0b0; /* Lighter gray for secondary text */
+    color: #ffffff; /* White for all paragraphs in grants */
   }
 }
 
@@ -197,6 +166,6 @@
 
 /* Cache-Busting and Versioning Note */
 #grantsContainer::after {
-  content: "v3.0"; /* Update this when modifying CSS */
+  content: "v5.0"; /* Update this when modifying CSS */
   display: none;
 }
