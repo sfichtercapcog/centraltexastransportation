@@ -1,7 +1,7 @@
 // Configure AWS SDK (Replace 'YOUR_ACCESS_KEY_ID' and 'YOUR_SECRET_ACCESS_KEY' with your actual AWS credentials)
 AWS.config.update({
-    accessKeyId: 'YOUR_ACCESS_KEY_ID',
-    secretAccessKey: 'YOUR_SECRET_ACCESS_KEY',
+    accessKeyId: 'AKIAVA5YK7KISYJY3ZOL',
+    secretAccessKey: 'hnrbhv/qcla0xlXhePxAvSXLRTugcM1NjoIv3o9S',,
     region: 'us-east-1' // Match your DynamoDB region
 });
 
