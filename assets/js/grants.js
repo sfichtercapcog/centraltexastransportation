@@ -1,4 +1,4 @@
-// Configure AWS SDK (replace with your actual credentials)
+// Configure AWS SDK (Replace 'YOUR_ACCESS_KEY_ID' and 'YOUR_SECRET_ACCESS_KEY' with your actual AWS credentials)
 AWS.config.update({
     accessKeyId: 'AKIAVA5YK7KISYJY3ZOL',
     secretAccessKey: 'hnrbhv/qcla0xlXhePxAvSXLRTugcM1NjoIv3o9S',
@@ -7,6 +7,20 @@ AWS.config.update({
 
 const dynamodb = new AWS.DynamoDB();
 let grantsData = [];
+let tableAttributes = [];
+
+// Dynamically get table attributes
+function getTableAttributes(callback) {
+    dynamodb.describeTable({ TableName: 'grants' }, (err, data) => {
+        if (err) {
+            console.error('Error describing table:', err);
+            callback(err, null);
+        } else {
+            tableAttributes = data.Table.AttributeDefinitions.map(attr => attr.AttributeName).filter(attr => attr !== 'grantId' && attr !== 'Minimum Grant Award' && attr !== 'Maximum Grant Award');
+            callback(null, tableAttributes);
+        }
+    });
+}
 
 // Get unique values for an attribute
 function getUniqueValues(attribute, callback) {
@@ -30,39 +44,48 @@ function createFilterInputs() {
     const filterForm = document.getElementById('filterForm');
     filterForm.innerHTML = '';
 
-    // Example attributes (replace with actual DynamoDB describeTable call if needed)
-    const attributes = ['Grant Name', 'County', 'Status', 'amount']; // Adjust based on your table
+    // Add numerical inputs for Minimum and Maximum Grant Award
+    const amountDiv = document.createElement('div');
+    amountDiv.className = 'filter-row';
+    const amountLabel = document.createElement('label');
+    amountLabel.textContent = 'Grant Amount Range: ';
+    amountDiv.appendChild(amountLabel);
 
-    attributes.forEach(attr => {
-        if (attr !== 'grantId') { // Skip partition key
+    const minInput = document.createElement('input');
+    minInput.type = 'number';
+    minInput.placeholder = 'Minimum Grant Award';
+    minInput.id = 'min_amount';
+    amountDiv.appendChild(minInput);
+
+    const maxInput = document.createElement('input');
+    maxInput.type = 'number';
+    maxInput.placeholder = 'Maximum Grant Award';
+    maxInput.id = 'max_amount';
+    amountDiv.appendChild(maxInput);
+    filterForm.appendChild(amountDiv);
+
+    // Dynamically create dropdowns for other attributes
+    getTableAttributes((err, attrs) => {
+        if (err) return;
+        
+        attrs.forEach(attr => {
+            const div = document.createElement('div');
+            div.className = 'filter-row';
+            
             const label = document.createElement('label');
             label.textContent = `${attr.replace(/([A-Z])/g, ' $1').trim()}: `;
-            filterForm.appendChild(label);
+            div.appendChild(label);
 
-            if (attr === 'amount') {
-                const minInput = document.createElement('input');
-                minInput.type = 'number';
-                minInput.placeholder = 'Min Amount';
-                minInput.id = `min_${attr}`;
-                filterForm.appendChild(minInput);
-
-                const maxInput = document.createElement('input');
-                maxInput.type = 'number';
-                maxInput.placeholder = 'Max Amount';
-                maxInput.id = `max_${attr}`;
-                filterForm.appendChild(maxInput);
-            } else {
-                getUniqueValues(attr, (err, values) => {
-                    if (err) return;
-                    const select = document.createElement('select');
-                    select.id = attr;
-                    select.innerHTML = `<option value="">Select ${attr}</option>` + 
-                                      values.map(val => `<option value="${val}">${val}</option>`).join('');
-                    filterForm.appendChild(select);
-                });
-            }
-            filterForm.appendChild(document.createElement('br'));
-        }
+            getUniqueValues(attr, (err, values) => {
+                if (err) return;
+                const select = document.createElement('select');
+                select.id = attr;
+                select.innerHTML = `<option value="">Any</option>` + 
+                                  values.map(val => `<option value="${val}">${val}</option>`).join('');
+                div.appendChild(select);
+            });
+            filterForm.appendChild(div);
+        });
     });
 }
 
@@ -71,7 +94,7 @@ function sortGrants(grants) {
     return grants.sort((a, b) => (a['Grant Name']?.S || '').localeCompare(b['Grant Name']?.S || ''));
 }
 
-// Display grants
+// Display grants in boxes
 function displayGrants(grants) {
     const container = document.getElementById('grantsContainer');
     container.innerHTML = '';
@@ -98,21 +121,25 @@ function displayGrants(grants) {
 
 // Search grants with filters
 function searchGrants() {
-    const filterInputs = document.querySelectorAll('#filterForm input, #filterForm select');
+    const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input[type="number"]');
     const logicType = document.getElementById('logicType').value;
     let filterExpressions = [];
     let expressionAttributeNames = {};
     let expressionAttributeValues = {};
 
     filterInputs.forEach(input => {
-        const attr = input.id.replace('min_', '').replace('max_', '');
+        const attr = input.id;
         if (input.type === 'number' && input.value) {
-            const operator = input.id.startsWith('min_') ? '>=' : '<=';
-            const placeholder = input.id.startsWith('min_') ? 'min' : 'max';
-            filterExpressions.push(`#${attr} ${operator} :${placeholder}_${attr}`);
-            expressionAttributeNames[`#${attr}`] = attr;
-            expressionAttributeValues[`:${placeholder}_${attr}`] = { N: input.value };
-        } else if (input.type === 'select-one' && input.value) {
+            if (attr === 'min_amount') {
+                filterExpressions.push('#amount >= :min_amount');
+                expressionAttributeNames['#amount'] = 'amount';
+                expressionAttributeValues[':min_amount'] = { N: input.value };
+            } else if (attr === 'max_amount') {
+                filterExpressions.push('#amount <= :max_amount');
+                expressionAttributeNames['#amount'] = 'amount';
+                expressionAttributeValues[':max_amount'] = { N: input.value };
+            }
+        } else if (input.type === 'select-one' && input.value && input.value !== '') {
             filterExpressions.push(`#${attr} = :${attr}`);
             expressionAttributeNames[`#${attr}`] = attr;
             expressionAttributeValues[`:${attr}`] = { S: input.value };
@@ -120,8 +147,17 @@ function searchGrants() {
     });
 
     if (filterExpressions.length === 0) {
-        loadAllGrants();
+        document.getElementById('grantsContainer').innerHTML = ''; // No grants displayed by default
         return;
+    }
+
+    // Ensure amount is filtered between min and max if both are provided
+    if (document.getElementById('min_amount').value && document.getElementById('max_amount').value) {
+        filterExpressions = filterExpressions.filter(expr => !expr.includes('#amount'));
+        filterExpressions.push('#amount BETWEEN :min_amount AND :max_amount');
+        expressionAttributeNames['#amount'] = 'amount';
+        expressionAttributeValues[':min_amount'] = { N: document.getElementById('min_amount').value };
+        expressionAttributeValues[':max_amount'] = { N: document.getElementById('max_amount').value };
     }
 
     const params = {
@@ -143,32 +179,18 @@ function searchGrants() {
     });
 }
 
-// Load all grants
-function loadAllGrants() {
-    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
-    dynamodb.scan({ TableName: 'grants' }, (err, data) => {
-        if (err) {
-            console.error('Load error:', err);
-            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
-        } else {
-            grantsData = data.Items || [];
-            displayGrants(sortGrants(grantsData));
-        }
-    });
-}
-
-// Clear search
+// Clear search and hide grants
 function clearSearch() {
     document.querySelectorAll('#filterForm input, #filterForm select').forEach(input => {
         if (input.type === 'number') input.value = '';
         else if (input.type === 'select-one') input.selectedIndex = 0;
     });
     document.getElementById('logicType').value = 'AND';
-    loadAllGrants();
+    document.getElementById('grantsContainer').innerHTML = ''; // Ensure no grants show after clearing
 }
 
 // Initialize on page load
 window.onload = () => {
     createFilterInputs();
-    loadAllGrants();
+    document.getElementById('grantsContainer').innerHTML = ''; // No grants displayed by default
 };
