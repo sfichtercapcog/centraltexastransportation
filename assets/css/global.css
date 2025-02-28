@@ -1,0 +1,333 @@
+/* ==========================================================================
+   Global CSS - Central Texas Transportation Portfolio Showcase
+   ========================================================================== */
+
+/* CSS Custom Properties for Maintainability and Theming */
+:root {
+  /* Colors */
+  --primary-color: #003366;        /* Navy blue for headers, footers, buttons */
+  --secondary-color: #ffffff;      /* White for content backgrounds */
+  --text-color: #333333;          /* Dark gray for body text */
+  --background-light: #f5f5f5;    /* Light gray for page background */
+  --input-bg: #f0f0f0;            /* Light gray for input fields */
+  --accent-color: #0066cc;        /* Lighter blue for hover/focus states */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+
+  /* Typography */
+  --font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.6;
+
+  /* Spacing */
+  --spacing-xs: 5px;
+  --spacing-sm: 10px;
+  --spacing-md: 20px;
+  --spacing-lg: 40px;
+
+  /* Breakpoints */
+  --breakpoint-tablet: 768px;
+  --breakpoint-mobile: 480px;
+}
+
+/* ==========================================================================
+   Reset and Normalize
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+html {
+  font-size: var(--font-size-base);
+  scroll-behavior: smooth; /* Smooth scrolling for anchor links */
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: 1rem;
+  line-height: var(--line-height-base);
+  color: var(--text-color);
+  background-color: var(--background-light);
+  -webkit-font-smoothing: antialiased; /* Better font rendering */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 2rem; /* 32px */
+}
+
+h2 {
+  font-size: 1.5rem; /* 24px */
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Links */
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover,
+a:focus {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+header {
+  background-color: var(--primary-color);
+  padding: var(--spacing-md);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  list-style: none;
+}
+
+nav ul li {
+  margin: 0 var(--spacing-sm);
+}
+
+nav ul li a {
+  color: var(--secondary-color);
+  font-weight: 500;
+  padding: var(--spacing-sm);
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+nav ul li a:hover,
+nav ul li a:focus {
+  background-color: var(--accent-color);
+  transform: translateY(-2px); /* Subtle lift effect */
+  outline: none;
+}
+
+/* ==========================================================================
+   Main Content
+   ========================================================================== */
+main {
+  background-color: var(--secondary-color);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+/* Search Form */
+.search-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.search-input {
+  flex: 1;
+  max-width: 400px;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+  background-color: var(--input-bg);
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 5px var(--accent-color);
+  outline: none;
+}
+
+.search-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-button:hover,
+.search-button:focus {
+  background-color: var(--accent-color);
+  transform: scale(1.05); /* Slight grow effect */
+  outline: none;
+}
+
+/* Grant Listings */
+.grant-list {
+  list-style: none;
+}
+
+.grant-list li {
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--input-bg);
+  transition: background-color 0.3s ease;
+}
+
+.grant-list li:hover {
+  background-color: var(--background-light);
+}
+
+.grant-list li strong {
+  color: var(--primary-color);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+footer {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  text-align: center;
+  padding: var(--spacing-md);
+}
+
+footer a {
+  color: var(--secondary-color);
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+footer a:hover,
+footer a:focus {
+  color: var(--accent-color);
+  text-decoration: none;
+  outline: none;
+}
+
+/* ==========================================================================
+   Accessibility
+   ========================================================================== */
+:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+@media (max-width: var(--breakpoint-tablet)) {
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  nav ul {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  nav ul li {
+    margin: var(--spacing-sm) 0;
+  }
+
+  .search-form {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .search-input,
+  .search-button {
+    width: 100%;
+    max-width: none;
+  }
+
+  main {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+  }
+}
+
+@media (max-width: var(--breakpoint-mobile)) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ==========================================================================
+   Future-Proof Enhancements
+   ========================================================================== */
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-color: #1a4d8c;
+    --secondary-color: #1e1e1e;
+    --text-color: #e0e0e0;
+    --background-light: #2c2c2c;
+    --input-bg: #3a3a3a;
+    --accent-color: #4d8cff;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Reduced Motion for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   End of global.css
+   ========================================================================== */

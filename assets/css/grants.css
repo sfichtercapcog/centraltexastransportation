@@ -1,0 +1,199 @@
+/* ==========================================================================
+   Grants Specific Styles - Central Texas Transportation Portfolio Showcase
+   ========================================================================== */
+
+/* Import CSS Variables from Global.css */
+:root {
+  --navy-blue: #003366;
+  --light-gray: #f5f5f5;
+  --white: #ffffff;
+  --accent-blue: #0066cc;
+  --text-color: #333333;
+  --secondary-text: #666666;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --spacing-xs: 5px;
+  --spacing-sm: 10px;
+  --spacing-md: 20px;
+  --spacing-lg: 40px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-mobile: 480px;
+}
+
+/* Reset and Normalize (Inherited from global.css, but ensure specificity) */
+* {
+  box-sizing: border-box;
+}
+
+/* Grants Container - Responsive Grid Layout */
+#grantsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md);
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-in; /* Match global.css animation */
+}
+
+/* Grant Card Styling */
+.grant-block {
+  background-color: var(--white);
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-color) 0 4px 8px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.grant-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--navy-blue), var(--accent-blue));
+  border-radius: 8px 8px 0 0;
+}
+
+/* Hover and Focus Effects for Engagement */
+.grant-block:hover,
+.grant-block:focus {
+  transform: translateY(-8px); /* Subtle lift */
+  box-shadow: var(--shadow-color) 0 8px 20px;
+  border-color: var(--navy-blue);
+  outline: none;
+}
+
+/* Grant Title */
+.grant-block h3 {
+  color: var(--navy-blue);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: 0.5px;
+}
+
+/* Grant Details Paragraphs */
+.grant-block p {
+  font-size: 1rem;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+/* Specific Styling for Grant Details */
+.grant-block .amount {
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+
+.grant-block .deadline {
+  color: #cc0000; /* Red for urgency, consistent with accessibility */
+  font-style: italic;
+  font-weight: 500;
+}
+
+.grant-block .eligibility,
+.grant-block .description {
+  font-size: 0.95rem;
+  color: var(--secondary-text);
+}
+
+/* Accessibility Enhancements */
+.grant-block:focus {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Responsive Design with Media Queries */
+@media (max-width: var(--breakpoint-tablet)) {
+  #grantsContainer {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    padding: var(--spacing-sm);
+  }
+
+  .grant-block {
+    padding: var(--spacing-sm);
+  }
+
+  .grant-block h3 {
+    font-size: 1.15rem;
+  }
+
+  .grant-block p {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: var(--breakpoint-mobile)) {
+  #grantsContainer {
+    grid-template-columns: 1fr;
+    padding: var(--spacing-xs);
+  }
+
+  .grant-block {
+    padding: var(--spacing-xs);
+  }
+
+  .grant-block h3 {
+    font-size: 1.1rem;
+  }
+
+  .grant-block p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Future-Proof Enhancements */
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .grant-block {
+    background-color: #2c2c2c;
+    border-color: #444444;
+    color: #e0e0e0;
+  }
+
+  .grant-block::before {
+    background: linear-gradient(90deg, #1a4d8c, #4d8cff);
+  }
+
+  .grant-block h3,
+  .grant-block p {
+    color: #e0e0e0;
+  }
+
+  .grant-block .amount {
+    color: #4d8cff;
+  }
+
+  .grant-block .deadline {
+    color: #ff4444;
+  }
+
+  .grant-block .eligibility,
+  .grant-block .description {
+    color: #b0b0b0;
+  }
+}
+
+/* Reduced Motion for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .grant-block {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Performance Optimization */
+.grant-block {
+  will-change: transform, box-shadow; /* Hints browser for better animation performance */
+}
+
+/* Cache-Busting and Versioning Note */
+#grantsContainer::after {
+  content: "v2.0"; /* Update this when modifying CSS */
+  display: none;
+}
