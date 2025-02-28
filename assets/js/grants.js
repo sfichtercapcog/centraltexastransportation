@@ -113,10 +113,9 @@ function displayGrants(grants) {
     });
 }
 
-// Search grants with filters
+// Search grants with filters (AND logic only)
 function searchGrants() {
     const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input[type="number"]');
-    const logicType = document.getElementById('logicType').value;
     let filterExpressions = [];
     let expressionAttributeNames = {};
     let expressionAttributeValues = {};
@@ -137,13 +136,13 @@ function searchGrants() {
     });
 
     if (filterExpressions.length === 0) {
-        document.getElementById('grantsContainer').innerHTML = ''; // No grants displayed by default
+        loadAllGrants();
         return;
     }
 
     const params = {
         TableName: 'grants',
-        FilterExpression: filterExpressions.join(` ${logicType} `),
+        FilterExpression: filterExpressions.join(' AND '), // Use AND logic only
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues
     };
@@ -160,18 +159,31 @@ function searchGrants() {
     });
 }
 
-// Clear search and hide grants
+// Load all grants initially
+function loadAllGrants() {
+    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
+    dynamodb.scan({ TableName: 'grants' }, (err, data) => {
+        if (err) {
+            console.error('Load error:', err);
+            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
+        } else {
+            grantsData = data.Items || [];
+            displayGrants(sortGrants(grantsData));
+        }
+    });
+}
+
+// Clear search and reload all grants
 function clearSearch() {
     document.querySelectorAll('#filterForm input, #filterForm select').forEach(input => {
         if (input.type === 'number') input.value = '';
         else if (input.type === 'select-one') input.selectedIndex = 0;
     });
-    document.getElementById('logicType').value = 'AND';
-    document.getElementById('grantsContainer').innerHTML = ''; // Ensure no grants show after clearing
+    loadAllGrants();
 }
 
 // Initialize on page load
 window.onload = () => {
     createFilterInputs();
-    document.getElementById('grantsContainer').innerHTML = ''; // No grants displayed by default
+    loadAllGrants(); // Display all grants by default
 };
