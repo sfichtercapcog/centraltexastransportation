@@ -6,91 +6,25 @@ AWS.config.update({
 });
 
 const dynamodb = new AWS.DynamoDB();
-let grantsData = [];
-let tableAttributes = [];
 
-// Dynamically get table attributes and check for GSI on Grant Name
-function getTableAttributes(callback) {
-    dynamodb.describeTable({ TableName: 'grants' }, (err, data) => {
-        if (err) {
-            console.error('Error describing table:', err);
-            callback(err, null);
-        } else {
-            tableAttributes = data.Table.AttributeDefinitions
-                .map(attr => attr.AttributeName)
-                .filter(attr => attr !== 'grantId' && attr !== 'Minimum Grant Award' && attr !== 'Maximum Grant Award');
-            
-            // Check for or create GSI on Grant Name (simplified; assume it exists for this example)
-            const gsi = data.Table.GlobalSecondaryIndexes?.find(index => index.IndexName === 'GrantNameIndex');
-            if (!gsi) {
-                console.warn('GrantNameIndex GSI not found. Ensure it exists in DynamoDB with Grant Name as the hash key.');
-            }
-            callback(null, tableAttributes);
-        }
-    });
-}
-
-// Get unique values for an attribute
-function getUniqueValues(attribute, callback) {
-    const params = {
-        TableName: 'grants',
-        ProjectionExpression: attribute,
-        IndexName: attribute === 'Grant Name' ? 'GrantNameIndex' : undefined // Use GSI for Grant Name
-    };
-    dynamodb.scan(params, (err, data) => {
-        if (err) {
-            console.error(`Error scanning for ${attribute}:`, err);
-            callback(err, null);
-        } else {
-            const values = [...new Set(data.Items.map(item => item[attribute]?.S).filter(val => val))];
-            callback(null, values);
-        }
-    });
-}
-
-// Create filter inputs dynamically
-function createFilterInputs() {
-    const filterForm = document.getElementById('filterForm');
-    filterForm.innerHTML = '';
-
-    // Add single numerical input for Grant Award
-    const awardDiv = document.createElement('div');
-    awardDiv.className = 'filter-row';
-    const awardLabel = document.createElement('label');
-    awardLabel.textContent = 'Grant Award: ';
-    awardDiv.appendChild(awardLabel);
-
-    const awardInput = document.createElement('input');
-    awardInput.type = 'number';
-    awardInput.placeholder = 'Enter Grant Award Amount';
-    awardInput.id = 'grant_award';
-    awardDiv.appendChild(awardInput);
-    filterForm.appendChild(awardDiv);
-
-    // Dynamically create dropdowns for other attributes
-    getTableAttributes((err, attrs) => {
-        if (err) return;
-        
-        attrs.forEach(attr => {
-            const div = document.createElement('div');
-            div.className = 'filter-row';
-            
-            const label = document.createElement('label');
-            label.textContent = `${attr.replace(/([A-Z])/g, ' $1').trim()}: `;
-            div.appendChild(label);
-
-            getUniqueValues(attr, (err, values) => {
-                if (err) return;
-                const select = document.createElement('select');
-                select.id = attr;
-                select.innerHTML = `<option value="">Any</option>` + 
-                                  values.map(val => `<option value="${val}">${val}</option>`).join('');
-                div.appendChild(select);
-            });
-            filterForm.appendChild(div);
-        });
-    });
-}
+// Hardcoded attributes for display (all fields you provided)
+const ATTRIBUTES = [
+    'Grant Name',
+    'Type of Grant',
+    'Funding Source',
+    'Project Purpose',
+    'Eligible Entities',
+    'Preferred Communities',
+    'Minimum Grant Award',
+    'Maximum Grant Award',
+    'Match Requirements',
+    'In-Kind Allowed',
+    'Shovel-Ready Required',
+    'Pre-Engineering Required',
+    'Application Deadline',
+    'Expected Project Length',
+    'Estimated Application Hours'
+];
 
 // Sort grants by Grant Name
 function sortGrants(grants) {
@@ -111,96 +45,30 @@ function displayGrants(grants) {
         const grantBox = document.createElement('div');
         grantBox.className = 'grant-block';
         let content = `<h3>${grant['Grant Name']?.S || 'Untitled Grant'}</h3>`;
-        for (const key in grant) {
-            if (key !== 'grantId') {
-                const value = grant[key].S || (grant[key].N ? Number(grant[key].N).toLocaleString() : '');
-                content += `<p>${key.replace(/([A-Z])/g, ' $1').trim()}: ${value}</p>`;
-            }
-        }
+        ATTRIBUTES.forEach(attr => {
+            const value = grant[attr]?.S || (grant[attr]?.N ? Number(grant[attr].N).toLocaleString() : 'N/A');
+            content += `<p>${attr}: ${value}</p>`;
+        });
         grantBox.innerHTML = content;
         container.appendChild(grantBox);
     });
 }
 
-// Query all grants initially using GSI on Grant Name
-function loadAllGrants() {
+// Load and display all grants on page load
+window.onload = function() {
     const params = {
-        TableName: 'grants',
-        IndexName: 'GrantNameIndex', // Use GSI on Grant Name for sorting
-        KeyConditionExpression: '#gn = :any', // Match any value to get all items
-        ExpressionAttributeNames: { '#gn': 'Grant Name' },
-        ExpressionAttributeValues: { ':any': { S: '' } }
+        TableName: 'grants'
     };
 
-    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
-    dynamodb.query(params, (err, data) => {
+    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading grants...</p></div>';
+
+    dynamodb.scan(params, function(err, data) {
         if (err) {
-            console.error('Query error:', err);
-            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
+            console.error('Error querying DynamoDB:', err);
+            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants. Check console for details.</p></div>';
         } else {
             grantsData = data.Items || [];
             displayGrants(sortGrants(grantsData));
         }
     });
-}
-
-// Search grants with filters (AND logic only)
-function searchGrants() {
-    const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input[type="number"]');
-    let filterExpressions = [];
-    let expressionAttributeNames = {};
-    let expressionAttributeValues = {};
-
-    filterInputs.forEach(input => {
-        const attr = input.id;
-        if (input.type === 'number' && input.value) {
-            const awardValue = parseInt(input.value);
-            filterExpressions.push('#amount BETWEEN :min_award AND :max_award');
-            expressionAttributeNames['#amount'] = 'amount';
-            expressionAttributeValues[':min_award'] = { N: grant['Minimum Grant Award']?.N || '0' }; // Use actual min from DB
-            expressionAttributeValues[':max_award'] = { N: grant['Maximum Grant Award']?.N || '999999999' }; // Use actual max from DB
-        } else if (input.type === 'select-one' && input.value && input.value !== '') {
-            filterExpressions.push(`#${attr} = :${attr}`);
-            expressionAttributeNames[`#${attr}`] = attr;
-            expressionAttributeValues[`:${attr}`] = { S: input.value };
-        }
-    });
-
-    if (filterExpressions.length === 0) {
-        loadAllGrants();
-        return;
-    }
-
-    const params = {
-        TableName: 'grants',
-        FilterExpression: filterExpressions.join(' AND '), // Use AND logic only
-        ExpressionAttributeNames: expressionAttributeNames,
-        ExpressionAttributeValues: expressionAttributeValues
-    };
-
-    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
-    dynamodb.scan(params, (err, data) => { // Use scan for filtered results, query for initial load
-        if (err) {
-            console.error('Query error:', err);
-            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
-        } else {
-            grantsData = data.Items || [];
-            displayGrants(sortGrants(grantsData));
-        }
-    });
-}
-
-// Clear search and reload all grants
-function clearSearch() {
-    document.querySelectorAll('#filterForm input, #filterForm select').forEach(input => {
-        if (input.type === 'number') input.value = '';
-        else if (input.type === 'select-one') input.selectedIndex = 0;
-    });
-    loadAllGrants();
-}
-
-// Initialize on page load
-window.onload = () => {
-    createFilterInputs();
-    loadAllGrants(); // Display all grants by default
 };
