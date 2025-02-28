@@ -26,8 +26,10 @@
     <main>
         <h1>Grant Finder</h1>
         <p>Search for transportation grants here. This is a draft—more features coming soon!</p>
-        <input type="text" id="grantSearch" placeholder="Search by grant name...">
-        <button onclick="searchGrants()">Search</button>
+        <div class="search-form">
+            <input type="text" id="grantSearch" placeholder="Search by grant name..." class="search-input">
+            <button onclick="searchGrants()" class="search-button">Search</button>
+        </div>
         <div id="grantsContainer"></div>
     </main>
     <footer>

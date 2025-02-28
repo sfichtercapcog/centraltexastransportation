@@ -2,7 +2,7 @@
 AWS.config.update({
     accessKeyId: 'AKIAVA5YK7KISYJY3ZOL',
     secretAccessKey: 'hnrbhv/qcla0xlXhePxAvSXLRTugcM1NjoIv3o9S',
-    region: 'us-east-1' // Match your DynamoDB region
+    region: 'us-east-1' // Match your DynamoDB region (e.g., US East for Central Texas)
 });
 
 var dynamodb = new AWS.DynamoDB();
@@ -10,7 +10,7 @@ var dynamodb = new AWS.DynamoDB();
 function searchGrants() {
     var searchTerm = document.getElementById('grantSearch').value.trim();
     var params = {
-        TableName: 'GrantsDB',
+        TableName: 'grants', // Updated table name to 'grants' instead of 'GrantsDB'
         FilterExpression: 'contains(#name, :searchTerm)',
         ExpressionAttributeNames: {
             '#name': 'name'
@@ -37,7 +37,7 @@ function searchGrants() {
                     var grant = `
                         <div class="grant-block">
                             <h3>${item.name.S}</h3>
-                            <p class="amount">Amount: $${item.amount.N}</p>
+                            <p class="amount">Amount: $${parseInt(item.amount.N)}</p>  <!-- Parse Number to integer -->
                             <p class="deadline">Deadline: ${item.deadline.S}</p>
                             <p>Eligibility: ${item.eligibility.S}</p>
                             <p>${item.description.S}</p>
