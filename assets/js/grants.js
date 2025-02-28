@@ -44,25 +44,19 @@ function createFilterInputs() {
     const filterForm = document.getElementById('filterForm');
     filterForm.innerHTML = '';
 
-    // Add numerical inputs for Minimum and Maximum Grant Award
-    const amountDiv = document.createElement('div');
-    amountDiv.className = 'filter-row';
-    const amountLabel = document.createElement('label');
-    amountLabel.textContent = 'Grant Amount Range: ';
-    amountDiv.appendChild(amountLabel);
+    // Add single numerical input for Grant Award
+    const awardDiv = document.createElement('div');
+    awardDiv.className = 'filter-row';
+    const awardLabel = document.createElement('label');
+    awardLabel.textContent = 'Grant Award: ';
+    awardDiv.appendChild(awardLabel);
 
-    const minInput = document.createElement('input');
-    minInput.type = 'number';
-    minInput.placeholder = 'Minimum Grant Award';
-    minInput.id = 'min_amount';
-    amountDiv.appendChild(minInput);
-
-    const maxInput = document.createElement('input');
-    maxInput.type = 'number';
-    maxInput.placeholder = 'Maximum Grant Award';
-    maxInput.id = 'max_amount';
-    amountDiv.appendChild(maxInput);
-    filterForm.appendChild(amountDiv);
+    const awardInput = document.createElement('input');
+    awardInput.type = 'number';
+    awardInput.placeholder = 'Enter Grant Award Amount';
+    awardInput.id = 'grant_award';
+    awardDiv.appendChild(awardInput);
+    filterForm.appendChild(awardDiv);
 
     // Dynamically create dropdowns for other attributes
     getTableAttributes((err, attrs) => {
@@ -130,15 +124,11 @@ function searchGrants() {
     filterInputs.forEach(input => {
         const attr = input.id;
         if (input.type === 'number' && input.value) {
-            if (attr === 'min_amount') {
-                filterExpressions.push('#amount >= :min_amount');
-                expressionAttributeNames['#amount'] = 'amount';
-                expressionAttributeValues[':min_amount'] = { N: input.value };
-            } else if (attr === 'max_amount') {
-                filterExpressions.push('#amount <= :max_amount');
-                expressionAttributeNames['#amount'] = 'amount';
-                expressionAttributeValues[':max_amount'] = { N: input.value };
-            }
+            const awardValue = parseInt(input.value);
+            filterExpressions.push('#amount BETWEEN :min_award AND :max_award');
+            expressionAttributeNames['#amount'] = 'amount';
+            expressionAttributeValues[':min_award'] = { N: grant['Minimum Grant Award']?.N || '0' }; // Use actual min from DB
+            expressionAttributeValues[':max_award'] = { N: grant['Maximum Grant Award']?.N || '999999999' }; // Use actual max from DB
         } else if (input.type === 'select-one' && input.value && input.value !== '') {
             filterExpressions.push(`#${attr} = :${attr}`);
             expressionAttributeNames[`#${attr}`] = attr;
@@ -149,15 +139,6 @@ function searchGrants() {
     if (filterExpressions.length === 0) {
         document.getElementById('grantsContainer').innerHTML = ''; // No grants displayed by default
         return;
-    }
-
-    // Ensure amount is filtered between min and max if both are provided
-    if (document.getElementById('min_amount').value && document.getElementById('max_amount').value) {
-        filterExpressions = filterExpressions.filter(expr => !expr.includes('#amount'));
-        filterExpressions.push('#amount BETWEEN :min_amount AND :max_amount');
-        expressionAttributeNames['#amount'] = 'amount';
-        expressionAttributeValues[':min_amount'] = { N: document.getElementById('min_amount').value };
-        expressionAttributeValues[':max_amount'] = { N: document.getElementById('max_amount').value };
     }
 
     const params = {
