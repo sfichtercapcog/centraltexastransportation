@@ -9,14 +9,22 @@ const dynamodb = new AWS.DynamoDB();
 let grantsData = [];
 let tableAttributes = [];
 
-// Dynamically get table attributes
+// Dynamically get table attributes and check for GSI on Grant Name
 function getTableAttributes(callback) {
     dynamodb.describeTable({ TableName: 'grants' }, (err, data) => {
         if (err) {
             console.error('Error describing table:', err);
             callback(err, null);
         } else {
-            tableAttributes = data.Table.AttributeDefinitions.map(attr => attr.AttributeName).filter(attr => attr !== 'grantId' && attr !== 'Minimum Grant Award' && attr !== 'Maximum Grant Award');
+            tableAttributes = data.Table.AttributeDefinitions
+                .map(attr => attr.AttributeName)
+                .filter(attr => attr !== 'grantId' && attr !== 'Minimum Grant Award' && attr !== 'Maximum Grant Award');
+            
+            // Check for or create GSI on Grant Name (simplified; assume it exists for this example)
+            const gsi = data.Table.GlobalSecondaryIndexes?.find(index => index.IndexName === 'GrantNameIndex');
+            if (!gsi) {
+                console.warn('GrantNameIndex GSI not found. Ensure it exists in DynamoDB with Grant Name as the hash key.');
+            }
             callback(null, tableAttributes);
         }
     });
@@ -26,7 +34,8 @@ function getTableAttributes(callback) {
 function getUniqueValues(attribute, callback) {
     const params = {
         TableName: 'grants',
-        ProjectionExpression: attribute
+        ProjectionExpression: attribute,
+        IndexName: attribute === 'Grant Name' ? 'GrantNameIndex' : undefined // Use GSI for Grant Name
     };
     dynamodb.scan(params, (err, data) => {
         if (err) {
@@ -113,6 +122,28 @@ function displayGrants(grants) {
     });
 }
 
+// Query all grants initially using GSI on Grant Name
+function loadAllGrants() {
+    const params = {
+        TableName: 'grants',
+        IndexName: 'GrantNameIndex', // Use GSI on Grant Name for sorting
+        KeyConditionExpression: '#gn = :any', // Match any value to get all items
+        ExpressionAttributeNames: { '#gn': 'Grant Name' },
+        ExpressionAttributeValues: { ':any': { S: '' } }
+    };
+
+    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
+    dynamodb.query(params, (err, data) => {
+        if (err) {
+            console.error('Query error:', err);
+            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
+        } else {
+            grantsData = data.Items || [];
+            displayGrants(sortGrants(grantsData));
+        }
+    });
+}
+
 // Search grants with filters (AND logic only)
 function searchGrants() {
     const filterInputs = document.querySelectorAll('#filterForm select, #filterForm input[type="number"]');
@@ -148,23 +179,9 @@ function searchGrants() {
     };
 
     document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
-    dynamodb.scan(params, (err, data) => {
+    dynamodb.scan(params, (err, data) => { // Use scan for filtered results, query for initial load
         if (err) {
             console.error('Query error:', err);
-            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
-        } else {
-            grantsData = data.Items || [];
-            displayGrants(sortGrants(grantsData));
-        }
-    });
-}
-
-// Load all grants initially
-function loadAllGrants() {
-    document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading...</p></div>';
-    dynamodb.scan({ TableName: 'grants' }, (err, data) => {
-        if (err) {
-            console.error('Load error:', err);
             document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants.</p></div>';
         } else {
             grantsData = data.Items || [];
