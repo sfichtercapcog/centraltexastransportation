@@ -307,16 +307,93 @@ footer a:focus {
 /* ==========================================================================
    Future-Proof Enhancements
    ========================================================================== */
-/* Dark Mode Support */
+/* Dark Mode Support - Updated for Light Text Readability */
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary-color: #1a4d8c;
-    --secondary-color: #1e1e1e;
-    --text-color: #e0e0e0;
-    --background-light: #2c2c2c;
-    --input-bg: #3a3a3a;
-    --accent-color: #4d8cff;
-    --shadow-color: rgba(0, 0, 0, 0.3);
+    --primary-color: #1a4d8c;          /* Darker navy blue */
+    --secondary-color: #1e1e1e;        /* Dark gray for content */
+    --text-color: #e0e0e0;            /* Light gray for readable text */
+    --background-light: #2c2c2c;      /* Darker gray for page background */
+    --input-bg: #3a3a3a;              /* Dark gray for input fields */
+    --accent-color: #4d8cff;          /* Light blue for hover/focus */
+    --shadow-color: rgba(0, 0, 0, 0.3); /* Deeper shadow for contrast */
+  }
+
+  body {
+    background-color: var(--background-light);
+    color: var(--text-color);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--accent-color); /* Light blue for headings in dark mode */
+  }
+
+  a {
+    color: var(--accent-color);
+  }
+
+  a:hover,
+  a:focus {
+    color: var(--text-color);
+  }
+
+  header,
+  footer {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+  }
+
+  nav ul li a {
+    color: var(--text-color);
+  }
+
+  nav ul li a:hover,
+  nav ul li a:focus {
+    background-color: var(--accent-color);
+    color: var(--secondary-color); /* Dark text on light background for hover */
+  }
+
+  main {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+  }
+
+  .search-input {
+    background-color: var(--input-bg);
+    border-color: var(--primary-color);
+    color: var(--text-color);
+  }
+
+  .search-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 5px var(--accent-color);
+  }
+
+  .search-button {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+  }
+
+  .search-button:hover,
+  .search-button:focus {
+    background-color: var(--accent-color);
+    color: var(--secondary-color);
+  }
+
+  .grant-list li {
+    border-bottom-color: var(--input-bg);
+  }
+
+  .grant-list li:hover {
+    background-color: var(--background-light);
+  }
+
+  .grant-list li strong {
+    color: var(--accent-color);
+  }
+
+  :focus {
+    outline-color: var(--accent-color);
   }
 }
 

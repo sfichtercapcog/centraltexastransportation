@@ -23,12 +23,12 @@ function getTableAttributes(callback) {
     });
 }
 
-// Sort grants alphabetically by name if available
-function sortGrantsByName(grants) {
-    if (grants.length > 0 && 'name' in grants[0]) {
-        return grants.sort((a, b) => (a.name.S || '').localeCompare(b.name.S || ''));
+// Sort grants alphabetically by Grant Name if available
+function sortGrantsByGrantName(grants) {
+    if (grants.length > 0 && 'Grant Name' in grants[0]) {
+        return grants.sort((a, b) => (a['Grant Name'].S || '').localeCompare(b['Grant Name'].S || ''));
     }
-    return grants; // Return unsorted if no name attribute
+    return grants; // Return unsorted if no Grant Name attribute
 }
 
 // Dynamically display grants in boxes based on available attributes
@@ -44,9 +44,9 @@ function displayGrants(grants) {
         grants.forEach(function(grant) {
             const grantBox = document.createElement('div');
             grantBox.className = 'grant-block';
-            let content = '<h3>' + (grant.name && grant.name.S ? grant.name.S : 'Untitled Grant') + '</h3>';
+            let content = '<h3>' + (grant['Grant Name'] && grant['Grant Name'].S ? grant['Grant Name'].S : 'Untitled Grant') + '</h3>';
 
-            // Dynamically add all attributes as rows
+            // Dynamically add all attributes as rows, skipping grantId
             for (let key in grant) {
                 if (grant.hasOwnProperty(key) && key !== 'grantId') { // Skip partition key for display
                     let value = '';
@@ -65,25 +65,27 @@ function displayGrants(grants) {
     }
 }
 
-// Search grants dynamically based on discovered attributes
+// Search grants dynamically based on Grant Name
 function searchGrants() {
     var searchTerm = document.getElementById('grantSearch').value.trim();
     
-    // Dynamically determine searchable attributes (default to name if available)
+    // Dynamically determine searchable attributes (prioritize Grant Name)
     getTableAttributes((err, attributes) => {
         if (err) {
             console.error('Error getting table attributes:', err);
+            document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Error loading grants. Check console for details.</p></div>';
             return;
         }
 
-        let filterExpression = 'contains(#searchAttr, :searchTerm)';
-        let expressionAttributeNames = { '#searchAttr': 'name' }; // Default to name
+        let filterExpression = 'contains(#grantName, :searchTerm)';
+        let expressionAttributeNames = { '#grantName': 'Grant Name' }; // Use Grant Name for search
         let expressionAttributeValues = { ':searchTerm': { S: searchTerm } };
 
-        // If name isn’t an attribute, try others or use a generic scan
-        if (!attributes.includes('name')) {
+        // Fallback if Grant Name isn’t an attribute, try other string attributes
+        if (!attributes.includes('Grant Name')) {
             filterExpression = 'contains(#anyAttr, :searchTerm)';
-            expressionAttributeNames = { '#anyAttr': attributes[0] || 'grantId' }; // Fallback to first attribute or grantId
+            const stringAttrs = attributes.filter(attr => attr !== 'grantId' && dynamodb.describeTable({ TableName: 'grants' }).Table.AttributeDefinitions.some(def => def.AttributeName === attr && def.AttributeType === 'S'));
+            expressionAttributeNames = { '#anyAttr': stringAttrs[0] || 'grantId' }; // Fallback to first String attribute or grantId
         }
 
         var params = {
@@ -102,13 +104,13 @@ function searchGrants() {
             } else {
                 console.log('Scan results:', data); // Debug: Log DynamoDB response
                 grantsData = data.Items || [];
-                displayGrants(sortGrantsByName(grantsData));
+                displayGrants(sortGrantsByGrantName(grantsData));
             }
         });
     });
 }
 
-// Load all grants on page load, sorted alphabetically
+// Load all grants on page load, sorted alphabetically by Grant Name
 window.onload = function() {
     document.getElementById('grantsContainer').innerHTML = '<div class="grant-block"><p>Loading grants...</p></div>';
 
@@ -119,7 +121,7 @@ window.onload = function() {
         } else {
             console.log('Initial scan results:', data); // Debug: Log initial data
             grantsData = data.Items || [];
-            displayGrants(sortGrantsByName(grantsData));
+            displayGrants(sortGrantsByGrantName(grantsData));
         }
     });
 };
