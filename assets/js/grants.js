@@ -6,10 +6,7 @@ AWS.config.update({
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 let allGrants = [];
-let currentPage = 1;
-const grantsPerPage = 8;
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-let chartInstance = null;
 
 async function loadGrants() {
     const container = document.getElementById('grantsContainer');
@@ -18,11 +15,9 @@ async function loadGrants() {
     try {
         const params = { TableName: 'grants' };
         const data = await dynamodb.scan(params).promise();
-        allGrants = (data.Items || []).sort((a, b) => 
-            (a['Grant Name'] || '').localeCompare(b['Grant Name'] || '')
-        );
+        allGrants = data.Items || [];
         displayGrants();
-        renderChart();
+        startCountdowns();
     } catch (err) {
         console.error('Error loading grants:', err);
         container.innerHTML = `
@@ -37,35 +32,52 @@ function displayGrants() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const typeFilter = document.getElementById('typeFilter').value;
     const fundingFilter = document.getElementById('fundingFilter').value;
-    const minAmount = parseInt(document.getElementById('minAmount').value) || 0;
-    const maxAmount = parseInt(document.getElementById('maxAmount').value) || Infinity;
+    const sortBy = document.getElementById('sortBy').value;
 
-    const filteredGrants = allGrants.filter(grant => {
+    let filteredGrants = allGrants.filter(grant => {
         const matchesSearch = (grant['Grant Name'] || '').toLowerCase().includes(searchTerm);
         const matchesType = !typeFilter || grant['Type of Grant'] === typeFilter;
         const matchesFunding = !fundingFilter || grant['Funding Source'] === fundingFilter;
-        const matchesAmount = (grant['Minimum Grant Award'] || 0) >= minAmount && 
-                             (grant['Maximum Grant Award'] || Infinity) <= maxAmount;
-        return matchesSearch && matchesType && matchesFunding && matchesAmount;
+        return matchesSearch && matchesType && matchesFunding;
     });
 
-    const start = (currentPage - 1) * grantsPerPage;
-    const end = start + grantsPerPage;
-    const paginatedGrants = filteredGrants.slice(start, end);
+    filteredGrants.sort((a, b) => {
+        if (sortBy === 'name') return (a['Grant Name'] || '').localeCompare(b['Grant Name'] || '');
+        if (sortBy === 'deadline') {
+            const dateA = new Date(a['Application Deadline'] || '9999-12-31');
+            const dateB = new Date(b['Application Deadline'] || '9999-12-31');
+            return dateA - dateB;
+        }
+        if (sortBy === 'funding') return (a['Funding Source'] || '').localeCompare(b['Funding Source'] || '');
+        return 0;
+    });
 
     container.innerHTML = '';
-    if (paginatedGrants.length === 0) {
+    if (filteredGrants.length === 0) {
         container.innerHTML = '<div class="grant-card"><p>No matching grants found.</p></div>';
     } else {
-        paginatedGrants.forEach(grant => {
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        filteredGrants.forEach(grant => {
             const grantCard = document.createElement('div');
             grantCard.className = 'grant-card';
+            grantCard.style.opacity = '0';
+            grantCard.style.transform = 'translateY(20px)';
             grantCard.innerHTML = `
                 <h3>${grant['Grant Name'] || 'Untitled'}</h3>
-                <p><strong>Type:</strong> ${grant['Type of Grant'] || 'N/A'}</p>
+                <p><span class="tag ${grant['Type of Grant'].toLowerCase()}">${grant['Type of Grant'] || 'N/A'}</span></p>
                 <p><strong>Funding:</strong> ${grant['Funding Source'] || 'N/A'}</p>
                 <p><strong>Award Range:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
                 <p class="deadline"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
+                <p class="countdown" data-deadline="${grant['Application Deadline']}"></p>
                 <i class="fas fa-star favorite ${favorites.includes(grant.grantId) ? 'active' : ''}" data-id="${grant.grantId}"></i>
             `;
             grantCard.onclick = (e) => {
@@ -73,21 +85,30 @@ function displayGrants() {
                 else showGrantModal(grant);
             };
             container.appendChild(grantCard);
+            observer.observe(grantCard);
         });
     }
-    updatePagination(filteredGrants.length);
 }
 
-function updatePagination(totalGrants) {
-    const prevButton = document.getElementById('prevPage');
-    const nextButton = document.getElementById('nextPage');
-    const totalPages = Math.ceil(totalGrants / grantsPerPage);
-
-    prevButton.disabled = currentPage === 1;
-    nextButton.disabled = currentPage === totalPages || totalGrants === 0;
-
-    prevButton.onclick = () => { if (currentPage > 1) { currentPage--; displayGrants(); } };
-    nextButton.onclick = () => { if (currentPage < totalPages) { currentPage++; displayGrants(); } };
+function startCountdowns() {
+    setInterval(() => {
+        document.querySelectorAll('.countdown').forEach(el => {
+            const deadline = el.getAttribute('data-deadline');
+            if (!deadline || deadline === 'Rolling') {
+                el.textContent = 'Rolling Deadline';
+                return;
+            }
+            const timeLeft = new Date(deadline) - new Date();
+            if (timeLeft <= 0) {
+                el.textContent = 'Deadline Passed';
+                el.style.color = '#e74c3c';
+            } else {
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                el.textContent = `Due in ${days}d ${hours}h`;
+            }
+        });
+    }, 1000);
 }
 
 function toggleFavorite(grantId) {
@@ -116,36 +137,15 @@ function showGrantModal(grant) {
         <p><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
         <p><strong>Project Length:</strong> ${grant['Expected Project Length'] || 'N/A'}</p>
         <p><strong>Est. Application Hours:</strong> ${grant['Estimated Application Hours'] || 'N/A'}</p>
+        <p><em>Eligibility Checker Coming Soon!</em></p>
     `;
     modal.style.display = 'flex';
 }
 
-function renderChart() {
-    const ctx = document.getElementById('grantChart').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-    const fundingSources = [...new Set(allGrants.map(g => g['Funding Source']))];
-    const data = fundingSources.map(source => ({
-        source,
-        count: allGrants.filter(g => g['Funding Source'] === source).length
-    }));
-
-    chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.map(d => d.source),
-            datasets: [{
-                label: 'Number of Grants',
-                data: data.map(d => d.count),
-                backgroundColor: 'rgba(26, 188, 156, 0.7)',
-                borderColor: 'rgba(26, 188, 156, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true } }
-        }
-    });
+function copyGrantDetails() {
+    const title = document.getElementById('modalTitle').textContent;
+    const details = document.getElementById('modalDetails').innerText;
+    navigator.clipboard.writeText(`${title}\n${details}`).then(() => alert('Details copied to clipboard!'));
 }
 
 function exportToCSV() {
@@ -165,7 +165,7 @@ function exportToPDF() {
     allGrants.forEach((grant, i) => {
         if (y > 270) { doc.addPage(); y = 10; }
         doc.setFontSize(12);
-        doc.text(`${i + 1}. ${grant['Grant Name']} ($${grant['Maximum Grant Award'].toLocaleString()})`, 10, y);
+        doc.text(`${i + 1}. ${grant['Grant Name']} (${grant['Funding Source']}) - Due: ${grant['Application Deadline']}`, 10, y);
         y += 10;
     });
     doc.save('grants.pdf');
@@ -182,17 +182,26 @@ function downloadFile(filename, type, content) {
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
-    document.querySelectorAll('.grant-card, .controls, .stats, .modal-content').forEach(el => {
+    document.querySelectorAll('.grant-card, .controls, .modal-content').forEach(el => {
         el.style.background = isDark ? '#333' : 'white';
         el.style.color = isDark ? '#ddd' : '#333';
     });
 }
 
-document.getElementById('searchInput').addEventListener('input', () => { currentPage = 1; displayGrants(); });
-document.getElementById('typeFilter').addEventListener('change', () => { currentPage = 1; displayGrants(); });
-document.getElementById('fundingFilter').addEventListener('change', () => { currentPage = 1; displayGrants(); });
-document.getElementById('minAmount').addEventListener('input', () => { currentPage = 1; displayGrants(); });
-document.getElementById('maxAmount').addEventListener('input', () => { currentPage = 1; displayGrants(); });
+// Add Esc key listener to close modal
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        const modal = document.getElementById('grantModal');
+        if (modal.style.display === 'flex') {
+            modal.style.display = 'none';
+        }
+    }
+});
+
+document.getElementById('searchInput').addEventListener('input', displayGrants);
+document.getElementById('typeFilter').addEventListener('change', displayGrants);
+document.getElementById('fundingFilter').addEventListener('change', displayGrants);
+document.getElementById('sortBy').addEventListener('change', displayGrants);
 
 window.onload = async () => {
     await loadGrants();

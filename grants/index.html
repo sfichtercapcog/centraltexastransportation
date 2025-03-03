@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grants Nexus - Central Texas Transportation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.min.css">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1476.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.min.js"></script>
     <style>
         :root {
             --primary: #1abc9c;
@@ -32,9 +30,9 @@
             color: var(--text-dark);
         }
         header {
-            background: var(--secondary);
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -42,7 +40,7 @@
         nav ul {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 2.5rem;
             list-style: none;
             margin: 0;
             padding: 0;
@@ -50,30 +48,37 @@
         nav a {
             color: white;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
+            font-weight: 600;
+            transition: color 0.3s, transform 0.2s;
         }
         nav a:hover {
             color: var(--primary);
+            transform: scale(1.1);
+        }
+        .hero {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-bottom: 2rem;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: fadeIn 1s ease-in;
         }
         .dashboard {
             max-width: 1400px;
-            margin: 2rem auto;
+            margin: 0 auto;
             padding: 0 2rem;
         }
-        h1 {
-            text-align: center;
-            font-size: 3rem;
-            color: var(--secondary);
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
         .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            background: rgba(255,255,255,0.95);
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
@@ -84,10 +89,11 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 1rem;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .controls input:focus, .controls select:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(26,188,156,0.5);
             outline: none;
         }
         .controls button {
@@ -103,26 +109,41 @@
         }
         #grantsContainer {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 2rem;
+            padding-bottom: 2rem;
         }
         .grant-card {
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 6px 25px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+            background-clip: padding-box;
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: slideUp 0.5s ease-out;
+        }
+        .grant-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            z-index: -1;
+            border-radius: 14px;
         }
         .grant-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.2);
         }
         .grant-card h3 {
             color: var(--secondary);
             margin: 0 0 1rem;
-            font-size: 1.6rem;
+            font-size: 1.7rem;
         }
         .grant-card p {
             margin: 0.5rem 0;
@@ -133,6 +154,20 @@
             color: #e74c3c;
             font-weight: bold;
         }
+        .grant-card .countdown {
+            color: #f39c12;
+            font-style: italic;
+        }
+        .grant-card .tag {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+        .grant-card .tag.formula { background: #3498db; color: white; }
+        .grant-card .tag.discretionary { background: #e67e22; color: white; }
+        .grant-card .tag.competitive { background: #9b59b6; color: white; }
         .grant-card .favorite {
             position: absolute;
             top: 1rem;
@@ -151,7 +186,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
             z-index: 2000;
@@ -160,39 +195,54 @@
             background: white;
             padding: 2rem;
             border-radius: 12px;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative;
         }
-        .pagination {
+        .modal-buttons {
+            margin-top: 1rem;
             display: flex;
-            justify-content: center;
             gap: 1rem;
-            margin: 2rem 0;
+            justify-content: flex-end;
         }
-        .pagination button {
+        .modal-buttons button {
             padding: 0.75rem 1.5rem;
-            background: var(--accent);
-            color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.2s;
         }
-        .pagination button:disabled {
-            background: #bdc3c7;
-            cursor: not-allowed;
+        .modal-buttons button.copy {
+            background: var(--primary);
+            color: white;
         }
-        .stats {
-            margin: 2rem 0;
-            background: rgba(255,255,255,0.9);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        .modal-buttons button.copy:hover {
+            background: var(--accent);
+            transform: scale(1.05);
         }
-        #grantChart {
-            max-height: 300px;
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .close-btn:hover {
+            transform: rotate(90deg);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .dark-mode-toggle {
             position: fixed;
@@ -203,18 +253,20 @@
             padding: 0.5rem 1rem;
             border-radius: 6px;
             cursor: pointer;
+            z-index: 1001;
         }
         footer {
             background: var(--secondary);
             color: white;
             text-align: center;
-            padding: 1rem;
-            margin-top: 2rem;
+            padding: 1.5rem;
         }
         footer a {
             color: var(--primary);
             text-decoration: none;
         }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -232,8 +284,11 @@
             </ul>
         </nav>
     </header>
-    <div class="dashboard">
+    <div class="hero">
         <h1>Grants Nexus</h1>
+        <p>Unlock Transportation Funding Opportunities</p>
+    </div>
+    <div class="dashboard">
         <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
         <div class="controls">
             <input type="text" id="searchInput" placeholder="Search by Grant Name..." aria-label="Search grants">
@@ -249,25 +304,26 @@
                 <option value="FHWA">FHWA</option>
                 <option value="FTA">FTA</option>
             </select>
-            <input type="number" id="minAmount" placeholder="Min Award ($)" aria-label="Minimum grant award">
-            <input type="number" id="maxAmount" placeholder="Max Award ($)" aria-label="Maximum grant award">
+            <select id="sortBy" aria-label="Sort grants">
+                <option value="name">Sort by Name</option>
+                <option value="deadline">Sort by Deadline</option>
+                <option value="funding">Sort by Funding Source</option>
+            </select>
             <button onclick="exportToCSV()">Export CSV</button>
             <button onclick="exportToPDF()">Export PDF</button>
         </div>
-        <div class="stats">
-            <canvas id="grantChart"></canvas>
-        </div>
         <div id="grantsContainer"></div>
-        <div class="pagination">
-            <button id="prevPage" disabled>Previous</button>
-            <button id="nextPage">Next</button>
-        </div>
     </div>
     <div id="grantModal" class="modal">
         <div class="modal-content">
             <h2 id="modalTitle"></h2>
             <div id="modalDetails"></div>
-            <button onclick="document.getElementById('grantModal').style.display='none'">Close</button>
+            <div class="modal-buttons">
+                <button class="copy" onclick="copyGrantDetails()">Copy Details</button>
+                <button class="close-btn" onclick="document.getElementById('grantModal').style.display='none'" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
     </div>
     <footer>
