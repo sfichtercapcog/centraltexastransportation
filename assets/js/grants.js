@@ -207,7 +207,7 @@ class GrantsManager {
             '<div class="grant-card"><p>No grants match your criteria.</p></div>' :
             filteredGrants.map(grant => this.createGrantCard(grant)).join('');
         this.updateFilterSummary(filteredGrants.length);
-        this.observeCards();
+        this.setupGrantCardEvents(); // New method for event delegation
     }
 
     fuzzySearch(grant, term) {
@@ -244,26 +244,22 @@ class GrantsManager {
         this.filterSummary.textContent = `Showing ${count} grants${summary.length ? ' | ' + summary.join(', ') : ''}`;
     }
 
-    observeCards() {
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                    observer.unobserve(entry.target);
+    setupGrantCardEvents() {
+        this.container.addEventListener('click', (e) => {
+            const card = e.target.closest('.grant-card');
+            if (card && !e.target.closest('.favorite-btn')) {
+                this.showGrantModal(card.dataset.grantId);
+            }
+        });
+
+        this.container.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const card = e.target.closest('.grant-card');
+                if (card && !e.target.closest('.favorite-btn')) {
+                    e.preventDefault(); // Prevent default behavior (e.g., scrolling)
+                    this.showGrantModal(card.dataset.grantId);
                 }
-            });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.grant-card').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.addEventListener('click', (e) => {
-                if (!e.target.closest('.favorite-btn')) this.showGrantModal(card.dataset.grantId);
-            });
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') this.showGrantModal(card.dataset.grantId);
-            });
-            observer.observe(card);
+            }
         });
     }
 
@@ -311,8 +307,11 @@ class GrantsManager {
         };
         const searchInput = document.getElementById('searchInput');
         searchInput?.addEventListener('input', debounce(() => this.applyFilters(), 300));
-        searchInput?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.applyFilters();
+        searchInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === 'Return') {
+                e.preventDefault(); // Prevent form submission or other default actions
+                this.applyFilters();
+            }
         });
         document.getElementById('applyFilters')?.addEventListener('click', () => this.applyFilters());
         document.getElementById('resetFilters')?.addEventListener('click', () => this.resetFilters());
