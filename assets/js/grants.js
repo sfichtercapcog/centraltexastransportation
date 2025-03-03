@@ -29,8 +29,10 @@ class GrantsManager {
     constructor() {
         this.container = document.getElementById('grantsContainer');
         this.loadSavedData();
-        document.addEventListener('DOMContentLoaded', () => this.setupEventListeners());
-        this.showInitialPrompt();
+        document.addEventListener('DOMContentLoaded', () => {
+            this.setupEventListeners();
+            this.showInitialPrompt();
+        });
     }
 
     showInitialPrompt() {
@@ -377,11 +379,11 @@ function handleInitialPrompt(choice) {
     const controls = document.getElementById('filterControls');
     if (choice === 'viewAll') {
         closeModal('initialPrompt');
-        grantsManager.displayGrants(); // Show all grants without filters
+        grantsManager.loadGrants(); // Load and display all grants without filters
     } else if (choice === 'filter') {
         closeModal('initialPrompt');
         if (controls) controls.style.display = 'grid';
-        grantsManager.applyFilters(); // Show filter dialog and apply filters
+        grantsManager.loadGrants().then(() => grantsManager.applyFilters()); // Load grants, then apply filters
     }
 }
 
@@ -455,7 +457,3 @@ function exportToPDF() {
     });
     doc.save('Grants_Nexus_Report.pdf');
 }
-
-window.onload = () => {
-    // No theme loading needed anymore
-};
