@@ -110,12 +110,6 @@ class GrantsManager {
         if (!select) return;
         const uniqueValues = [...new Set(allGrants.map(g => g[attr] || ''))].sort();
         select.innerHTML = uniqueValues.map(val => `<option value="${val}">${val || 'N/A'}</option>`).join('');
-        if (filterConfig.filters[attr === 'Type of Grant' ? 'Grant Type' : attr]) {
-            filterConfig.filters[attr === 'Type of Grant' ? 'Grant Type' : attr].forEach(val => {
-                const option = select.querySelector(`option[value="${val}"]`);
-                if (option) option.selected = true;
-            });
-        }
     }
 
     populateSortOptions(selectId, selectedValue) {
@@ -133,12 +127,16 @@ class GrantsManager {
 
     applySavedFilters() {
         document.getElementById('searchInput').value = filterConfig.textSearch;
-        document.getElementById('typeFilter').selectedOptions = filterConfig.filters['Grant Type'].map(val => {
-            return document.querySelector(`#typeFilter option[value="${val}"]`);
-        }).filter(Boolean);
-        document.getElementById('fundingFilter').selectedOptions = filterConfig.filters['Funding Source'].map(val => {
-            return document.querySelector(`#fundingFilter option[value="${val}"]`);
-        }).filter(Boolean);
+        const typeSelect = document.getElementById('typeFilter');
+        const fundingSelect = document.getElementById('fundingFilter');
+        filterConfig.filters['Grant Type'].forEach(val => {
+            const option = typeSelect.querySelector(`option[value="${val}"]`);
+            if (option) option.selected = true;
+        });
+        filterConfig.filters['Funding Source'].forEach(val => {
+            const option = fundingSelect.querySelector(`option[value="${val}"]`);
+            if (option) option.selected = true;
+        });
         document.getElementById('targetAward').value = filterConfig.filters['Target Award Amount'] || '';
         document.getElementById('deadline').value = filterConfig.filters['Application Deadline'] ? filterConfig.filters['Application Deadline'].toISOString().split('T')[0] : '';
         document.getElementById('maxHours').value = filterConfig.filters['Max Application Hours'] || '';
@@ -240,7 +238,7 @@ class GrantsManager {
         if (filterConfig.textSearch) summary.push(`Search: "${filterConfig.textSearch}"`);
         if (filterConfig.filters['Grant Type'].length) summary.push(`Types: ${filterConfig.filters['Grant Type'].join(', ')}`);
         if (filterConfig.filters['Funding Source'].length) summary.push(`Sources: ${filterConfig.filters['Funding Source'].join(', ')}`);
-        if (filterConfig.filters['Target Award Amount']) summary.push(`Target Award: ${filterConfig.filters['Target Award Amount']}`);
+        if (filterConfig.filters['Target Award Amount']) summary.push(`Target Award: $${filterConfig.filters['Target Award Amount'].toLocaleString()}`);
         if (filterConfig.filters['Application Deadline']) summary.push(`Deadline: ${filterConfig.filters['Application Deadline'].toLocaleDateString()}`);
         if (filterConfig.filters['Max Application Hours']) summary.push(`Max Hours: Up to ${filterConfig.filters['Max Application Hours']}`);
         this.filterSummary.textContent = `Showing ${count} grants${summary.length ? ' | ' + summary.join(', ') : ''}`;
@@ -294,7 +292,7 @@ class GrantsManager {
         modalContent.dataset.grantId = grantId;
         document.getElementById('modalTitle').textContent = grant['Grant Name'] || 'Untitled';
         document.getElementById('modalDetails').innerHTML = attributes.map(attr =>
-            `<p><strong>${attr}:</strong> ${grant[attr] !== undefined ? grant[attr].toLocaleString() : 'N/A'}</p>`
+            `<p><strong>${attr}:</strong> ${attr.includes('Award') && grant[attr] !== undefined ? `$${grant[attr].toLocaleString()}` : grant[attr] !== undefined ? grant[attr].toLocaleString() : 'N/A'}</p>`
         ).join('');
         document.getElementById('favoriteBtn').textContent = favorites.includes(grantId) ? 'Remove from Favorites' : 'Add to Favorites';
         modal.style.display = 'flex';
