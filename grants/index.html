@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1476.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary: #1abc9c;
@@ -16,6 +19,8 @@
             --bg-dark: #2c2c2c;
             --text-light: #333;
             --text-dark: #ddd;
+            --high-contrast-bg: #000;
+            --high-contrast-text: #fff;
         }
         body {
             font-family: 'Roboto', sans-serif;
@@ -28,6 +33,10 @@
         body.dark-mode {
             background: var(--bg-dark);
             color: var(--text-dark);
+        }
+        body.high-contrast {
+            background: var(--high-contrast-bg);
+            color: var(--high-contrast-text);
         }
         header {
             background: linear-gradient(135deg, var(--secondary), var(--accent));
@@ -77,10 +86,10 @@
         .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 1.5rem;
+            gap: 1rem;
             background: rgba(255,255,255,0.95);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
             position: relative;
@@ -88,7 +97,7 @@
         .controls input, .controls select, .controls button {
             padding: 0.75rem;
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 1rem;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
@@ -103,6 +112,7 @@
             border: none;
             cursor: pointer;
             transition: background 0.3s, transform 0.2s;
+            border-radius: 8px;
         }
         .controls button:hover {
             background: var(--accent);
@@ -113,9 +123,6 @@
             font-weight: bold;
         }
         #grantsContainer {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 2rem;
             padding-bottom: 2rem;
         }
         .grant-card {
@@ -183,6 +190,13 @@
         }
         .grant-card .favorite.active {
             color: #e74c3c;
+        }
+        .fav-category {
+            position: absolute;
+            top: 2.5rem;
+            right: 1rem;
+            padding: 0.3rem;
+            border-radius: 4px;
         }
         .modal {
             display: none;
@@ -263,7 +277,7 @@
             padding: 0.75rem;
             margin: 0.5rem 0;
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: 8px;
             background: white;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
@@ -272,6 +286,11 @@
             box-shadow: 0 0 5px rgba(26,188,156,0.5);
             outline: none;
         }
+        #customizeModal .selected {
+            background: #f0f0f0;
+            opacity: 0.7;
+            pointer-events: none;
+        }
         #customizeModal button.save {
             background: linear-gradient(45deg, var(--primary), var(--accent));
             color: white;
@@ -279,31 +298,52 @@
             padding: 1rem;
             font-size: 1.1rem;
             font-weight: bold;
+            margin-top: 1rem;
         }
         #customizeModal button.save:hover {
             transform: scale(1.03);
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .dark-mode-toggle {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
+        #map {
+            height: 300px;
+            margin: 2rem 0;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .filter-preview {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 0.5rem;
             background: var(--primary);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 6px;
-            cursor: pointer;
-            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            animation: fadeIn 0.3s ease-out;
         }
-        footer {
-            background: var(--secondary);
-            color: white;
-            text-align: center;
-            padding: 1.5rem;
+        #sortBy::after {
+            content: ' ▼';
+            color: var(--text-light);
+            transition: transform 0.3s;
         }
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
+        #sortBy[data-direction="desc"]::after {
+            transform: rotate(180deg);
+        }
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .controls input, .controls select, .controls button {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .grant-card {
+                grid-column: span 12;
+            }
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -330,17 +370,23 @@
         <p>Unlock Transportation Funding Opportunities</p>
     </div>
     <div class="dashboard">
-        <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        <button class="dark-mode-toggle" onclick="toggleTheme()">Toggle Theme</button>
         <div class="controls">
-            <input type="text" id="filter1" placeholder="Search by Grant Name..." aria-label="Filter 1">
-            <select id="filter2" aria-label="Filter 2"></select>
-            <select id="filter3" aria-label="Filter 3"></select>
-            <select id="sortBy" aria-label="Sort grants"></select>
+            <input type="text" id="searchInput" placeholder="Search by Grant Name" list="grantSuggestions" aria-label="Search grants by name">
+            <select id="filter1" aria-label="Filter by first attribute"></select>
+            <select id="filter2" aria-label="Filter by second attribute"></select>
+            <select id="sortBy" aria-label="Sort grants by attribute">
+                <option value="">Sort By</option>
+            </select>
             <button onclick="exportToCSV()">Export CSV</button>
             <button onclick="exportToPDF()">Export PDF</button>
+            <button onclick="exportToExcel()">Export Excel</button>
+            <button onclick="exportToJSON()">Export JSON</button>
             <button id="customizeBtn" onclick="showCustomizeModal()">Customize Filters & Sorts</button>
         </div>
         <div id="grantsContainer"></div>
+        <div id="map" style="display: none;"></div>
+        <button onclick="toggleMap()">Show Grant Locations</button>
     </div>
     <div id="grantModal" class="modal">
         <div class="modal-content">
@@ -359,7 +405,6 @@
             <h2>Customize Filters & Sorts</h2>
             <select id="customFilter1" aria-label="Choose Filter 1"></select>
             <select id="customFilter2" aria-label="Choose Filter 2"></select>
-            <select id="customFilter3" aria-label="Choose Filter 3"></select>
             <select id="customSort" aria-label="Choose Sort"></select>
             <div class="modal-buttons">
                 <button class="save" onclick="saveCustomOptions()">Save & Apply</button>
@@ -372,6 +417,7 @@
     <footer>
         <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy Policy</a> | <a href="/terms/">Terms of Use</a> | <a href="/accessibility/">Accessibility</a></p>
     </footer>
+    <datalist id="grantSuggestions"></datalist>
     <script src="/assets/js/grants.js"></script>
 </body>
 </html>
