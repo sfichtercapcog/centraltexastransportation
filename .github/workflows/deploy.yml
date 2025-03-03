@@ -27,6 +27,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Inject AWS Credentials into grants.js
+        run: |
+          echo "window.AWS_CONFIG = { accessKeyId: '${{ secrets.AWS_ACCESS_KEY_ID }}', secretAccessKey: '${{ secrets.AWS_SECRET_ACCESS_KEY }}', region: '${{ secrets.AWS_REGION }}' };" > assets/js/grants.js.temp
+          mv assets/js/grants.js.temp assets/js/grants.js
+
       - name: Deploy to Amplify
         run: |
           npm install -g @aws-amplify/cli

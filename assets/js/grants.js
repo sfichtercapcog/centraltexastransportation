@@ -1,11 +1,14 @@
+// Use a globally injected configuration object for AWS credentials (set via GitHub Actions)
+const AWS_CONFIG = window.AWS_CONFIG || {
+    accessKeyId: 'AKIAVA5YK7KISYJY3ZOL', // Will be replaced by GitHub Actions
+    secretAccessKey: 'hnrbhv/qcla0xlXhePxAvSXLRTugcM1NjoIv3o9S', // Will be replaced by GitHub Actions
+    region: 'us-east-1' // Will be replaced by GitHub Actions
+};
+
 // Use the globally available AWS object (loaded via <script> in index.html)
 const AWS = window.AWS;
 
-AWS.config.update({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION
-});
+AWS.config.update(AWS_CONFIG);
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 let allGrants = [];
