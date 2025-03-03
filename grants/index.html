@@ -134,7 +134,7 @@
             padding: var(--spacing-lg) var(--spacing-md);
         }
 
-        .dashboard { max-width: 1200px; margin: 0 auto; padding: var(--spacing-md); }
+        .dashboard { max-width: 1200px; margin: 0 auto; padding: var(--spacing-md) 0; }
 
         .controls {
             display: grid;
@@ -164,8 +164,8 @@
         .sort-group select {
             width: 120px;
             padding: var(--spacing-sm);
-            border-radius: 6px;
-            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            border: 2px solid var(--accent-color);
             background: var(--input-bg);
             color: var(--text-color);
             box-shadow: inset 0px 0px 8px var(--shadow-color);
@@ -192,11 +192,12 @@
             cursor: pointer;
             transition: all 0.3s ease-in-out;
             text-transform: uppercase;
+            box-shadow: 0px 0px 10px var(--accent-color);
         }
 
         .controls button:hover, .controls button:focus {
             transform: scale(1.05);
-            box-shadow: 0px 0px 10px var(--accent-color);
+            box-shadow: 0px 0px 15px var(--accent-color);
         }
 
         #grantsContainer {
@@ -260,13 +261,17 @@
             border-radius: 4px;
             color: var(--background-light);
             font-size: 0.85rem;
-            background: var(--primary-color);
             box-shadow: 0px 0px 8px var(--shadow-color);
         }
 
-        .tag.formula { background: #3498db; }
-        .tag.discretionary { background: #e67e22; }
-        .tag.competitive { background: #9b59b6; }
+        .tag.formula { background: var(--primary-color); }
+        .tag.discretionary { background: var(--secondary-color); }
+        .tag.competitive { background: var(--accent-color); }
+
+        .deadline { color: var(--text-color); text-shadow: 0px 0px 5px var(--shadow-color); }
+
+        .deadline.deadline-passed { color: #ff4040; text-shadow: 0px 0px 10px #ff4040; }
+        .deadline.due-in { color: #f1c40f; text-shadow: 0px 0px 10px #f1c40f; }
 
         .favorite-btn {
             position: absolute;
@@ -424,7 +429,7 @@
             </ul>
         </nav>
     </header>
-    <main>
+    <main class="container">
         <section class="hero" role="banner">
             <h1>Grants Nexus</h1>
             <p>Central Texas Transportation Funding Hub</p>
@@ -470,7 +475,7 @@
                 </div>
                 <div class="filter-group">
                     <label>Application Hours:</label>
-                    <input type="number" id="hoursMin" placeholder="Minimum" min="0" aria-label "Application hours minimum">
+                    <input type="number" id="hoursMin" placeholder="Minimum" min="0" aria-label="Application hours minimum">
                     <input type="number" id="hoursMax" placeholder="Maximum" min="0" aria-label="Application hours maximum">
                 </div>
                 <div class="sort-group">
@@ -500,19 +505,6 @@
             <div id="grantsContainer" role="region" aria-live="polite"></div>
         </section>
     </main>
-    <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
-        <div class="modal-content" data-grant-id="">
-            <h2 id="modalTitle"></h2>
-            <div id="modalDetails"></div>
-            <div class="modal-buttons">
-                <button onclick="copyGrantDetails()">Copy</button>
-                <button onclick="toggleFavorite()" id="favoriteBtn">Add to Favorites</button>
-                <button class="close-btn" onclick="closeModal('grantModal')" aria-label="Close grant details">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    </div>
     <footer role="contentinfo">
         <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy</a> | <a href="/terms/">Terms</a> | <a href="/accessibility/">Accessibility</a></p>
     </footer>

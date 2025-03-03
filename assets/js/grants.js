@@ -215,13 +215,16 @@ class GrantsManager {
 
     createGrantCard(grant) {
         const isFavorite = favorites.includes(grant.grantId);
+        const deadline = grant['Application Deadline'] === 'Rolling' ? 'Rolling Deadline' : this.parseDate(grant['Application Deadline']);
+        const timeLeft = deadline && deadline !== 'Rolling Deadline' ? deadline - new Date() : null;
+        const deadlineClass = timeLeft <= 0 ? 'deadline-passed' : (timeLeft ? 'due-in' : '');
         return `
             <div class="grant-card" tabindex="0" data-grant-id="${grant.grantId}">
                 <h3>${grant['Grant Name'] || 'Untitled'}</h3>
                 <p><span class="tag ${grant['Type of Grant']?.toLowerCase()}">${grant['Type of Grant'] || 'N/A'}</span></p>
                 <p><strong>Funding:</strong> ${grant['Funding Source'] || 'N/A'}</p>
                 <p><strong>Award:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
-                <p class="deadline"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
+                <p class="deadline ${deadlineClass}"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
                 <p class="countdown" data-deadline="${grant['Application Deadline']}"></p>
                 <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${grant.grantId}')" aria-label="${isFavorite ? 'Remove from' : 'Add to'} favorites">
                     <i class="fas fa-star"></i>
@@ -253,13 +256,14 @@ class GrantsManager {
                 const deadline = el.getAttribute('data-deadline');
                 if (!deadline || deadline === 'Rolling') {
                     el.textContent = 'Rolling Deadline';
+                    el.className = 'countdown';
                     return;
                 }
                 const timeLeft = this.parseDate(deadline) - new Date();
                 el.textContent = timeLeft <= 0 ?
                     'Deadline Passed' :
                     `Due in ${Math.floor(timeLeft / (1000 * 60 * 60 * 24))} days ${Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))} hours`;
-                el.style.color = timeLeft <= 0 ? '#e74c3c' : '#f39c12';
+                el.className = timeLeft <= 0 ? 'countdown deadline-passed' : 'countdown due-in';
             });
         }, 1000);
     }
