@@ -1,7 +1,11 @@
+require('dotenv').config();
+
+const AWS = require('aws-sdk');
+
 AWS.config.update({
-    accessKeyId: 'AKIAVA5YK7KISYJY3ZOL',
-    secretAccessKey: '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',
-    region: 'us-east-1'
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION
 });
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
@@ -207,7 +211,7 @@ class GrantsManager {
             '<div class="grant-card"><p>No grants match your criteria.</p></div>' :
             filteredGrants.map(grant => this.createGrantCard(grant)).join('');
         this.updateFilterSummary(filteredGrants.length);
-        this.setupGrantCardEvents(); // New method for event delegation
+        this.setupGrantCardEvents();
     }
 
     fuzzySearch(grant, term) {
@@ -256,7 +260,7 @@ class GrantsManager {
             if (e.key === 'Enter' || e.key === ' ') {
                 const card = e.target.closest('.grant-card');
                 if (card && !e.target.closest('.favorite-btn')) {
-                    e.preventDefault(); // Prevent default behavior (e.g., scrolling)
+                    e.preventDefault();
                     this.showGrantModal(card.dataset.grantId);
                 }
             }
@@ -309,7 +313,7 @@ class GrantsManager {
         searchInput?.addEventListener('input', debounce(() => this.applyFilters(), 300));
         searchInput?.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === 'Return') {
-                e.preventDefault(); // Prevent form submission or other default actions
+                e.preventDefault();
                 this.applyFilters();
             }
         });
