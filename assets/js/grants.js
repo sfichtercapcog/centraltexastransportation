@@ -6,12 +6,10 @@ AWS.config.update({
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 let allGrants = [];
-let favorites = JSON.parse(localStorage.getItem('favorites')) || {};
 let attributes = [];
 let filterAttrs = ['Type of Grant', 'Funding Source'];
 let sortAttr = 'Grant Name';
 let sortDirection = 'asc';
-let loading = false;
 
 async function loadGrants() {
     const container = document.getElementById('grantsContainer');
@@ -23,7 +21,7 @@ async function loadGrants() {
         allGrants = data.Items || [];
         attributes = Object.keys(allGrants[0] || {}).filter(k => k !== 'grantId');
         setupCustomOptions();
-        loadMoreGrants();
+        displayGrants();
         startCountdowns();
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('input, select, button').forEach(el => {
@@ -73,26 +71,25 @@ function updateControls() {
     sortBy.innerHTML = `<option value="">Sort By</option>` + 
         attributes.map(attr => `<option value="${attr}">${attr}</option>`).join('');
     sortBy.value = sortAttr;
+    if (sortAttr) {
+        sortBy.firstChild.textContent = `Sort By (${sortAttr})`;
+    }
 }
 
-function getFilteredGrants() {
+function displayGrants() {
+    const container = document.getElementById('grantsContainer');
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const filter1Val = document.getElementById('filter1').value;
     const filter2Val = document.getElementById('filter2').value;
 
-    return allGrants.filter(grant => {
+    let filteredGrants = allGrants.filter(grant => {
         const nameMatch = (grant['Grant Name'] || '').toLowerCase().includes(searchTerm);
         const filter1Match = !filter1Val || (grant[filterAttrs[0]] || '') === filter1Val;
         const filter2Match = !filter2Val || (grant[filterAttrs[1]] || '') === filter2Val;
         return nameMatch && filter1Match && filter2Match;
     });
-}
 
-function loadMoreGrants(start = 0, batchSize = 20) {
-    if (loading) return;
-    loading = true;
-    const container = document.getElementById('grantsContainer');
-    const filteredGrants = getFilteredGrants().sort((a, b) => {
+    filteredGrants.sort((a, b) => {
         const valA = a[sortAttr] || '';
         const valB = b[sortAttr] || '';
         let comparison = 0;
@@ -105,60 +102,39 @@ function loadMoreGrants(start = 0, batchSize = 20) {
         }
         return sortDirection === 'asc' ? comparison : -comparison;
     });
-    const end = Math.min(start + batchSize, filteredGrants.length);
-    filteredGrants.slice(start, end).forEach(grant => {
-        const grantCard = createGrantCard(grant);
-        container.appendChild(grantCard);
-        new IntersectionObserver((entries) => {
+
+    container.innerHTML = '';
+    if (filteredGrants.length === 0) {
+        container.innerHTML = '<div class="grant-card"><p>No matching grants found.</p></div>';
+    } else {
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1 }).observe(grantCard);
-    });
-    loading = false;
-    if (end < filteredGrants.length) {
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                observer.disconnect();
-                loadMoreGrants(end, batchSize);
-            }
         }, { threshold: 0.1 });
-        observer.observe(container.lastChild || container);
-    }
-}
 
-function createGrantCard(grant) {
-    const card = document.createElement('div');
-    card.className = 'grant-card';
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.innerHTML = `
-        <h3>${grant['Grant Name'] || 'Untitled'}</h3>
-        <p><span class="tag ${grant['Type of Grant']?.toLowerCase()}">${grant['Type of Grant'] || 'N/A'}</span></p>
-        <p><strong>Funding:</strong> ${grant['Funding Source'] || 'N/A'}</p>
-        <p><strong>Award Range:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
-        <p class="deadline"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
-        <p class="countdown" data-deadline="${grant['Application Deadline']}"></p>
-        <i class="fas fa-star favorite ${favorites['default']?.includes(grant.grantId) ? 'active' : ''}" data-id="${grant.grantId}"></i>
-        <select class="fav-category" onchange="toggleFavorite('${grant.grantId}', this.value)">
-            <option value="default" ${favorites['default']?.includes(grant.grantId) ? 'selected' : ''}>Default</option>
-            <option value="priority" ${favorites['priority']?.includes(grant.grantId) ? 'selected' : ''}>Priority</option>
-            <option value="research" ${favorites['research']?.includes(grant.grantId) ? 'selected' : ''}>Research</option>
-        </select>
-    `;
-    card.onclick = (e) => {
-        if (e.target.classList.contains('favorite') || e.target.classList.contains('fav-category')) {
-            const id = e.target.dataset.id || e.target.closest('.grant-card').querySelector('.favorite').dataset.id;
-            const category = e.target.value || 'default';
-            toggleFavorite(id, category);
-        } else {
-            showGrantModal(grant);
-        }
-    };
-    return card;
+        filteredGrants.forEach(grant => {
+            const grantCard = document.createElement('div');
+            grantCard.className = 'grant-card';
+            grantCard.style.opacity = '0';
+            grantCard.style.transform = 'translateY(20px)';
+            grantCard.innerHTML = `
+                <h3>${grant['Grant Name'] || 'Untitled'}</h3>
+                <p><span class="tag ${grant['Type of Grant']?.toLowerCase()}">${grant['Type of Grant'] || 'N/A'}</span></p>
+                <p><strong>Funding:</strong> ${grant['Funding Source'] || 'N/A'}</p>
+                <p><strong>Award Range:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
+                <p class="deadline"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
+                <p class="countdown" data-deadline="${grant['Application Deadline']}"></p>
+            `;
+            grantCard.onclick = () => showGrantModal(grant);
+            container.appendChild(grantCard);
+            observer.observe(grantCard);
+        });
+    }
 }
 
 function startCountdowns() {
@@ -180,16 +156,6 @@ function startCountdowns() {
             }
         });
     }, 1000);
-}
-
-function toggleFavorite(grantId, category = 'default') {
-    let favs = JSON.parse(localStorage.getItem('favorites')) || {};
-    if (!favs[category]) favs[category] = [];
-    const index = favs[category].indexOf(grantId);
-    if (index === -1) favs[category].push(grantId);
-    else favs[category].splice(index, 1);
-    localStorage.setItem('favorites', JSON.stringify(favs));
-    displayGrants(); // Update to reload cards with new favorite status
 }
 
 function showGrantModal(grant) {
@@ -241,85 +207,27 @@ function saveCustomOptions() {
     filterAttrs = [filter1, filter2].filter(Boolean) || ['Type of Grant', 'Funding Source'];
     sortAttr = sort || 'Grant Name';
     updateControls();
-    loadMoreGrants(); // Use infinite scroll to reload
+    displayGrants();
     document.getElementById('customizeModal').style.display = 'none';
+    updateSortLabel();
 }
 
-function exportToCSV() {
-    const headers = attributes;
-    const csv = [headers.join(','), ...allGrants.map(g => 
-        headers.map(k => `"${(g[k] || '').toString().replace(/"/g, '""')}"`).join(',')
-    )].join('\n');
-    downloadFile('grants.csv', 'text/csv', csv);
+function resetCustomOptions() {
+    filterAttrs = ['Type of Grant', 'Funding Source'];
+    sortAttr = 'Grant Name';
+    updateControls();
+    displayGrants();
+    document.getElementById('customizeModal').style.display = 'none';
+    updateSortLabel();
 }
 
-function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('Grants Nexus Report', 10, 10);
-    let y = 20;
-    allGrants.forEach((grant, i) => {
-        if (y > 270) { doc.addPage(); y = 10; }
-        doc.setFontSize(12);
-        doc.text(`${i + 1}. ${grant['Grant Name']} (${grant['Funding Source']}) - Due: ${grant['Application Deadline']}`, 10, y);
-        y += 10;
-    });
-    doc.save('grants.pdf');
-}
-
-function exportToExcel() {
-    const headers = attributes;
-    const data = allGrants.map(g => headers.map(k => g[k] || ''));
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Grants');
-    XLSX.writeFile(wb, 'grants.xlsx');
-}
-
-function exportToJSON() {
-    const json = JSON.stringify(allGrants, null, 2);
-    downloadFile('grants.json', 'application/json', json);
-}
-
-function downloadFile(filename, type, content) {
-    const blob = new Blob([content], { type });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-}
-
-function toggleTheme() {
-    const themes = ['light', 'dark', 'high-contrast'];
-    let currentTheme = document.body.classList[0] || 'light';
-    const nextTheme = themes[(themes.indexOf(currentTheme) + 1) % themes.length];
-    document.body.classList.remove(...themes);
-    document.body.classList.add(nextTheme);
-    document.querySelectorAll('.grant-card, .controls, .modal-content').forEach(el => {
-        el.style.background = nextTheme === 'high-contrast' ? '#000' : (nextTheme === 'dark' ? '#333' : 'white');
-        el.style.color = nextTheme === 'high-contrast' ? '#fff' : (nextTheme === 'dark' ? '#ddd' : '#333');
-    });
-    localStorage.setItem('theme', nextTheme);
-}
-
-function initMap() {
-    const map = L.map('map').setView([30.2672, -97.7431], 10); // Central Texas
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-    }).addTo(map);
-    allGrants.forEach(grant => {
-        if (grant['Eligible Entities']?.includes('Counties')) {
-            L.marker([30.2672, -97.7431]).addTo(map) // Placeholder coords
-                .bindPopup(`<b>${grant['Grant Name']}</b><br>${grant['Project Purpose']}`);
-        }
-    });
-}
-
-function toggleMap() {
-    const map = document.getElementById('map');
-    map.style.display = map.style.display === 'none' ? 'block' : 'none';
-    if (map.style.display === 'block' && !map._leaflet) initMap();
+function updateSortLabel() {
+    const sortBy = document.getElementById('sortBy');
+    if (sortAttr) {
+        sortBy.firstChild.textContent = `Sort By (${sortAttr})`;
+    } else {
+        sortBy.firstChild.textContent = 'Sort By';
+    }
 }
 
 document.querySelectorAll('#filter1, #filter2').forEach(select => {
@@ -364,7 +272,30 @@ document.getElementById('sortBy').addEventListener('change', (e) => {
     sortAttr = e.target.value;
     sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
     document.getElementById('sortBy').dataset.direction = sortDirection;
-    loadMoreGrants();
+    displayGrants();
+    updateSortLabel();
+});
+
+function toggleTheme() {
+    const themes = ['light', 'dark', 'high-contrast'];
+    let currentTheme = document.body.classList[0] || 'light';
+    const nextTheme = themes[(themes.indexOf(currentTheme) + 1) % themes.length];
+    document.body.classList.remove(...themes);
+    document.body.classList.add(nextTheme);
+    document.querySelectorAll('.grant-card, .controls, .modal-content').forEach(el => {
+        el.style.background = nextTheme === 'high-contrast' ? '#000' : (nextTheme === 'dark' ? '#333' : 'white');
+        el.style.color = nextTheme === 'high-contrast' ? '#fff' : (nextTheme === 'dark' ? '#ddd' : '#333');
+    });
+    localStorage.setItem('theme', nextTheme);
+}
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        const grantModal = document.getElementById('grantModal');
+        const customizeModal = document.getElementById('customizeModal');
+        if (grantModal.style.display === 'flex') grantModal.style.display = 'none';
+        if (customizeModal.style.display === 'flex') customizeModal.style.display = 'none';
+    }
 });
 
 window.onload = async () => {

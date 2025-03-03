@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1476.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary: #1abc9c;
@@ -123,6 +120,9 @@
             font-weight: bold;
         }
         #grantsContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
             padding-bottom: 2rem;
         }
         .grant-card {
@@ -180,24 +180,6 @@
         .grant-card .tag.formula { background: #3498db; color: white; }
         .grant-card .tag.discretionary { background: #e67e22; color: white; }
         .grant-card .tag.competitive { background: #9b59b6; color: white; }
-        .grant-card .favorite {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            cursor: pointer;
-            color: #bdc3c7;
-            transition: color 0.3s;
-        }
-        .grant-card .favorite.active {
-            color: #e74c3c;
-        }
-        .fav-category {
-            position: absolute;
-            top: 2.5rem;
-            right: 1rem;
-            padding: 0.3rem;
-            border-radius: 4px;
-        }
         .modal {
             display: none;
             position: fixed;
@@ -291,24 +273,18 @@
             opacity: 0.7;
             pointer-events: none;
         }
-        #customizeModal button.save {
+        #customizeModal button.save, #customizeModal button.reset {
             background: linear-gradient(45deg, var(--primary), var(--accent));
             color: white;
-            width: 100%;
+            width: 48%;
             padding: 1rem;
             font-size: 1.1rem;
             font-weight: bold;
             margin-top: 1rem;
         }
-        #customizeModal button.save:hover {
+        #customizeModal button.save:hover, #customizeModal button.reset:hover {
             transform: scale(1.03);
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        #map {
-            height: 300px;
-            margin: 2rem 0;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
         .filter-preview {
             position: absolute;
@@ -378,15 +354,9 @@
             <select id="sortBy" aria-label="Sort grants by attribute">
                 <option value="">Sort By</option>
             </select>
-            <button onclick="exportToCSV()">Export CSV</button>
-            <button onclick="exportToPDF()">Export PDF</button>
-            <button onclick="exportToExcel()">Export Excel</button>
-            <button onclick="exportToJSON()">Export JSON</button>
             <button id="customizeBtn" onclick="showCustomizeModal()">Customize Filters & Sorts</button>
         </div>
         <div id="grantsContainer"></div>
-        <div id="map" style="display: none;"></div>
-        <button onclick="toggleMap()">Show Grant Locations</button>
     </div>
     <div id="grantModal" class="modal">
         <div class="modal-content">
@@ -408,6 +378,7 @@
             <select id="customSort" aria-label="Choose Sort"></select>
             <div class="modal-buttons">
                 <button class="save" onclick="saveCustomOptions()">Save & Apply</button>
+                <button class="reset" onclick="resetCustomOptions()">Reset</button>
                 <button class="close-btn" onclick="document.getElementById('customizeModal').style.display='none'" aria-label="Close customize modal">
                     <i class="fas fa-times"></i>
                 </button>
