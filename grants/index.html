@@ -9,96 +9,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1476.0.min.js"></script>
     <style>
-        /* ========================================================================== 
-           Global CSS - Vaporwave Aesthetic for Maximum Accessibility and Style
-           ========================================================================== */
-
-        /* CSS Custom Properties for Maintainability and Theming */
         :root {
-            /* Colors - Vaporwave Inspired but Accessible */
-            --primary-color: #5f00ba;        /* Deep neon purple */
-            --secondary-color: #ff66c4;      /* Electric pink */
-            --text-color: #ffffff;           /* Bright white for text */
-            --background-light: #0d0331;     /* Deep midnight blue */
-            --input-bg: #1c0553;             /* Dark indigo for input fields */
-            --accent-color: #00ffff;         /* Cyan glow for interactive elements */
-            --shadow-color: rgba(0, 255, 255, 0.3); /* Neon blue shadows */
-
-            /* Typography */
+            --primary-color: #5f00ba;
+            --secondary-color: #ff66c4;
+            --text-color: #ffffff;
+            --background-light: #0d0331;
+            --input-bg: #1c0553;
+            --accent-color: #00ffff;
+            --shadow-color: rgba(0, 255, 255, 0.3);
             --font-family: 'Poppins', 'Arial', sans-serif;
-            --font-size-base: 18px;
-            --line-height-base: 1.7;
-
-            /* Spacing */
-            --spacing-xs: 8px;
-            --spacing-sm: 12px;
             --spacing-md: 24px;
             --spacing-lg: 48px;
-
-            /* Breakpoints */
             --breakpoint-tablet: 768px;
             --breakpoint-mobile: 480px;
         }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            font-size: var(--font-size-base);
-            scroll-behavior: smooth;
-        }
-
         body {
             font-family: var(--font-family);
-            font-size: 1rem;
-            line-height: var(--line-height-base);
             color: var(--text-color);
-            background-color: var(--background-light);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background-image: linear-gradient(135deg, #0d0331, #4b0082, #ff66c4, #00ffff);
+            background: linear-gradient(135deg, #0d0331, #4b0082, #ff66c4, #00ffff);
             background-attachment: fixed;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            color: var(--accent-color);
-            font-weight: 800;
-            margin-bottom: 0.6em;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 10px var(--shadow-color);
-        }
-
-        h1 { font-size: 2.5rem; }
-        h2 { font-size: 2rem; }
-
-        p { margin-bottom: var(--spacing-md); font-weight: 500; }
-
-        a {
-            color: var(--accent-color);
-            text-decoration: none;
-            transition: all 0.3s ease-in-out;
-        }
-
-        a:hover, a:focus {
-            color: var(--secondary-color);
-            text-shadow: 0px 0px 10px var(--secondary-color);
+            margin: 0;
         }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--spacing-md); }
 
         header {
             background: rgba(18, 2, 63, 0.9);
-            backdrop-filter: blur(8px);
             padding: var(--spacing-md);
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0px 4px 12px var(--shadow-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
         }
 
         nav ul {
@@ -108,19 +50,15 @@
             list-style: none;
         }
 
-        nav ul li { margin: 0 var(--spacing-sm); }
-
         nav ul li a {
             color: var(--text-color);
-            font-weight: 600;
-            padding: var(--spacing-sm);
+            padding: 10px 20px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
             border-radius: 8px;
             transition: all 0.3s ease-in-out;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            padding: 10px 20px;
         }
 
-        nav ul li a:hover, nav ul li a:focus {
+        nav ul li a:hover {
             background: var(--accent-color);
             color: var(--background-light);
             transform: scale(1.1);
@@ -128,86 +66,128 @@
 
         .hero {
             background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
-            color: var(--text-color);
             text-align: center;
             padding: var(--spacing-lg) var(--spacing-md);
         }
 
-        .dashboard { max-width: 1200px; margin: 0 auto; padding: var(--spacing-md); }
-
         .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: var(--spacing-md);
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid var(--accent-color);
             border-radius: 12px;
             padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
             box-shadow: 0 4px 12px var(--shadow-color);
             backdrop-filter: blur(10px);
-            margin-bottom: var(--spacing-lg);
-            background: linear-gradient(135deg, rgba(95, 0, 186, 0.2), rgba(255, 102, 196, 0.2));
+            transition: max-height 0.5s ease-in-out;
         }
 
-        .filter-group, .sort-group { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+        .controls.collapsed { max-height: 60px; overflow: hidden; }
+        .controls.expanded { max-height: 1200px; }
 
-        .filter-group label, .sort-group label {
-            font-weight: 500;
-            font-size: 0.9rem;
+        .toggle-filters {
+            background: var(--primary-color);
             color: var(--text-color);
-            text-shadow: 0px 0px 5px var(--shadow-color);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: var(--spacing-md);
+            display: none;
         }
 
-        .filter-group select[multiple] { height: 100px; }
+        .search-bar {
+            position: relative;
+            margin-bottom: var(--spacing-md);
+        }
 
-        .filter-group input[type="number"], .filter-group input[type="date"],
-        .sort-group select {
-            width: 120px;
-            padding: var(--spacing-sm);
+        #searchInput {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
             border-radius: 8px;
             border: 2px solid var(--accent-color);
             background: var(--input-bg);
             color: var(--text-color);
-            box-shadow: inset 0px 0px 8px var(--shadow-color);
-            transition: all 0.3s ease-in-out;
+            box-shadow: inset 0 0 8px var(--shadow-color);
+            font-size: 1rem;
         }
 
-        .filter-group input[type="number"]:focus, .filter-group input[type="date"]:focus,
-        .sort-group select:focus {
+        #searchInput:focus {
             border-color: var(--secondary-color);
-            box-shadow: 0 0 12px var(--accent-color), inset 0px 0px 8px var(--shadow-color);
-            outline: none;
+            box-shadow: 0 0 12px var(--accent-color);
         }
 
-        .filter-actions { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; }
+        .search-bar i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid var(--accent-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            width: 100%;
+        }
+
+        .filter-group select:focus, .filter-group input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 12px var(--accent-color);
+        }
+
+        .sort-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: var(--spacing-md);
+        }
 
         .controls button {
             background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+            padding: 12px 24px;
             border: none;
-            padding: var(--spacing-sm) var(--spacing-md);
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--background-light);
             border-radius: 8px;
+            color: var(--background-light);
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease-in-out;
-            text-transform: uppercase;
-            box-shadow: 0px 0px 10px var(--accent-color);
         }
 
-        .controls button:hover, .controls button:focus {
+        .controls button:hover {
             transform: scale(1.05);
-            box-shadow: 0px 0px 15px var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        #filterSummary {
+            margin-top: var(--spacing-md);
+            font-size: 0.9rem;
+            color: var(--accent-color);
         }
 
         #grantsContainer {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: var(--spacing-lg);
-            padding: var(--spacing-md);
-            max-width: 1200px;
-            margin: 0 auto;
-            animation: fadeIn 0.6s ease-in-out;
         }
 
         .grant-card {
@@ -218,70 +198,53 @@
             box-shadow: 0 4px 12px var(--shadow-color);
             transition: all 0.3s ease-in-out;
             position: relative;
-            overflow: hidden;
             backdrop-filter: blur(10px);
+            animation: fadeIn 0.5s ease-in;
         }
 
-        .grant-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
-            border-radius: 8px 8px 0 0;
-        }
-
-        .grant-card:hover, .grant-card:focus-within {
-            transform: translateY(-6px);
-            box-shadow: 0 6px 20px var(--accent-color);
+        .grant-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px var(--accent-color);
             border-color: var(--secondary-color);
         }
 
         .grant-card h3 {
             color: var(--accent-color);
             font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: var(--spacing-sm);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 12px;
             text-shadow: 2px 2px 10px var(--shadow-color);
         }
 
         .grant-card p {
-            font-size: 1rem;
-            margin-bottom: var(--spacing-xs);
             color: var(--text-color);
-            line-height: 1.5;
+            margin-bottom: 8px;
         }
 
         .tag {
-            padding: var(--spacing-sm) var(--spacing-md);
+            display: inline-block;
+            padding: 6px 12px;
             border-radius: 4px;
             color: var(--background-light);
             font-size: 0.85rem;
-            background: var(--primary-color);
-            box-shadow: 0px 0px 8px var(--shadow-color);
+            margin-right: 8px;
         }
 
-        .tag.formula { background: var(--accent-color); } /* Neon cyan */
-        .tag.discretionary { background: var(--secondary-color); } /* Electric pink */
-        .tag.competitive { background: var(--primary-color); } /* Deep neon purple */
+        .tag.formula { background: var(--accent-color); }
+        .tag.discretionary { background: var(--secondary-color); }
+        .tag.competitive { background: var(--primary-color); }
 
         .favorite-btn {
             position: absolute;
-            top: var(--spacing-sm);
-            right: var(--spacing-sm);
+            top: 12px;
+            right: 12px;
             background: none;
             border: none;
+            color: var(--text-color);
             font-size: 1.2rem;
             cursor: pointer;
-            color: var(--text-color);
-            text-shadow: 0px 0px 8px var(--shadow-color);
         }
 
-        .favorite-btn.active { color: #f1c40f; text-shadow: 0px 0px 12px #f1c40f; }
+        .favorite-btn.active { color: #f1c40f; }
 
         .modal {
             display: none;
@@ -307,33 +270,35 @@
             overflow-y: auto;
             box-shadow: 0 4px 12px var(--shadow-color);
             backdrop-filter: blur(10px);
-            animation: fadeIn 0.6s ease-in-out;
         }
 
-        .modal-buttons { display: flex; gap: var(--spacing-sm); justify-content: flex-end; margin-top: var(--spacing-md); }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: var(--spacing-md);
+        }
 
         .modal-buttons button {
             background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+            padding: 12px 24px;
             border: none;
-            padding: var(--spacing-sm) var(--spacing-md);
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--background-light);
             border-radius: 8px;
+            color: var(--background-light);
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease-in-out;
-            text-transform: uppercase;
         }
 
-        .modal-buttons button:hover, .modal-buttons button:focus {
+        .modal-buttons button:hover {
             transform: scale(1.05);
-            box-shadow: 0px 0px 10px var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
         }
 
         .close-btn {
             position: absolute;
-            top: var(--spacing-sm);
-            right: var(--spacing-sm);
+            top: 12px;
+            right: 12px;
             background: var(--primary-color);
             color: var(--text-color);
             border-radius: 50%;
@@ -343,74 +308,33 @@
             align-items: center;
             justify-content: center;
             border: 2px solid var(--accent-color);
-            box-shadow: 0px 0px 12px var(--shadow-color);
             transition: all 0.3s ease-in-out;
         }
 
-        .close-btn:hover, .close-btn:focus {
+        .close-btn:hover {
             background: var(--secondary-color);
             transform: rotate(90deg);
-            box-shadow: 0px 0px 20px var(--accent-color);
         }
 
-        footer {
-            background-color: var(--primary-color);
-            color: var(--text-color);
+        .loading {
             text-align: center;
+            font-size: 1.2rem;
             padding: var(--spacing-md);
-            box-shadow: 0px 0px 12px var(--shadow-color);
         }
 
-        footer a {
-            color: var(--accent-color);
-            text-decoration: underline;
-            transition: color 0.3s ease-in-out;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        footer a:hover, footer a:focus {
-            color: var(--secondary-color);
-            text-decoration: none;
-        }
-
-        :focus { outline: 3px dashed var(--accent-color); outline-offset: 3px; }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
-        }
-
-        .deadline { color: var(--secondary-color); text-shadow: 0px 0px 8px var(--shadow-color); }
-        .deadline.passed { color: var(--primary-color); text-shadow: 0px 0px 8px var(--shadow-color); }
 
         @media (max-width: var(--breakpoint-tablet)) {
-            .container, .dashboard { padding: 0 var(--spacing-sm); }
-            .controls { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-            nav ul { flex-direction: column; align-items: center; }
-            nav ul li { margin: var(--spacing-sm) 0; }
-            #grantsContainer { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+            .toggle-filters { display: block; }
+            .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed #filterSummary { display: none; }
         }
 
         @media (max-width: var(--breakpoint-mobile)) {
-            h1 { font-size: 1.75rem; }
-            h2 { font-size: 1.5rem; }
-            .controls { grid-template-columns: 1fr; }
             #grantsContainer { grid-template-columns: 1fr; }
-            .grant-card, .controls { padding: var(--spacing-xs); }
-            .grant-card h3 { font-size: 1.2rem; }
-            .grant-card p { font-size: 0.95rem; }
         }
-
-        @media (prefers-reduced-motion: reduce) {
-            * { transition: none !important; transform: none !important; }
-        }
-
-        .grant-card, .controls, .modal-content { will-change: transform, box-shadow; }
     </style>
 </head>
 <body>
@@ -437,66 +361,75 @@
             <div id="initialPrompt" class="modal" role="dialog" aria-labelledby="promptTitle">
                 <div class="modal-content">
                     <h2 id="promptTitle">Welcome to Grants Nexus</h2>
-                    <p>Do you want to view all grants, or search/filter for specific grants?</p>
+                    <p>Do you want to view all grants or search/filter for specific grants?</p>
                     <div class="modal-buttons">
                         <button onclick="handleInitialPrompt('viewAll')">View All Grants</button>
                         <button onclick="handleInitialPrompt('filter')">Search/Filter Grants</button>
-                        <button class="close-btn" onclick="closeModal('initialPrompt')" aria-label="Close prompt">
-                            <i class="fas fa-times"></i>
-                        </button>
+                        <button class="close-btn" onclick="closeModal('initialPrompt')" aria-label="Close prompt"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
             </div>
-            <div class="controls" role="search" style="display: none;" id="filterControls">
-                <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
-                <div class="filter-group">
-                    <label for="typeFilter">Grant Type:</label>
-                    <select id="typeFilter" multiple aria-label="Filter by grant type"></select>
+            <div class="controls collapsed" id="filterControls" style="display: none;">
+                <div class="toggle-filters" onclick="toggleFilters()">Toggle Filters</div>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
+                    <i class="fas fa-search"></i>
                 </div>
-                <div class="filter-group">
-                    <label for="fundingFilter">Funding Source:</label>
-                    <select id="fundingFilter" multiple aria-label="Filter by funding source"></select>
-                </div>
-                <div class="filter-group">
-                    <label>Minimum Award Amount:</label>
-                    <input type="number" id="minAwardMin" placeholder="Minimum" min="0" aria-label="Minimum award minimum">
-                    <input type="number" id="minAwardMax" placeholder="Maximum" min="0" aria-label="Minimum award maximum">
-                </div>
-                <div class="filter-group">
-                    <label>Maximum Award Amount:</label>
-                    <input type="number" id="maxAwardMin" placeholder="Minimum" min="0" aria-label="Maximum award minimum">
-                    <input type="number" id="maxAwardMax" placeholder="Maximum" min="0" aria-label="Maximum award maximum">
-                </div>
-                <div class="filter-group">
-                    <label>Deadline:</label>
-                    <input type="date" id="deadlineMin" aria-label="Deadline start">
-                    <input type="date" id="deadlineMax" aria-label="Deadline end">
-                </div>
-                <div class="filter-group">
-                    <label>Application Hours:</label>
-                    <input type="number" id="hoursMin" placeholder="Minimum" min="0" aria-label="Application hours minimum">
-                    <input type="number" id="hoursMax" placeholder="Maximum" min="0" aria-label="Application hours maximum">
-                </div>
-                <div class="sort-group">
-                    <label>Primary Sort:</label>
-                    <select id="sort1Attr" aria-label="Primary sort attribute"></select>
-                    <select id="sort1Dir" aria-label="Primary sort direction">
-                        <option value="ascending">Ascending</option>
-                        <option value="descending">Descending</option>
-                    </select>
-                </div>
-                <div class="sort-group">
-                    <label>Secondary Sort:</label>
-                    <select id="sort2Attr" aria-label="Secondary sort attribute"></select>
-                    <select id="sort2Dir" aria-label="Secondary sort direction">
-                        <option value="ascending">Ascending</option>
-                        <option value="descending">Descending</option>
-                    </select>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label for="typeFilter">Grant Type</label>
+                        <select id="typeFilter" multiple aria-label="Filter by grant type"></select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="fundingFilter">Funding Source</label>
+                        <select id="fundingFilter" multiple aria-label="Filter by funding source"></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Minimum Award Amount</label>
+                        <input type="number" id="minAwardMin" placeholder="Min" min="0" aria-label="Minimum award min">
+                        <input type="number" id="minAwardMax" placeholder="Max" min="0" aria-label="Minimum award max">
+                    </div>
+                    <div class="filter-group">
+                        <label>Maximum Award Amount</label>
+                        <input type="number" id="maxAwardMin" placeholder="Min" min="0" aria-label="Maximum award min">
+                        <input type="number" id="maxAwardMax" placeholder="Max" min="0" aria-label="Maximum award max">
+                    </div>
+                    <div class="filter-group">
+                        <label>Application Deadline</label>
+                        <input type="date" id="deadlineMin" aria-label="Deadline start">
+                        <input type="date" id="deadlineMax" aria-label="Deadline end">
+                    </div>
+                    <div class="filter-group">
+                        <label>Application Hours</label>
+                        <input type="number" id="hoursMin" placeholder="Min" min="0" aria-label="Application hours min">
+                        <input type="number" id="hoursMax" placeholder="Max" min="0" aria-label="Application hours max">
+                    </div>
+                    <div class="filter-group">
+                        <label>Primary Sort</label>
+                        <div class="sort-group">
+                            <select id="sort1Attr" aria-label="Primary sort attribute"></select>
+                            <select id="sort1Dir" aria-label="Primary sort direction">
+                                <option value="ascending">Ascending</option>
+                                <option value="descending">Descending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label>Secondary Sort</label>
+                        <div class="sort-group">
+                            <select id="sort2Attr" aria-label="Secondary sort attribute"></select>
+                            <select id="sort2Dir" aria-label="Secondary sort direction">
+                                <option value="ascending">Ascending</option>
+                                <option value="descending">Descending</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="filter-actions">
                     <button id="applyFilters">Apply Filters</button>
                     <button id="resetFilters">Reset Filters</button>
                 </div>
+                <div id="filterSummary"></div>
             </div>
             <div id="grantsContainer" role="region" aria-live="polite"></div>
         </section>
@@ -508,9 +441,7 @@
             <div class="modal-buttons">
                 <button onclick="copyGrantDetails()">Copy</button>
                 <button onclick="toggleFavorite()" id="favoriteBtn">Add to Favorites</button>
-                <button class="close-btn" onclick="closeModal('grantModal')" aria-label="Close grant details">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="close-btn" onclick="closeModal('grantModal')" aria-label="Close grant details"><i class="fas fa-times"></i></button>
             </div>
         </div>
     </div>
@@ -519,5 +450,12 @@
     </footer>
     <datalist id="grantSuggestions"></datalist>
     <script src="/assets/js/grants.js"></script>
+    <script>
+        function toggleFilters() {
+            const controls = document.getElementById('filterControls');
+            controls.classList.toggle('collapsed');
+            controls.classList.toggle('expanded');
+        }
+    </script>
 </body>
 </html>

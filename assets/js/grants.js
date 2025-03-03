@@ -27,6 +27,7 @@ let favorites = [];
 class GrantsManager {
     constructor() {
         this.container = document.getElementById('grantsContainer');
+        this.filterSummary = document.getElementById('filterSummary');
         this.loadSavedData();
         document.addEventListener('DOMContentLoaded', () => {
             this.setupEventListeners();
@@ -48,6 +49,7 @@ class GrantsManager {
             if (!allGrants.length) throw new Error('No grants found in database');
             attributes = this.extractAttributes(allGrants[0]);
             this.setupFilterControls();
+            this.updateSuggestions();
             this.displayGrants();
             this.startCountdowns();
             this.trackEvent('Grants Loaded', { count: allGrants.length });
@@ -95,12 +97,13 @@ class GrantsManager {
     setupFilterControls() {
         const controls = document.getElementById('filterControls');
         if (!controls) return;
-        this.populateFilterOptions('typeFilter', 'Grant Type');
+        this.populateFilterOptions('typeFilter', 'Type of Grant');
         this.populateFilterOptions('fundingFilter', 'Funding Source');
         this.populateSortOptions('sort1Attr', filterConfig.sort[0].attr);
         this.populateSortOptions('sort2Attr', filterConfig.sort[1].attr);
         document.getElementById('sort1Dir').value = filterConfig.sort[0].direction;
         document.getElementById('sort2Dir').value = filterConfig.sort[1].direction;
+        this.applySavedFilters();
     }
 
     populateFilterOptions(selectId, attr) {
@@ -108,6 +111,12 @@ class GrantsManager {
         if (!select) return;
         const uniqueValues = [...new Set(allGrants.map(g => g[attr] || ''))].sort();
         select.innerHTML = uniqueValues.map(val => `<option value="${val}">${val || 'N/A'}</option>`).join('');
+        if (filterConfig.filters[attr === 'Type of Grant' ? 'Grant Type' : attr]) {
+            filterConfig.filters[attr === 'Type of Grant' ? 'Grant Type' : attr].forEach(val => {
+                const option = select.querySelector(`option[value="${val}"]`);
+                if (option) option.selected = true;
+            });
+        }
     }
 
     populateSortOptions(selectId, selectedValue) {
@@ -115,6 +124,24 @@ class GrantsManager {
         if (!select) return;
         select.innerHTML = '<option value="">None</option>' + attributes.map(attr => 
             `<option value="${attr}" ${attr === selectedValue ? 'selected' : ''}>${attr}</option>`).join('');
+    }
+
+    updateSuggestions() {
+        const datalist = document.getElementById('grantSuggestions');
+        const suggestions = allGrants.map(g => g['Grant Name']).filter(Boolean);
+        datalist.innerHTML = [...new Set(suggestions)].map(s => `<option value="${s}">`).join('');
+    }
+
+    applySavedFilters() {
+        document.getElementById('searchInput').value = filterConfig.textSearch;
+        document.getElementById('minAwardMin').value = filterConfig.filters['Minimum Award Amount'].min || '';
+        document.getElementById('minAwardMax').value = filterConfig.filters['Minimum Award Amount'].max === Infinity ? '' : filterConfig.filters['Minimum Award Amount'].max;
+        document.getElementById('maxAwardMin').value = filterConfig.filters['Maximum Award Amount'].min || '';
+        document.getElementById('maxAwardMax').value = filterConfig.filters['Maximum Award Amount'].max === Infinity ? '' : filterConfig.filters['Maximum Award Amount'].max;
+        document.getElementById('deadlineMin').value = filterConfig.filters['Application Deadline'].min ? filterConfig.filters['Application Deadline'].min.toISOString().split('T')[0] : '';
+        document.getElementById('deadlineMax').value = filterConfig.filters['Application Deadline'].max ? filterConfig.filters['Application Deadline'].max.toISOString().split('T')[0] : '';
+        document.getElementById('hoursMin').value = filterConfig.filters['Application Hours'].min || '';
+        document.getElementById('hoursMax').value = filterConfig.filters['Application Hours'].max === Infinity ? '' : filterConfig.filters['Application Hours'].max;
     }
 
     applyFilters() {
@@ -195,6 +222,7 @@ class GrantsManager {
         this.container.innerHTML = filteredGrants.length === 0 ?
             '<div class="grant-card"><p>No grants match your criteria.</p></div>' :
             filteredGrants.map(grant => this.createGrantCard(grant)).join('');
+        this.updateFilterSummary(filteredGrants.length);
         this.observeCards();
     }
 
@@ -221,6 +249,17 @@ class GrantsManager {
             </div>`;
     }
 
+    updateFilterSummary(count) {
+        const summary = [];
+        if (filterConfig.textSearch) summary.push(`Search: "${filterConfig.textSearch}"`);
+        if (filterConfig.filters['Grant Type'].length) summary.push(`Types: ${filterConfig.filters['Grant Type'].join(', ')}`);
+        if (filterConfig.filters['Funding Source'].length) summary.push(`Sources: ${filterConfig.filters['Funding Source'].join(', ')}`);
+        if (filterConfig.filters['Minimum Award Amount'].min || filterConfig.filters['Minimum Award Amount'].max !== Infinity) {
+            summary.push(`Min Award: ${filterConfig.filters['Minimum Award Amount'].min} - ${filterConfig.filters['Minimum Award Amount'].max === Infinity ? 'Any' : filterConfig.filters['Minimum Award Amount'].max}`);
+        }
+        this.filterSummary.textContent = `Showing ${count} grants${summary.length ? ' | ' + summary.join(', ') : ''}`;
+    }
+
     observeCards() {
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -234,7 +273,9 @@ class GrantsManager {
         document.querySelectorAll('.grant-card').forEach(card => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
-            card.addEventListener('click', () => this.showGrantModal(card.dataset.grantId));
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.favorite-btn')) this.showGrantModal(card.dataset.grantId);
+            });
             observer.observe(card);
         });
     }
@@ -307,6 +348,7 @@ class GrantsManager {
         };
         this.setupFilterControls();
         this.applyFilters();
+        this.filterSummary.textContent = '';
     }
 
     saveConfig() {
@@ -345,11 +387,13 @@ function handleInitialPrompt(choice) {
     const controls = document.getElementById('filterControls');
     if (choice === 'viewAll') {
         closeModal('initialPrompt');
-        grantsManager.loadGrants(); // Load and display all grants without filters
+        grantsManager.loadGrants();
     } else if (choice === 'filter') {
         closeModal('initialPrompt');
-        if (controls) controls.style.display = 'grid';
-        grantsManager.loadGrants().then(() => grantsManager.applyFilters()); // Load grants, then apply filters
+        controls.style.display = 'block';
+        controls.classList.remove('collapsed');
+        controls.classList.add('expanded');
+        grantsManager.loadGrants().then(() => grantsManager.applyFilters());
     }
 }
 
