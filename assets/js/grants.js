@@ -12,10 +12,9 @@ let filterConfig = {
     filters: {
         'Grant Type': [],
         'Funding Source': [],
-        'Minimum Award Amount': { min: 0, max: Infinity },
-        'Maximum Award Amount': { min: 0, max: Infinity },
-        'Application Deadline': { min: null, max: null },
-        'Application Hours': { min: 0, max: Infinity }
+        'Target Award Amount': null, // Single value to check against min/max range
+        'Application Deadline': null, // Single date
+        'Max Application Hours': null // Single value for "up to"
     },
     sort: [
         { attr: 'Grant Name', direction: 'ascending' },
@@ -134,36 +133,24 @@ class GrantsManager {
 
     applySavedFilters() {
         document.getElementById('searchInput').value = filterConfig.textSearch;
-        document.getElementById('minAwardMin').value = filterConfig.filters['Minimum Award Amount'].min || '';
-        document.getElementById('minAwardMax').value = filterConfig.filters['Minimum Award Amount'].max === Infinity ? '' : filterConfig.filters['Minimum Award Amount'].max;
-        document.getElementById('maxAwardMin').value = filterConfig.filters['Maximum Award Amount'].min || '';
-        document.getElementById('maxAwardMax').value = filterConfig.filters['Maximum Award Amount'].max === Infinity ? '' : filterConfig.filters['Maximum Award Amount'].max;
-        document.getElementById('deadlineMin').value = filterConfig.filters['Application Deadline'].min ? filterConfig.filters['Application Deadline'].min.toISOString().split('T')[0] : '';
-        document.getElementById('deadlineMax').value = filterConfig.filters['Application Deadline'].max ? filterConfig.filters['Application Deadline'].max.toISOString().split('T')[0] : '';
-        document.getElementById('hoursMin').value = filterConfig.filters['Application Hours'].min || '';
-        document.getElementById('hoursMax').value = filterConfig.filters['Application Hours'].max === Infinity ? '' : filterConfig.filters['Application Hours'].max;
+        document.getElementById('typeFilter').selectedOptions = filterConfig.filters['Grant Type'].map(val => {
+            return document.querySelector(`#typeFilter option[value="${val}"]`);
+        }).filter(Boolean);
+        document.getElementById('fundingFilter').selectedOptions = filterConfig.filters['Funding Source'].map(val => {
+            return document.querySelector(`#fundingFilter option[value="${val}"]`);
+        }).filter(Boolean);
+        document.getElementById('targetAward').value = filterConfig.filters['Target Award Amount'] || '';
+        document.getElementById('deadline').value = filterConfig.filters['Application Deadline'] ? filterConfig.filters['Application Deadline'].toISOString().split('T')[0] : '';
+        document.getElementById('maxHours').value = filterConfig.filters['Max Application Hours'] || '';
     }
 
     applyFilters() {
         filterConfig.textSearch = document.getElementById('searchInput')?.value.toLowerCase() || '';
         filterConfig.filters['Grant Type'] = Array.from(document.getElementById('typeFilter')?.selectedOptions || []).map(opt => opt.value);
         filterConfig.filters['Funding Source'] = Array.from(document.getElementById('fundingFilter')?.selectedOptions || []).map(opt => opt.value);
-        filterConfig.filters['Minimum Award Amount'] = {
-            min: parseFloat(document.getElementById('minAwardMin')?.value) || 0,
-            max: parseFloat(document.getElementById('minAwardMax')?.value) || Infinity
-        };
-        filterConfig.filters['Maximum Award Amount'] = {
-            min: parseFloat(document.getElementById('maxAwardMin')?.value) || 0,
-            max: parseFloat(document.getElementById('maxAwardMax')?.value) || Infinity
-        };
-        filterConfig.filters['Application Deadline'] = {
-            min: this.parseDate(document.getElementById('deadlineMin')?.value),
-            max: this.parseDate(document.getElementById('deadlineMax')?.value)
-        };
-        filterConfig.filters['Application Hours'] = {
-            min: parseFloat(document.getElementById('hoursMin')?.value) || 0,
-            max: parseFloat(document.getElementById('hoursMax')?.value) || Infinity
-        };
+        filterConfig.filters['Target Award Amount'] = parseFloat(document.getElementById('targetAward')?.value) || null;
+        filterConfig.filters['Application Deadline'] = this.parseDate(document.getElementById('deadline')?.value) || null;
+        filterConfig.filters['Max Application Hours'] = parseFloat(document.getElementById('maxHours')?.value) || null;
         filterConfig.sort[0] = {
             attr: document.getElementById('sort1Attr')?.value || 'Grant Name',
             direction: document.getElementById('sort1Dir')?.value || 'ascending'
@@ -189,16 +176,15 @@ class GrantsManager {
                 const textMatch = this.fuzzySearch(grant, filterConfig.textSearch);
                 const typeMatch = !filterConfig.filters['Grant Type'].length || filterConfig.filters['Grant Type'].includes(grant['Type of Grant'] || '');
                 const fundingMatch = !filterConfig.filters['Funding Source'].length || filterConfig.filters['Funding Source'].includes(grant['Funding Source'] || '');
-                const minAwardMatch = (grant['Minimum Grant Award'] || 0) >= filterConfig.filters['Minimum Award Amount'].min &&
-                                      (grant['Minimum Grant Award'] || 0) <= filterConfig.filters['Minimum Award Amount'].max;
-                const maxAwardMatch = (grant['Maximum Grant Award'] || 0) >= filterConfig.filters['Maximum Award Amount'].min &&
-                                      (grant['Maximum Grant Award'] || 0) <= filterConfig.filters['Maximum Award Amount'].max;
-                const deadline = grant['Application Deadline'] === 'Rolling' ? null : this.parseDate(grant['Application Deadline']);
-                const deadlineMatch = (!filterConfig.filters['Application Deadline'].min || (deadline && deadline >= filterConfig.filters['Application Deadline'].min)) &&
-                                      (!filterConfig.filters['Application Deadline'].max || (deadline && deadline <= filterConfig.filters['Application Deadline'].max));
-                const hoursMatch = (grant['Estimated Application Hours'] || 0) >= filterConfig.filters['Application Hours'].min &&
-                                   (grant['Estimated Application Hours'] || 0) <= filterConfig.filters['Application Hours'].max;
-                return textMatch && typeMatch && fundingMatch && minAwardMatch && maxAwardMatch && deadlineMatch && hoursMatch;
+                const awardMatch = !filterConfig.filters['Target Award Amount'] || 
+                    (grant['Minimum Grant Award'] <= filterConfig.filters['Target Award Amount'] && 
+                     grant['Maximum Grant Award'] >= filterConfig.filters['Target Award Amount']);
+                const deadlineMatch = !filterConfig.filters['Application Deadline'] || 
+                    (grant['Application Deadline'] === 'Rolling' || 
+                     this.parseDate(grant['Application Deadline']) === filterConfig.filters['Application Deadline']);
+                const hoursMatch = !filterConfig.filters['Max Application Hours'] || 
+                    (grant['Estimated Application Hours'] || 0) <= filterConfig.filters['Max Application Hours'];
+                return textMatch && typeMatch && fundingMatch && awardMatch && deadlineMatch && hoursMatch;
             });
         }
 
@@ -254,9 +240,9 @@ class GrantsManager {
         if (filterConfig.textSearch) summary.push(`Search: "${filterConfig.textSearch}"`);
         if (filterConfig.filters['Grant Type'].length) summary.push(`Types: ${filterConfig.filters['Grant Type'].join(', ')}`);
         if (filterConfig.filters['Funding Source'].length) summary.push(`Sources: ${filterConfig.filters['Funding Source'].join(', ')}`);
-        if (filterConfig.filters['Minimum Award Amount'].min || filterConfig.filters['Minimum Award Amount'].max !== Infinity) {
-            summary.push(`Min Award: ${filterConfig.filters['Minimum Award Amount'].min} - ${filterConfig.filters['Minimum Award Amount'].max === Infinity ? 'Any' : filterConfig.filters['Minimum Award Amount'].max}`);
-        }
+        if (filterConfig.filters['Target Award Amount']) summary.push(`Target Award: ${filterConfig.filters['Target Award Amount']}`);
+        if (filterConfig.filters['Application Deadline']) summary.push(`Deadline: ${filterConfig.filters['Application Deadline'].toLocaleDateString()}`);
+        if (filterConfig.filters['Max Application Hours']) summary.push(`Max Hours: Up to ${filterConfig.filters['Max Application Hours']}`);
         this.filterSummary.textContent = `Showing ${count} grants${summary.length ? ' | ' + summary.join(', ') : ''}`;
     }
 
@@ -336,10 +322,9 @@ class GrantsManager {
             filters: {
                 'Grant Type': [],
                 'Funding Source': [],
-                'Minimum Award Amount': { min: 0, max: Infinity },
-                'Maximum Award Amount': { min: 0, max: Infinity },
-                'Application Deadline': { min: null, max: null },
-                'Application Hours': { min: 0, max: Infinity }
+                'Target Award Amount': null,
+                'Application Deadline': null,
+                'Max Application Hours': null
             },
             sort: [
                 { attr: 'Grant Name', direction: 'ascending' },
