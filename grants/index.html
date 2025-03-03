@@ -171,6 +171,7 @@
         #searchInput:focus {
             border-color: var(--secondary-color);
             box-shadow: 0 0 12px var(--accent-color);
+            outline: none;
         }
 
         select {
@@ -194,7 +195,8 @@
         select:focus {
             border-color: var(--secondary-color);
             box-shadow: 0 0 12px var(--accent-color);
-            outline: none;
+            outline: 3px dashed var(--secondary-color); /* Consistent pink outline */
+            outline-offset: 3px;
         }
 
         .search-bar i {
@@ -230,6 +232,8 @@
         .filter-group input:focus {
             border-color: var(--secondary-color);
             box-shadow: 0 0 12px var(--accent-color);
+            outline: 3px dashed var(--secondary-color); /* Consistent pink outline */
+            outline-offset: 3px;
         }
 
         .sort-group {
@@ -290,6 +294,12 @@
             transform: translateY(-8px);
             box-shadow: 0 8px 24px var(--accent-color);
             border-color: var(--secondary-color);
+            outline: none; /* Remove default outline on hover */
+        }
+
+        .grant-card:focus-within {
+            outline: 3px dashed var(--secondary-color); /* Pink outline for accessibility */
+            outline-offset: 3px;
         }
 
         .grant-card h3 {

@@ -260,6 +260,9 @@ class GrantsManager {
             card.addEventListener('click', (e) => {
                 if (!e.target.closest('.favorite-btn')) this.showGrantModal(card.dataset.grantId);
             });
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') this.showGrantModal(card.dataset.grantId);
+            });
             observer.observe(card);
         });
     }
@@ -306,7 +309,11 @@ class GrantsManager {
                 timeout = setTimeout(() => func.apply(this, args), wait);
             };
         };
-        document.getElementById('searchInput')?.addEventListener('input', debounce(() => this.applyFilters(), 300));
+        const searchInput = document.getElementById('searchInput');
+        searchInput?.addEventListener('input', debounce(() => this.applyFilters(), 300));
+        searchInput?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.applyFilters();
+        });
         document.getElementById('applyFilters')?.addEventListener('click', () => this.applyFilters());
         document.getElementById('resetFilters')?.addEventListener('click', () => this.resetFilters());
         document.addEventListener('keydown', (e) => {
