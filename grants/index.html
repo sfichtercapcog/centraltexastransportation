@@ -8,7 +8,6 @@
     <title>Grants Nexus - Central Texas Transportation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1476.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         /* ========================================================================== 
            Global CSS - Vaporwave Aesthetic for Maximum Accessibility and Style
@@ -134,7 +133,7 @@
             padding: var(--spacing-lg) var(--spacing-md);
         }
 
-        .dashboard { max-width: 1200px; margin: 0 auto; padding: var(--spacing-md) 0; }
+        .dashboard { max-width: 1200px; margin: 0 auto; padding: var(--spacing-md); }
 
         .controls {
             display: grid;
@@ -147,6 +146,7 @@
             box-shadow: 0 4px 12px var(--shadow-color);
             backdrop-filter: blur(10px);
             margin-bottom: var(--spacing-lg);
+            background: linear-gradient(135deg, rgba(95, 0, 186, 0.2), rgba(255, 102, 196, 0.2));
         }
 
         .filter-group, .sort-group { display: flex; flex-direction: column; gap: var(--spacing-xs); }
@@ -261,17 +261,13 @@
             border-radius: 4px;
             color: var(--background-light);
             font-size: 0.85rem;
+            background: var(--primary-color);
             box-shadow: 0px 0px 8px var(--shadow-color);
         }
 
-        .tag.formula { background: var(--primary-color); }
-        .tag.discretionary { background: var(--secondary-color); }
-        .tag.competitive { background: var(--accent-color); }
-
-        .deadline { color: var(--text-color); text-shadow: 0px 0px 5px var(--shadow-color); }
-
-        .deadline.deadline-passed { color: #ff4040; text-shadow: 0px 0px 10px #ff4040; }
-        .deadline.due-in { color: #f1c40f; text-shadow: 0px 0px 10px #f1c40f; }
+        .tag.formula { background: var(--accent-color); } /* Neon cyan */
+        .tag.discretionary { background: var(--secondary-color); } /* Electric pink */
+        .tag.competitive { background: var(--primary-color); } /* Deep neon purple */
 
         .favorite-btn {
             position: absolute;
@@ -389,6 +385,9 @@
             border: 0;
         }
 
+        .deadline { color: var(--secondary-color); text-shadow: 0px 0px 8px var(--shadow-color); }
+        .deadline.passed { color: var(--primary-color); text-shadow: 0px 0px 8px var(--shadow-color); }
+
         @media (max-width: var(--breakpoint-tablet)) {
             .container, .dashboard { padding: 0 var(--spacing-sm); }
             .controls { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
@@ -429,7 +428,7 @@
             </ul>
         </nav>
     </header>
-    <main class="container">
+    <main>
         <section class="hero" role="banner">
             <h1>Grants Nexus</h1>
             <p>Central Texas Transportation Funding Hub</p>
@@ -497,14 +496,24 @@
                 <div class="filter-actions">
                     <button id="applyFilters">Apply Filters</button>
                     <button id="resetFilters">Reset Filters</button>
-                    <button id="savePresetBtn">Save Preset</button>
-                    <select id="presetSelect" aria-label="Load saved filter preset"><option value="">Load Preset</option></select>
                 </div>
-                <button id="exportBtn" onclick="exportToPDF()">Export to PDF</button>
             </div>
             <div id="grantsContainer" role="region" aria-live="polite"></div>
         </section>
     </main>
+    <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
+        <div class="modal-content" data-grant-id="">
+            <h2 id="modalTitle"></h2>
+            <div id="modalDetails"></div>
+            <div class="modal-buttons">
+                <button onclick="copyGrantDetails()">Copy</button>
+                <button onclick="toggleFavorite()" id="favoriteBtn">Add to Favorites</button>
+                <button class="close-btn" onclick="closeModal('grantModal')" aria-label="Close grant details">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
     <footer role="contentinfo">
         <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy</a> | <a href="/terms/">Terms</a> | <a href="/accessibility/">Accessibility</a></p>
     </footer>

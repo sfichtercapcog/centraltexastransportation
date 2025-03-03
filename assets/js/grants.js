@@ -23,7 +23,6 @@ let filterConfig = {
     ]
 };
 let favorites = [];
-let filterPresets = {};
 
 class GrantsManager {
     constructor() {
@@ -102,7 +101,6 @@ class GrantsManager {
         this.populateSortOptions('sort2Attr', filterConfig.sort[1].attr);
         document.getElementById('sort1Dir').value = filterConfig.sort[0].direction;
         document.getElementById('sort2Dir').value = filterConfig.sort[1].direction;
-        this.updatePresetSelect();
     }
 
     populateFilterOptions(selectId, attr) {
@@ -117,13 +115,6 @@ class GrantsManager {
         if (!select) return;
         select.innerHTML = '<option value="">None</option>' + attributes.map(attr => 
             `<option value="${attr}" ${attr === selectedValue ? 'selected' : ''}>${attr}</option>`).join('');
-    }
-
-    updatePresetSelect() {
-        const presetSelect = document.getElementById('presetSelect');
-        if (!presetSelect) return;
-        presetSelect.innerHTML = '<option value="">Load Preset</option>' + 
-            Object.keys(filterPresets).map(name => `<option value="${name}">${name}</option>`).join('');
     }
 
     applyFilters() {
@@ -215,9 +206,7 @@ class GrantsManager {
 
     createGrantCard(grant) {
         const isFavorite = favorites.includes(grant.grantId);
-        const deadline = grant['Application Deadline'] === 'Rolling' ? 'Rolling Deadline' : this.parseDate(grant['Application Deadline']);
-        const timeLeft = deadline && deadline !== 'Rolling Deadline' ? deadline - new Date() : null;
-        const deadlineClass = timeLeft <= 0 ? 'deadline-passed' : (timeLeft ? 'due-in' : '');
+        const deadlineClass = this.parseDate(grant['Application Deadline']) && this.parseDate(grant['Application Deadline']) < new Date() ? 'passed' : '';
         return `
             <div class="grant-card" tabindex="0" data-grant-id="${grant.grantId}">
                 <h3>${grant['Grant Name'] || 'Untitled'}</h3>
@@ -256,14 +245,13 @@ class GrantsManager {
                 const deadline = el.getAttribute('data-deadline');
                 if (!deadline || deadline === 'Rolling') {
                     el.textContent = 'Rolling Deadline';
-                    el.className = 'countdown';
                     return;
                 }
                 const timeLeft = this.parseDate(deadline) - new Date();
                 el.textContent = timeLeft <= 0 ?
                     'Deadline Passed' :
                     `Due in ${Math.floor(timeLeft / (1000 * 60 * 60 * 24))} days ${Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))} hours`;
-                el.className = timeLeft <= 0 ? 'countdown deadline-passed' : 'countdown due-in';
+                el.className = `countdown ${timeLeft <= 0 ? 'passed' : ''}`;
             });
         }, 1000);
     }
@@ -296,8 +284,6 @@ class GrantsManager {
         document.getElementById('searchInput')?.addEventListener('input', debounce(() => this.applyFilters(), 300));
         document.getElementById('applyFilters')?.addEventListener('click', () => this.applyFilters());
         document.getElementById('resetFilters')?.addEventListener('click', () => this.resetFilters());
-        document.getElementById('savePresetBtn')?.addEventListener('click', () => this.savePreset());
-        document.getElementById('presetSelect')?.addEventListener('change', (e) => this.loadPreset(e.target.value));
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeAllModals();
         });
@@ -323,28 +309,6 @@ class GrantsManager {
         this.applyFilters();
     }
 
-    savePreset() {
-        const name = prompt('Enter preset name:');
-        if (name) {
-            filterPresets[name] = JSON.parse(JSON.stringify(filterConfig));
-            try {
-                localStorage.setItem('filterPresets', JSON.stringify(filterPresets));
-                this.updatePresetSelect();
-            } catch (err) {
-                console.error('Failed to save preset:', err);
-                alert('Could not save preset. Storage may be full.');
-            }
-        }
-    }
-
-    loadPreset(name) {
-        if (name && filterPresets[name]) {
-            filterConfig = JSON.parse(JSON.stringify(filterPresets[name]));
-            this.setupFilterControls();
-            this.applyFilters();
-        }
-    }
-
     saveConfig() {
         try {
             localStorage.setItem('filterConfig', JSON.stringify(filterConfig));
@@ -358,8 +322,6 @@ class GrantsManager {
         try {
             const savedFavorites = localStorage.getItem('favorites');
             if (savedFavorites) favorites = JSON.parse(savedFavorites);
-            const savedPresets = localStorage.getItem('filterPresets');
-            if (savedPresets) filterPresets = JSON.parse(savedPresets);
             const savedConfig = localStorage.getItem('filterConfig');
             if (savedConfig) filterConfig = JSON.parse(savedConfig);
         } catch (err) {
@@ -430,34 +392,4 @@ function toggleFavorite(grantId) {
         console.error('Failed to update favorites:', err);
         alert('Could not update favorites.');
     }
-}
-
-function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const filteredGrants = Array.from(document.querySelectorAll('.grant-card')).slice(0, 50); // Limit to 50 for performance
-    doc.setFontSize(16);
-    doc.text('Grants Nexus Report', 10, 10);
-    filteredGrants.forEach((card, i) => {
-        const y = 20 + i * 40;
-        if (y > 280) { // Simple pagination
-            doc.addPage();
-            y = 20;
-        }
-        const grant = {
-            name: card.querySelector('h3').textContent,
-            type: card.querySelector('.tag').textContent,
-            funding: card.querySelector('p:nth-child(3)').textContent.replace('Funding: ', ''),
-            award: card.querySelector('p:nth-child(4)').textContent.replace('Award: ', ''),
-            deadline: card.querySelector('.deadline').textContent.replace('Deadline: ', '')
-        };
-        doc.setFontSize(12);
-        doc.text(`${grant.name}`, 10, y);
-        doc.setFontSize(10);
-        doc.text(`Type: ${grant.type}`, 10, y + 5);
-        doc.text(`Funding: ${grant.funding}`, 10, y + 10);
-        doc.text(`Award: ${grant.award}`, 10, y + 15);
-        doc.text(`Deadline: ${grant.deadline}`, 10, y + 20);
-    });
-    doc.save('Grants_Nexus_Report.pdf');
 }
