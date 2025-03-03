@@ -3,10 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grants - Central Texas Transportation</title>
-    <link rel="stylesheet" href="/assets/css/global.css">
-    <link rel="stylesheet" href="/assets/css/grants.css">
+    <title>Grants Nexus - Central Texas Transportation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.min.css">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1476.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #1abc9c;
+            --secondary: #2c3e50;
+            --accent: #3498db;
+            --bg-light: #f5f7fa;
+            --bg-dark: #2c2c2c;
+            --text-light: #333;
+            --text-dark: #ddd;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-light);
+            color: var(--text-light);
+            transition: background 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        header {
+            background: var(--secondary);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: var(--primary);
+        }
+        .dashboard {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            background: rgba(255,255,255,0.9);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .controls input, .controls select, .controls button {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .controls input:focus, .controls select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .controls button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .controls button:hover {
+            background: var(--accent);
+            transform: scale(1.05);
+        }
+        #grantsContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .grant-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .grant-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .grant-card h3 {
+            color: var(--secondary);
+            margin: 0 0 1rem;
+            font-size: 1.6rem;
+        }
+        .grant-card p {
+            margin: 0.5rem 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .grant-card .deadline {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .grant-card .favorite {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            color: #bdc3c7;
+            transition: color 0.3s;
+        }
+        .grant-card .favorite.active {
+            color: #e74c3c;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .pagination button {
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .pagination button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .stats {
+            margin: 2rem 0;
+            background: rgba(255,255,255,0.9);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        #grantChart {
+            max-height: 300px;
+        }
+        .dark-mode-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        footer {
+            background: var(--secondary);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -23,11 +232,44 @@
             </ul>
         </nav>
     </header>
-    <main>
-        <h1>Grant Finder</h1>
-        <p>View all transportation grants listed alphabetically.</p>
+    <div class="dashboard">
+        <h1>Grants Nexus</h1>
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="Search by Grant Name..." aria-label="Search grants">
+            <select id="typeFilter" aria-label="Filter by grant type">
+                <option value="">All Types</option>
+                <option value="Formula">Formula</option>
+                <option value="Discretionary">Discretionary</option>
+                <option value="Competitive">Competitive</option>
+            </select>
+            <select id="fundingFilter" aria-label="Filter by funding source">
+                <option value="">All Funding Sources</option>
+                <option value="TxDOT">TxDOT</option>
+                <option value="FHWA">FHWA</option>
+                <option value="FTA">FTA</option>
+            </select>
+            <input type="number" id="minAmount" placeholder="Min Award ($)" aria-label="Minimum grant award">
+            <input type="number" id="maxAmount" placeholder="Max Award ($)" aria-label="Maximum grant award">
+            <button onclick="exportToCSV()">Export CSV</button>
+            <button onclick="exportToPDF()">Export PDF</button>
+        </div>
+        <div class="stats">
+            <canvas id="grantChart"></canvas>
+        </div>
         <div id="grantsContainer"></div>
-    </main>
+        <div class="pagination">
+            <button id="prevPage" disabled>Previous</button>
+            <button id="nextPage">Next</button>
+        </div>
+    </div>
+    <div id="grantModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle"></h2>
+            <div id="modalDetails"></div>
+            <button onclick="document.getElementById('grantModal').style.display='none'">Close</button>
+        </div>
+    </div>
     <footer>
         <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy Policy</a> | <a href="/terms/">Terms of Use</a> | <a href="/accessibility/">Accessibility</a></p>
     </footer>
