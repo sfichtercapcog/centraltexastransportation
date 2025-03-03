@@ -7,6 +7,9 @@ AWS.config.update({
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 let allGrants = [];
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let attributes = [];
+let filterAttrs = ['Grant Name', 'Type of Grant', 'Funding Source'];
+let sortAttr = 'Grant Name';
 
 async function loadGrants() {
     const container = document.getElementById('grantsContainer');
@@ -16,6 +19,8 @@ async function loadGrants() {
         const params = { TableName: 'grants' };
         const data = await dynamodb.scan(params).promise();
         allGrants = data.Items || [];
+        attributes = Object.keys(allGrants[0] || {}).filter(k => k !== 'grantId');
+        setupCustomOptions();
         displayGrants();
         startCountdowns();
     } catch (err) {
@@ -27,36 +32,73 @@ async function loadGrants() {
     }
 }
 
+function setupCustomOptions() {
+    const filter1 = document.getElementById('customFilter1');
+    const filter2 = document.getElementById('customFilter2');
+    const filter3 = document.getElementById('customFilter3');
+    const sort = document.getElementById('customSort');
+    
+    [filter1, filter2, filter3, sort].forEach(select => {
+        select.innerHTML = '<option value="">Select Attribute</option>' + 
+            attributes.map(attr => `<option value="${attr}">${attr}</option>`).join('');
+    });
+
+    filter1.value = filterAttrs[0];
+    filter2.value = filterAttrs[1];
+    filter3.value = filterAttrs[2];
+    sort.value = sortAttr;
+
+    updateControls();
+}
+
+function updateControls() {
+    const filter1 = document.getElementById('filter1');
+    const filter2 = document.getElementById('filter2');
+    const filter3 = document.getElementById('filter3');
+    const sortBy = document.getElementById('sortBy');
+
+    filter1.placeholder = `Search by ${filterAttrs[0]}`;
+    filter1.value = '';
+
+    const populateSelect = (select, attr) => {
+        const uniqueValues = [...new Set(allGrants.map(g => g[attr] || ''))].sort();
+        select.innerHTML = `<option value="">All ${attr}s</option>` + 
+            uniqueValues.map(val => `<option value="${val}">${val || 'N/A'}</option>`).join('');
+    };
+    populateSelect(filter2, filterAttrs[1]);
+    populateSelect(filter3, filterAttrs[2]);
+    sortBy.innerHTML = attributes.map(attr => `<option value="${attr}">${attr}</option>`).join('');
+    sortBy.value = sortAttr;
+}
+
 function displayGrants() {
     const container = document.getElementById('grantsContainer');
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const typeFilter = document.getElementById('typeFilter').value;
-    const fundingFilter = document.getElementById('fundingFilter').value;
-    const sortBy = document.getElementById('sortBy').value;
+    const filter1Val = document.getElementById('filter1').value.toLowerCase();
+    const filter2Val = document.getElementById('filter2').value;
+    const filter3Val = document.getElementById('filter3').value;
 
     let filteredGrants = allGrants.filter(grant => {
-        const matchesSearch = (grant['Grant Name'] || '').toLowerCase().includes(searchTerm);
-        const matchesType = !typeFilter || grant['Type of Grant'] === typeFilter;
-        const matchesFunding = !fundingFilter || grant['Funding Source'] === fundingFilter;
-        return matchesSearch && matchesType && matchesFunding;
+        const attr1Match = (grant[filterAttrs[0]] || '').toString().toLowerCase().includes(filter1Val);
+        const attr2Match = !filter2Val || (grant[filterAttrs[1]] || '') === filter2Val;
+        const attr3Match = !filter3Val || (grant[filterAttrs[2]] || '') === filter3Val;
+        return attr1Match && attr2Match && attr3Match;
     });
 
     filteredGrants.sort((a, b) => {
-        if (sortBy === 'name') return (a['Grant Name'] || '').localeCompare(b['Grant Name'] || '');
-        if (sortBy === 'deadline') {
-            const dateA = new Date(a['Application Deadline'] || '9999-12-31');
-            const dateB = new Date(b['Application Deadline'] || '9999-12-31');
-            return dateA - dateB;
+        const valA = a[sortAttr] || '';
+        const valB = b[sortAttr] || '';
+        if (sortAttr === 'Application Deadline') {
+            return new Date(valA || '9999-12-31') - new Date(valB || '9999-12-31');
         }
-        if (sortBy === 'funding') return (a['Funding Source'] || '').localeCompare(b['Funding Source'] || '');
-        return 0;
+        if (typeof valA === 'number') return valA - valB;
+        return valA.toString().localeCompare(valB.toString());
     });
 
     container.innerHTML = '';
     if (filteredGrants.length === 0) {
         container.innerHTML = '<div class="grant-card"><p>No matching grants found.</p></div>';
     } else {
-        const observer = new IntersectionObserver((entries, observer) => {
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.style.opacity = '1';
@@ -73,7 +115,7 @@ function displayGrants() {
             grantCard.style.transform = 'translateY(20px)';
             grantCard.innerHTML = `
                 <h3>${grant['Grant Name'] || 'Untitled'}</h3>
-                <p><span class="tag ${grant['Type of Grant'].toLowerCase()}">${grant['Type of Grant'] || 'N/A'}</span></p>
+                <p><span class="tag ${grant['Type of Grant']?.toLowerCase()}">${grant['Type of Grant'] || 'N/A'}</span></p>
                 <p><strong>Funding:</strong> ${grant['Funding Source'] || 'N/A'}</p>
                 <p><strong>Award Range:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
                 <p class="deadline"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
@@ -123,22 +165,9 @@ function showGrantModal(grant) {
     const modal = document.getElementById('grantModal');
     document.getElementById('modalTitle').textContent = grant['Grant Name'] || 'Untitled Grant';
     const details = document.getElementById('modalDetails');
-    details.innerHTML = `
-        <p><strong>Type:</strong> ${grant['Type of Grant'] || 'N/A'}</p>
-        <p><strong>Funding Source:</strong> ${grant['Funding Source'] || 'N/A'}</p>
-        <p><strong>Purpose:</strong> ${grant['Project Purpose'] || 'N/A'}</p>
-        <p><strong>Eligible Entities:</strong> ${grant['Eligible Entities'] || 'N/A'}</p>
-        <p><strong>Preferred Communities:</strong> ${grant['Preferred Communities'] || 'None'}</p>
-        <p><strong>Award Range:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
-        <p><strong>Match Requirements:</strong> ${grant['Match Requirements'] * 100 || 0}%</p>
-        <p><strong>In-Kind Allowed:</strong> ${grant['In-Kind Allowed'] || 'No'}</p>
-        <p><strong>Shovel-Ready Required:</strong> ${grant['Shovel-Ready Required'] || 'No'}</p>
-        <p><strong>Pre-Engineering Required:</strong> ${grant['Pre-Engineering Required'] || 'No'}</p>
-        <p><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
-        <p><strong>Project Length:</strong> ${grant['Expected Project Length'] || 'N/A'}</p>
-        <p><strong>Est. Application Hours:</strong> ${grant['Estimated Application Hours'] || 'N/A'}</p>
-        <p><em>Eligibility Checker Coming Soon!</em></p>
-    `;
+    details.innerHTML = attributes.map(attr => `
+        <p><strong>${attr}:</strong> ${grant[attr] !== undefined ? grant[attr].toLocaleString() : 'N/A'}</p>
+    `).join('');
     modal.style.display = 'flex';
 }
 
@@ -148,8 +177,25 @@ function copyGrantDetails() {
     navigator.clipboard.writeText(`${title}\n${details}`).then(() => alert('Details copied to clipboard!'));
 }
 
+function showCustomizeModal() {
+    const modal = document.getElementById('customizeModal');
+    modal.style.display = 'flex';
+}
+
+function saveCustomOptions() {
+    filterAttrs = [
+        document.getElementById('customFilter1').value,
+        document.getElementById('customFilter2').value,
+        document.getElementById('customFilter3').value
+    ].filter(Boolean);
+    sortAttr = document.getElementById('customSort').value || 'Grant Name';
+    updateControls();
+    displayGrants();
+    document.getElementById('customizeModal').style.display = 'none';
+}
+
 function exportToCSV() {
-    const headers = Object.keys(allGrants[0] || {}).filter(k => k !== 'grantId');
+    const headers = attributes;
     const csv = [headers.join(','), ...allGrants.map(g => 
         headers.map(k => `"${(g[k] || '').toString().replace(/"/g, '""')}"`).join(',')
     )].join('\n');
@@ -188,20 +234,22 @@ function toggleDarkMode() {
     });
 }
 
-// Add Esc key listener to close modal
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-        const modal = document.getElementById('grantModal');
-        if (modal.style.display === 'flex') {
-            modal.style.display = 'none';
-        }
+        const grantModal = document.getElementById('grantModal');
+        const customizeModal = document.getElementById('customizeModal');
+        if (grantModal.style.display === 'flex') grantModal.style.display = 'none';
+        if (customizeModal.style.display === 'flex') customizeModal.style.display = 'none';
     }
 });
 
-document.getElementById('searchInput').addEventListener('input', displayGrants);
-document.getElementById('typeFilter').addEventListener('change', displayGrants);
-document.getElementById('fundingFilter').addEventListener('change', displayGrants);
-document.getElementById('sortBy').addEventListener('change', displayGrants);
+document.getElementById('filter1').addEventListener('input', displayGrants);
+document.getElementById('filter2').addEventListener('change', displayGrants);
+document.getElementById('filter3').addEventListener('change', displayGrants);
+document.getElementById('sortBy').addEventListener('change', (e) => {
+    sortAttr = e.target.value;
+    displayGrants();
+});
 
 window.onload = async () => {
     await loadGrants();

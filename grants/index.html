@@ -83,6 +83,7 @@
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
+            position: relative;
         }
         .controls input, .controls select, .controls button {
             padding: 0.75rem;
@@ -106,6 +107,10 @@
         .controls button:hover {
             background: var(--accent);
             transform: scale(1.05);
+        }
+        #customizeBtn {
+            background: linear-gradient(45deg, var(--accent), var(--primary));
+            font-weight: bold;
         }
         #grantsContainer {
             display: grid;
@@ -201,6 +206,7 @@
             overflow-y: auto;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             position: relative;
+            animation: zoomIn 0.3s ease-out;
         }
         .modal-buttons {
             margin-top: 1rem;
@@ -244,6 +250,40 @@
             transform: rotate(90deg);
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
+        #customizeModal .modal-content {
+            max-width: 500px;
+        }
+        #customizeModal h2 {
+            color: var(--secondary);
+            margin-top: 0;
+            text-align: center;
+        }
+        #customizeModal select {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        #customizeModal select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(26,188,156,0.5);
+            outline: none;
+        }
+        #customizeModal button.save {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        #customizeModal button.save:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
         .dark-mode-toggle {
             position: fixed;
             top: 1rem;
@@ -267,6 +307,7 @@
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -291,26 +332,13 @@
     <div class="dashboard">
         <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
         <div class="controls">
-            <input type="text" id="searchInput" placeholder="Search by Grant Name..." aria-label="Search grants">
-            <select id="typeFilter" aria-label="Filter by grant type">
-                <option value="">All Types</option>
-                <option value="Formula">Formula</option>
-                <option value="Discretionary">Discretionary</option>
-                <option value="Competitive">Competitive</option>
-            </select>
-            <select id="fundingFilter" aria-label="Filter by funding source">
-                <option value="">All Funding Sources</option>
-                <option value="TxDOT">TxDOT</option>
-                <option value="FHWA">FHWA</option>
-                <option value="FTA">FTA</option>
-            </select>
-            <select id="sortBy" aria-label="Sort grants">
-                <option value="name">Sort by Name</option>
-                <option value="deadline">Sort by Deadline</option>
-                <option value="funding">Sort by Funding Source</option>
-            </select>
+            <input type="text" id="filter1" placeholder="Search by Grant Name..." aria-label="Filter 1">
+            <select id="filter2" aria-label="Filter 2"></select>
+            <select id="filter3" aria-label="Filter 3"></select>
+            <select id="sortBy" aria-label="Sort grants"></select>
             <button onclick="exportToCSV()">Export CSV</button>
             <button onclick="exportToPDF()">Export PDF</button>
+            <button id="customizeBtn" onclick="showCustomizeModal()">Customize Filters & Sorts</button>
         </div>
         <div id="grantsContainer"></div>
     </div>
@@ -321,6 +349,21 @@
             <div class="modal-buttons">
                 <button class="copy" onclick="copyGrantDetails()">Copy Details</button>
                 <button class="close-btn" onclick="document.getElementById('grantModal').style.display='none'" aria-label="Close modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="customizeModal" class="modal">
+        <div class="modal-content">
+            <h2>Customize Filters & Sorts</h2>
+            <select id="customFilter1" aria-label="Choose Filter 1"></select>
+            <select id="customFilter2" aria-label="Choose Filter 2"></select>
+            <select id="customFilter3" aria-label="Choose Filter 3"></select>
+            <select id="customSort" aria-label="Choose Sort"></select>
+            <div class="modal-buttons">
+                <button class="save" onclick="saveCustomOptions()">Save & Apply</button>
+                <button class="close-btn" onclick="document.getElementById('customizeModal').style.display='none'" aria-label="Close customize modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
