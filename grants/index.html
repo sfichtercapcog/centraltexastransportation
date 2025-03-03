@@ -23,11 +23,7 @@
             --shadow: 0 6px 25px rgba(0,0,0,0.1);
             --transition: all 0.3s ease;
         }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-light);
@@ -35,14 +31,8 @@
             line-height: 1.6;
             transition: var(--transition);
         }
-        body.dark {
-            background: var(--bg-dark);
-            color: var(--text-dark);
-        }
-        body.high-contrast {
-            background: var(--high-contrast-bg);
-            color: var(--high-contrast-text);
-        }
+        body.dark { background: var(--bg-dark); color: var(--text-dark); }
+        body.high-contrast { background: var(--high-contrast-bg); color: var(--high-contrast-text); }
         header {
             background: linear-gradient(135deg, var(--secondary), var(--accent));
             padding: 1.5rem 2rem;
@@ -74,17 +64,8 @@
             text-align: center;
             padding: 4rem 2rem;
         }
-        .hero h1 {
-            font-size: 3rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: fadeIn 1s ease-in;
-        }
-        .dashboard {
-            max-width: 1440px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        .hero h1 { font-size: 3rem; text-transform: uppercase; letter-spacing: 2px; animation: fadeIn 1s ease-in; }
+        .dashboard { max-width: 1440px; margin: 0 auto; padding: 2rem; }
         .controls {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -95,6 +76,11 @@
             box-shadow: var(--shadow);
             margin-bottom: 2rem;
         }
+        .filter-group, .sort-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .filter-group label, .sort-group label { font-weight: bold; }
+        .filter-group select[multiple] { height: 100px; }
+        .filter-group input[type="number"], .filter-group input[type="date"] { width: 100px; }
+        .sort-group select { width: 150px; }
         .controls input, .controls select, .controls button {
             padding: 0.75rem;
             border: 1px solid #ddd;
@@ -112,11 +98,9 @@
             color: white;
             border: none;
             cursor: pointer;
+            margin: 0.5rem 0;
         }
-        .controls button:hover, .controls button:focus {
-            background: var(--accent);
-            transform: scale(1.03);
-        }
+        .controls button:hover, .controls button:focus { background: var(--accent); transform: scale(1.03); }
         #grantsContainer {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -136,24 +120,14 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 35px rgba(0,0,0,0.15);
         }
-        .grant-card h3 {
-            color: var(--secondary);
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .grant-card p {
-            margin: 0.5rem 0;
-            font-size: 0.95rem;
-        }
-        .tag {
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            color: white;
-            font-size: 0.85rem;
-        }
+        .grant-card h3 { color: var(--secondary); font-size: 1.5rem; margin-bottom: 1rem; }
+        .grant-card p { margin: 0.5rem 0; font-size: 0.95rem; }
+        .tag { padding: 0.4rem 0.8rem; border-radius: 4px; color: white; font-size: 0.85rem; }
         .tag.formula { background: #3498db; }
         .tag.discretionary { background: #e67e22; }
         .tag.competitive { background: #9b59b6; }
+        .favorite-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+        .favorite-btn.active { color: #f1c40f; }
         .modal {
             display: none;
             position: fixed;
@@ -177,12 +151,7 @@
             box-shadow: var(--shadow);
             animation: zoomIn 0.3s ease-out;
         }
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 1.5rem;
-        }
+        .modal-buttons { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; }
         .modal-buttons button {
             padding: 0.75rem 1.5rem;
             border-radius: 6px;
@@ -203,21 +172,9 @@
             align-items: center;
             justify-content: center;
         }
-        .close-btn:hover, .close-btn:focus {
-            background: var(--accent);
-            transform: rotate(90deg);
-        }
-        footer {
-            text-align: center;
-            padding: 2rem;
-            background: var(--secondary);
-            color: white;
-        }
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-            margin: 0 0.5rem;
-        }
+        .close-btn:hover, .close-btn:focus { background: var(--accent); transform: rotate(90deg); }
+        footer { text-align: center; padding: 2rem; background: var(--secondary); color: white; }
+        footer a { color: var(--primary); text-decoration: none; margin: 0 0.5rem; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @media (max-width: 768px) {
@@ -248,11 +205,48 @@
         </section>
         <section class="dashboard" role="main">
             <div class="controls" role="search">
-                <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants by name">
-                <select id="filter1" aria-label="Filter by type"></select>
-                <select id="filter2" aria-label="Filter by funding source"></select>
-                <select id="sortBy" aria-label="Sort grants"></select>
-                <button id="customizeBtn" onclick="showCustomizeModal()">Customize</button>
+                <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
+                <div class="filter-group">
+                    <label for="typeFilter">Type of Grant:</label>
+                    <select id="typeFilter" multiple aria-label="Filter by grant type"></select>
+                </div>
+                <div class="filter-group">
+                    <label for="fundingFilter">Funding Source:</label>
+                    <select id="fundingFilter" multiple aria-label="Filter by funding source"></select>
+                </div>
+                <div class="filter-group">
+                    <label>Min Award Range:</label>
+                    <input type="number" id="minAwardMin" placeholder="Min" min="0" aria-label="Minimum award min">
+                    <input type="number" id="minAwardMax" placeholder="Max" min="0" aria-label="Minimum award max">
+                </div>
+                <div class="filter-group">
+                    <label>Max Award Range:</label>
+                    <input type="number" id="maxAwardMin" placeholder="Min" min="0" aria-label="Maximum award min">
+                    <input type="number" id="maxAwardMax" placeholder="Max" min="0" aria-label="Maximum award max">
+                </div>
+                <div class="filter-group">
+                    <label>Deadline:</label>
+                    <input type="date" id="deadlineMin" aria-label="Deadline start">
+                    <input type="date" id="deadlineMax" aria-label="Deadline end">
+                </div>
+                <div class="filter-group">
+                    <label>App Hours:</label>
+                    <input type="number" id="hoursMin" placeholder="Min" min="0" aria-label="Application hours min">
+                    <input type="number" id="hoursMax" placeholder="Max" min="0" aria-label="Application hours max">
+                </div>
+                <div class="sort-group">
+                    <label>Sort 1:</label>
+                    <select id="sort1Attr" aria-label="Primary sort attribute"></select>
+                    <select id="sort1Dir" aria-label="Primary sort direction"><option value="asc">Asc</option><option value="desc">Desc</option></select>
+                </div>
+                <div class="sort-group">
+                    <label>Sort 2:</label>
+                    <select id="sort2Attr" aria-label="Secondary sort attribute"></select>
+                    <select id="sort2Dir" aria-label="Secondary sort direction"><option value="asc">Asc</option><option value="desc">Desc</option></select>
+                </div>
+                <button id="applyFilters">Apply Filters</button>
+                <button id="savePresetBtn">Save Preset</button>
+                <select id="presetSelect" aria-label="Load saved filter preset"><option value="">Load Preset</option></select>
                 <button id="exportBtn" onclick="exportToPDF()">Export to PDF</button>
                 <button id="themeToggle" onclick="toggleTheme()">Toggle Theme</button>
             </div>
@@ -260,31 +254,13 @@
         </section>
     </main>
     <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
-        <div class="modal-content">
+        <div class="modal-content" data-grant-id="">
             <h2 id="modalTitle"></h2>
             <div id="modalDetails"></div>
             <div class="modal-buttons">
                 <button onclick="copyGrantDetails()">Copy</button>
                 <button onclick="toggleFavorite()" id="favoriteBtn">Add to Favorites</button>
                 <button class="close-btn" onclick="closeModal('grantModal')" aria-label="Close grant details">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div id="customizeModal" class="modal" role="dialog" aria-labelledby="customizeTitle">
-        <div class="modal-content">
-            <h2 id="customizeTitle">Customize Filters & Sorting</h2>
-            <label for="customFilter1">Filter 1:</label>
-            <select id="customFilter1"></select>
-            <label for="customFilter2">Filter 2:</label>
-            <select id="customFilter2"></select>
-            <label for="customSort">Sort By:</label>
-            <select id="customSort"></select>
-            <div class="modal-buttons">
-                <button onclick="saveCustomOptions()">Save</button>
-                <button onclick="resetCustomOptions()">Reset</button>
-                <button class="close-btn" onclick="closeModal('customizeModal')" aria-label="Close customize modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
