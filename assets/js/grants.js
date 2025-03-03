@@ -1,4 +1,5 @@
-const AWS = require('aws-sdk');
+// Use the globally available AWS object (loaded via <script> in index.html)
+const AWS = window.AWS;
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
