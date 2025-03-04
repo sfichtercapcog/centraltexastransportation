@@ -300,7 +300,7 @@
         }
 
         .grant-card p {
-            color: var(--text-color);
+            color: var (--text-color);
             margin-bottom: 8px;
         }
 
@@ -522,6 +522,17 @@
             </div>
             <div id="grantsContainer" role="region" aria-live="polite"></div>
         </section>
+        <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
+            <div class="modal-content">
+                <h2 id="modalTitle">Grant Details</h2>
+                <div id="modalDetails"></div>
+                <div class="modal-buttons">
+                    <button id="favoriteBtn" onclick="toggleFavorite()">Add to Favorites</button>
+                    <button onclick="copyGrantDetails()">Copy Details</button>
+                    <button class="close-btn" onclick="closeModal('grantModal')" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        </div>
     </main>
     <footer role="contentinfo">
         <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy</a> | <a href="/terms/">Terms</a> | <a href="/accessibility/">Accessibility</a></p>
