@@ -1,6 +1,6 @@
 AWS.config.update({
-    const AWS_ACCESS_KEY = process.env.MY_ACCESS_KEY;
-    const AWS_SECRET_KEY = process.env.MY_SECRET_KEY;
+    accessKeyId: 'AKIAVA5YK7KIZJQU22UW',
+    secretAccessKey: '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',
     region: 'us-east-1'
 });
 
