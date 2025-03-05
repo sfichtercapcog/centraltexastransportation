@@ -67,7 +67,7 @@
                         <label>Grant Type</label>
                         <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
                             <input type="checkbox" id="typeAll" name="typeAll" value="all">
-                            <label for="typeAll">All of the Above</label><br>
+                            <label for="typeAll">All</label><br>
                             <!-- Dynamically populated by JavaScript -->
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                         <label>Funding Source</label>
                         <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
                             <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
-                            <label for="fundingAll">All of the Above</label><br>
+                            <label for="fundingAll">All</label><br>
                             <!-- Dynamically populated by JavaScript -->
                         </div>
                     </div>
@@ -121,9 +121,9 @@
             <!-- Container for displaying grant cards -->
             <div id="grantsContainer" role="region" aria-live="polite"></div>
         </section>
-        <!-- Modal for detailed grant information -->
+        <!-- Modal for detailed grant information with solid background -->
         <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
-            <div class="modal-content" tabindex="-1">
+            <div class="modal-content solid" tabindex="-1">
                 <h2 id="modalTitle">Grant Details</h2>
                 <div id="modalDetails"></div>
                 <div class="modal-buttons">

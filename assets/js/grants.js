@@ -4,8 +4,8 @@ let attributes = []; // List of grant attributes for filtering and sorting
 let filterConfig = {
     textSearch: '', // Search term entered by the user
     filters: {
-        'Grant Type': ['All of the Above'], // Default to all grant types
-        'Funding Source': ['All of the Above'], // Default to all funding sources
+        'Grant Type': ['All'], // Default to all grant types
+        'Funding Source': ['All'], // Default to all funding sources
         'Target Award Amount': null, // Target award amount filter
         'Application Deadline': null, // Deadline date filter
         'Max Application Hours': null // Maximum application hours filter
@@ -97,8 +97,8 @@ class GrantsManager {
         if (!container) return;
         const uniqueValues = [...new Set(allGrants.map(g => g[attr] || ''))].sort().filter(v => v);
         container.innerHTML = `
-            <input type="checkbox" id="${groupId}All" name="${groupId}All" value="all" ${selectedValues.includes('All of the Above') ? 'checked' : ''}>
-            <label for="${groupId}All">All of the Above</label><br>
+            <input type="checkbox" id="${groupId}All" name="${groupId}All" value="all" ${selectedValues.includes('All') ? 'checked' : ''}>
+            <label for="${groupId}All">All</label><br>
         `;
         uniqueValues.forEach(val => {
             container.innerHTML += `
@@ -150,7 +150,7 @@ class GrantsManager {
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
             filterConfig.filters[groupId === 'typeFilter' ? 'Grant Type' : 'Funding Source'] = 
-                checkedValues.length === checkboxes.length ? ['All of the Above'] : checkedValues;
+                checkedValues.length === checkboxes.length ? ['All'] : checkedValues;
         });
     }
 
@@ -170,13 +170,16 @@ class GrantsManager {
             filterConfig.filters['Application Deadline'].toISOString().split('T')[0] : '';
     }
 
-    // Formats number inputs with commas dynamically
+    // Formats number inputs with commas dynamically, fixing glitch
     formatNumberInput(inputId, value) {
         const input = document.getElementById(inputId);
         if (input) {
             input.value = value ? value.toLocaleString() : '';
             input.addEventListener('input', (e) => {
-                const rawValue = e.target.value.replace(/,/g, '');
+                let rawValue = e.target.value.replace(/,/g, '');
+                // Prevent non-numeric input except for minus sign at start
+                rawValue = rawValue.replace(/[^0-9-]/g, '');
+                if (rawValue === '-') rawValue = ''; // Handle negative sign alone
                 const numValue = parseFloat(rawValue) || 0;
                 e.target.value = numValue.toLocaleString();
                 filterConfig.filters[inputId === 'targetAward' ? 'Target Award Amount' : 'Max Application Hours'] = numValue || null;
@@ -230,10 +233,10 @@ class GrantsManager {
             filteredGrants = allGrants.filter(grant => {
                 const textMatch = this.fuzzySearch(grant, filterConfig.textSearch);
                 const typeMatch = !filterConfig.filters['Grant Type'].length || 
-                    filterConfig.filters['Grant Type'].includes('All of the Above') || 
+                    filterConfig.filters['Grant Type'].includes('All') || 
                     filterConfig.filters['Grant Type'].includes(grant['Type of Grant'] || '');
                 const fundingMatch = !filterConfig.filters['Funding Source'].length || 
-                    filterConfig.filters['Funding Source'].includes('All of the Above') || 
+                    filterConfig.filters['Funding Source'].includes('All') || 
                     filterConfig.filters['Funding Source'].includes(grant['Funding Source'] || '');
                 const awardMatch = !filterConfig.filters['Target Award Amount'] || 
                     (grant['Minimum Grant Award'] <= filterConfig.filters['Target Award Amount'] && 
@@ -308,12 +311,12 @@ class GrantsManager {
     updateFilterSummary(count) {
         const summary = [];
         if (filterConfig.textSearch) summary.push(`Search: "${filterConfig.textSearch}"`);
-        if (filterConfig.filters['Grant Type'].includes('All of the Above') || filterConfig.filters['Grant Type'].length === 0) {
+        if (filterConfig.filters['Grant Type'].includes('All') || filterConfig.filters['Grant Type'].length === 0) {
             summary.push(`Grant Types: All`);
         } else if (filterConfig.filters['Grant Type'].length) {
             summary.push(`Grant Types: ${filterConfig.filters['Grant Type'].join(', ')}`);
         }
-        if (filterConfig.filters['Funding Source'].includes('All of the Above') || filterConfig.filters['Funding Source'].length === 0) {
+        if (filterConfig.filters['Funding Source'].includes('All') || filterConfig.filters['Funding Source'].length === 0) {
             summary.push(`Funding Sources: All`);
         } else if (filterConfig.filters['Funding Source'].length) {
             summary.push(`Funding Sources: ${filterConfig.filters['Funding Source'].join(', ')}`);
@@ -365,7 +368,7 @@ class GrantsManager {
         }, 1000);
     }
 
-    // Displays a modal with detailed grant information
+    // Displays a modal with detailed grant information with solid background
     showGrantModal(grantId) {
         const grant = allGrants.find(g => g.grantId === grantId);
         if (!grant) {
@@ -374,6 +377,7 @@ class GrantsManager {
         }
         const modal = document.getElementById('grantModal');
         const modalContent = modal.querySelector('.modal-content');
+        modalContent.classList.add('solid'); // Apply solid background for clarity
         modalContent.dataset.grantId = grantId;
         document.getElementById('modalTitle').textContent = grant['Grant Name'] || 'Untitled';
         document.getElementById('modalDetails').innerHTML = attributes.map(attr =>
@@ -423,9 +427,13 @@ class GrantsManager {
         document.getElementById('toggleFiltersBtn')?.addEventListener('click', toggleFilters);
         document.getElementById('favoriteBtn')?.addEventListener('click', () => toggleFavorite());
         document.getElementById('copyDetailsBtn')?.addEventListener('click', copyGrantDetails);
-        document.getElementById('closeGrantModal')?.addEventListener('click', () => closeModal('grantModal'));
+        document.getElementById('closeGrantModal')?.addEventListener('click', () => {
+            closeModal('grantModal');
+            const modalContent = document.querySelector('.modal-content');
+            if (modalContent) modalContent.classList.remove('solid'); // Clean up solid class
+        });
         // Add Enter key listener to filter inputs
-        const filterInputs = document.querySelectorAll('#filterControls input, #filterControls select, #filterControls .checkbox-group input');
+        const filterInputs = document.querySelectorAll('#filterControls input, #filterControls .checkbox-group input');
         filterInputs.forEach(input => {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') this.applyFilters();
@@ -441,8 +449,8 @@ class GrantsManager {
         filterConfig = {
             textSearch: '',
             filters: {
-                'Grant Type': ['All of the Above'],
-                'Funding Source': ['All of the Above'],
+                'Grant Type': ['All'],
+                'Funding Source': ['All'],
                 'Target Award Amount': null,
                 'Application Deadline': null,
                 'Max Application Hours': null
@@ -476,11 +484,11 @@ class GrantsManager {
             if (savedConfig) {
                 filterConfig = JSON.parse(savedConfig);
                 // Ensure defaults for checkboxes and sort
-                if (!filterConfig.filters['Grant Type'].length || !filterConfig.filters['Grant Type'].includes('All of the Above')) {
-                    filterConfig.filters['Grant Type'] = ['All of the Above'];
+                if (!filterConfig.filters['Grant Type'].length || !filterConfig.filters['Grant Type'].includes('All')) {
+                    filterConfig.filters['Grant Type'] = ['All'];
                 }
-                if (!filterConfig.filters['Funding Source'].length || !filterConfig.filters['Funding Source'].includes('All of the Above')) {
-                    filterConfig.filters['Funding Source'] = ['All of the Above'];
+                if (!filterConfig.filters['Funding Source'].length || !filterConfig.filters['Funding Source'].includes('All')) {
+                    filterConfig.filters['Funding Source'] = ['All'];
                 }
                 // Ensure primary sort defaults to Grant Name ascending if not set
                 if (!filterConfig.sort[0].attr) {
@@ -495,6 +503,8 @@ class GrantsManager {
     // Closes all open modals
     closeAllModals() {
         document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+        const modalContent = document.querySelector('.modal-content');
+        if (modalContent) modalContent.classList.remove('solid'); // Clean up solid class
     }
 
     // Logs events for debugging or analytics
@@ -525,6 +535,8 @@ function handleInitialPrompt(choice) {
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = 'none';
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) modalContent.classList.remove('solid'); // Clean up solid class
 }
 
 // Copies grant details to the clipboard

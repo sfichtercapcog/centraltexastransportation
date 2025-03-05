@@ -19,11 +19,11 @@
     --line-height-base: 1.7;         /* Line height for readability */
 
     /* Spacing variables */
-    --spacing-xs: 8px;               /* Extra small spacing */
-    --spacing-sm: 12px;              /* Small spacing */
-    --spacing-md: 24px;              /* Medium spacing */
-    --spacing-lg: 48px;              /* Large spacing */
-    --spacing-xl: 60px;              /* Extra large spacing */
+    --spacing-xs: 4px;               /* Reduced extra small spacing */
+    --spacing-sm: 8px;               /* Reduced small spacing */
+    --spacing-md: 16px;              /* Reduced medium spacing */
+    --spacing-lg: 32px;              /* Reduced large spacing */
+    --spacing-xl: 48px;              /* Reduced extra large spacing */
 
     /* Responsive breakpoints */
     --breakpoint-tablet: 768px;      /* Tablet breakpoint */
@@ -70,7 +70,7 @@ body {
     left: 0;
     background: var(--accent-color);
     color: var(--background-light);
-    padding: 8px;
+    padding: var(--spacing-xs);
     z-index: 1001;
 }
 
@@ -105,7 +105,7 @@ nav ul li {
 nav ul li a {
     color: var(--text-color);
     font-weight: 600;
-    padding: 10px 20px;
+    padding: var(--spacing-sm) var(--spacing-md);
     border-radius: 8px;
     transition: all 0.3s ease-in-out;
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
@@ -154,7 +154,7 @@ main {
 .controls {
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid var(--accent-color);
-    border-radius: 12px;
+    border-radius: 8px;
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
     box-shadow: 0 2px 8px var(--shadow-color);
@@ -171,7 +171,7 @@ main {
 .toggle-filters {
     background: var(--primary-color);
     color: var(--text-color);
-    padding: 10px;
+    padding: var(--spacing-sm);
     border-radius: 8px;
     cursor: pointer;
     text-align: center;
@@ -187,7 +187,7 @@ main {
 
 .search-bar input {
     width: 100%;
-    padding: 12px 40px 12px 12px;
+    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-md);
     border-radius: 8px;
     border: 2px solid var(--accent-color);
     background: var(--input-bg);
@@ -204,34 +204,10 @@ main {
 /* Centers the search icon vertically in the search bar */
 .search-bar i {
     position: absolute;
-    right: 12px;
+    right: var(--spacing-sm);
     top: 50%;
     transform: translateY(-50%);
     color: var(--accent-color);
-}
-
-/* Styles select dropdowns with custom arrow */
-select {
-    appearance: none;
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 2px solid var(--accent-color);
-    background: var(--input-bg);
-    color: var(--text-color);
-    background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
-                     linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
-    background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
-    background-size: 5px 5px, 5px 5px;
-    background-repeat: no-repeat;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-select:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 8px var(--shadow-color);
-    outline: none;
 }
 
 /* Styles checkboxes for grant type and funding source */
@@ -272,43 +248,29 @@ select:focus {
     cursor: pointer;
 }
 
-/* Remove scrollbars for multiple select elements (no longer needed with checkboxes) */
-select[multiple] {
-    overflow: hidden;
-    height: auto; /* Controlled by size attribute */
-}
-
-/* Positions the search icon */
-.search-bar i {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--accent-color);
-}
-
-/* Grid layout for filter inputs */
+/* Grid layout for filter inputs with reduced spacing */
 .filter-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-md);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Reduced width for tighter fit */
+    gap: var(--spacing-sm); /* Reduced gap */
 }
 
 /* Styles labels within filter groups */
 .filter-group label {
     font-size: 0.9rem;
-    margin-bottom: 6px;
+    margin-bottom: var(--spacing-xs); /* Reduced margin */
     display: block;
 }
 
 /* Styles text and number inputs */
 .filter-group input {
-    padding: 10px;
+    padding: var(--spacing-sm);
     border-radius: 8px;
     border: 2px solid var(--accent-color);
     background: var(--input-bg);
     color: var(--text-color);
     width: 100%;
+    font-size: 1rem;
 }
 
 .filter-group input:focus {
@@ -332,18 +294,18 @@ input[type="number"] {
 .sort-group {
     display: grid;
     grid-template-columns: 2fr 1fr; /* Wider field, narrower direction */
-    gap: 12px;
+    gap: var(--spacing-sm); /* Reduced gap */
 }
 
 /* Ensures sort group wrapper aligns properly */
 .sort-group-wrapper {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm); /* Reduced margin */
 }
 
 /* Styles filter action buttons */
 .filter-actions {
     display: flex;
-    gap: 12px;
+    gap: var(--spacing-sm); /* Reduced gap */
     margin-top: var(--spacing-md);
 }
 
@@ -373,7 +335,7 @@ input[type="number"] {
     color: var(--accent-color);
 }
 
-/* Grid layout for grant cards with solid background */
+/* Grid layout for grant cards with semi-transparent background */
 #grantsContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -381,9 +343,9 @@ input[type="number"] {
     padding-bottom: var(--spacing-lg);
 }
 
-/* Styles individual grant cards with solid background */
+/* Styles individual grant cards with semi-transparent background */
 .grant-card {
-    background: var(--input-bg); /* Solid background instead of transparent */
+    background: rgba(255, 255, 255, 0.1); /* Reverted to semi-transparent */
     border: 2px solid var(--accent-color);
     border-radius: 12px;
     padding: var(--spacing-md);
@@ -401,23 +363,23 @@ input[type="number"] {
 .grant-card h3 {
     color: var(--accent-color);
     font-size: 1.5rem;
-    margin-bottom: 12px;
+    margin-bottom: var(--spacing-sm);
     text-shadow: 1px 1px 6px var(--shadow-color);
 }
 
 .grant-card p {
     color: var(--text-color);
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-xs);
 }
 
 /* Styles tags within grant cards */
 .tag {
     display: inline-block;
-    padding: 6px 12px;
+    padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: 4px;
     color: var(--background-light);
     font-size: 0.85rem;
-    margin-right: 8px;
+    margin-right: var(--spacing-xs);
 }
 
 .tag.formula { background: var(--accent-color); }
@@ -427,8 +389,8 @@ input[type="number"] {
 /* Styles the favorite button on grant cards */
 .favorite-btn {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
     background: none;
     border: none;
     color: var(--text-color);
@@ -453,7 +415,7 @@ input[type="number"] {
 }
 
 .modal-content {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1); /* Reverted to semi-transparent for consistency */
     border: 2px solid var(--accent-color);
     padding: var(--spacing-lg);
     border-radius: 12px;
@@ -464,9 +426,14 @@ input[type="number"] {
     box-shadow: 0 2px 8px var(--shadow-color);
 }
 
+.modal-content.solid {
+    background: var(--input-bg); /* Solid background for detailed view clarity */
+}
+
+/* Styles modal buttons */
 .modal-buttons {
     display: flex;
-    gap: 12px;
+    gap: var(--spacing-sm); /* Reduced gap */
     justify-content: flex-end;
     margin-top: var(--spacing-md);
 }
@@ -493,8 +460,8 @@ input[type="number"] {
 /* Styles the modal close button */
 .close-btn {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
     background: var(--primary-color);
     color: var(--text-color);
     border-radius: 50%;
@@ -528,7 +495,7 @@ input[type="number"] {
     border-top-color: transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-right: 8px;
+    margin-right: var(--spacing-xs);
 }
 
 @keyframes spin {
