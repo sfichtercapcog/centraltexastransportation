@@ -6,7 +6,7 @@
 .dashboard { 
     padding: var(--spacing-md);
     border: 1px solid var(--accent-color); /* Add border for separation */
-    box-shadow: 0 0.25rem 0.75rem var(--shadow-color); /* Subtle shadow for depth */
+    box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   /* Styles the filter controls container */
@@ -14,11 +14,11 @@
       border-radius: 0.5rem;
       transition: max-height 0.5s ease-in-out;
       border: 1px solid var(--accent-color); /* Add border for separation */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
   }
   
-  .controls.collapsed { max-height: 3.75rem; overflow: hidden; }
-  .controls.expanded { max-height: 50rem; }
+  .controls.collapsed { max-height: calc(var(--spacing-unit) * 7.5); overflow: hidden; } /* Dynamic height */
+  .controls.expanded { max-height: calc(var(--spacing-unit) * 100); } /* Dynamic height */
   
   /* Hides elements when needed */
   .hidden { display: none; }
@@ -32,7 +32,7 @@
       border: 1px solid var(--accent-color); /* Add border */
       padding: var(--spacing-sm) var(--spacing-md);
       border-radius: 0.5rem;
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   @media (max-width: var(--breakpoint-tablet)) {
@@ -53,69 +53,26 @@
       color: var(--text-color); /* Ensure icon is visible */
   }
   
-  /* Styles checkboxes for grant type and funding source */
+  /* Styles checkboxes for grant type and funding source with revolutionary design */
   .checkbox-group {
       width: 100%; /* Ensure full width under label */
-      padding: var(--spacing-xs); /* Reduce padding for tighter spacing */
+      padding: var(--spacing-xs); /* Minimal padding for tight spacing */
       border: 1px solid var(--accent-color); /* Add border for separation */
       border-radius: 0.5rem; /* Match input styling */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
-      display: flex; /* Use flex to control layout */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      display: flex; /* Use flex for control */
       flex-direction: column; /* Stack items vertically */
-      gap: 0.25rem; /* Minimal gap between rows, removing newline space */
+      gap: calc(var(--spacing-unit) * 0.5); /* Dynamic, minimal gap between rows */
+      height: auto; /* Dynamic height to fit content */
   }
   
-  .checkbox-group input[type="checkbox"] {
-      appearance: none; /* Removes default checkbox styling */
-      width: 1.25rem; /* Larger checkbox for usability */
-      height: 1.25rem;
-      border: 2px solid var(--accent-color); /* Visible border */
-      border-radius: 0.25rem;
-      background: var(--background-dark);
-      cursor: pointer;
-      margin-right: var(--spacing-xs); /* Space after checkbox */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
-  }
-  
-  .checkbox-group input[type="checkbox"]:checked {
-      background: var(--secondary-color);
-      border-color: var(--accent-color);
-  }
-  
-  .checkbox-group input[type="checkbox"]:focus {
-      outline: none;
-      box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
-  }
-  
-  .checkbox-group label {
-      margin-left: var(--spacing-xs); /* Space before label text */
-      color: var(--text-color); /* Ensure text visibility */
-      line-height: 1.2; /* Tighten line height to reduce vertical space */
-      display: inline-flex; /* Ensure labels align tightly with checkboxes */
-      align-items: center; /* Vertically center label text with checkbox */
-  }
-  
-  /* Dynamically adjust height to fit content, removing scrollbars */
-  .checkbox-group {
-      max-height: none; /* Remove max-height to fit content */
-      overflow: hidden; /* Remove scrollbars */
-      height: auto; /* Allow height to adjust dynamically */
-  }
-  
-  /* Ensure height matches the taller of the two checkbox groups */
+  /* Ensure height matches the taller of the two checkbox groups dynamically */
   #typeFilter.checkbox-group,
   #fundingFilter.checkbox-group {
-      height: auto; /* Default to auto */
+      height: auto; /* Default to auto, no scrollbars */
   }
   
-  @media (min-width: var(--breakpoint-tablet)) {
-      #typeFilter.checkbox-group,
-      #fundingFilter.checkbox-group {
-          height: calc(100% + var(--spacing-xs)); /* Adjust to fit content, slight padding */
-      }
-  }
-  
-  /* Grid layout for filter inputs with clean, organized layout and fixed spacing */
+  /* Grid layout for filter inputs with clean, organized layout and dynamic spacing */
   .filter-grid {
       display: grid;
       grid-template-areas:
@@ -123,9 +80,9 @@
           "search search"
           "inputs inputs"
           "sort1 sort2";
-      gap: var(--spacing-sm); /* Consistent gap */
+      gap: var(--spacing-sm); /* Dynamic gap */
       max-width: 100%; /* Prevent overflow */
-      padding: var(--spacing-sm); /* Add padding for separation */
+      padding: var(--spacing-sm); /* Dynamic padding for separation */
   }
   
   /* Style checkbox groups */
@@ -145,7 +102,7 @@
       grid-area: search;
       display: flex;
       gap: var(--spacing-sm);
-      align-items: center; /* Vertically center items in row for alignment */
+      align-items: center; /* Vertically center items for alignment */
       justify-content: flex-start; /* Ensure content starts at the left */
       margin-bottom: var(--spacing-md);
       flex-wrap: wrap; /* Allow wrapping on smaller screens */
@@ -179,17 +136,17 @@
       display: flex;
       align-items: center; /* Vertically center label text */
       color: var(--text-color); /* Ensure label visibility */
-      height: 2.5rem; /* Match input height for vertical alignment */
+      height: calc(var(--spacing-unit) * 5); /* Dynamic height, 2.5rem */
   }
   
   .filter-group input {
       width: 100%;
       flex: 1; /* Allow input to fill remaining space */
-      height: 2.5rem; /* Fixed height for consistent vertical alignment */
+      height: calc(var(--spacing-unit) * 5); /* Dynamic height for alignment */
   }
   
   .filter-group input:focus {
-      box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
+      box-shadow: 0 0 calc(var(--spacing-unit) * 1) var(--secondary-color); /* Dynamic glow effect */
   }
   
   /* Style sort groups */
@@ -215,21 +172,22 @@
       appearance: none;
       background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
                        linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
-      background-position: calc(100% - 1.25rem) calc(1em + 2px), calc(100% - 0.9375rem) calc(1em + 2px);
-      background-size: 0.3125rem 0.3125rem; /* Smaller arrow size */
+      background-position: calc(100% - calc(var(--spacing-unit) * 1.25)) calc(1em + calc(var(--spacing-unit) * 2)), 
+                           calc(100% - calc(var(--spacing-unit) * 0.9375)) calc(1em + calc(var(--spacing-unit) * 2));
+      background-size: calc(var(--spacing-unit) * 0.625); /* Dynamic arrow size */
       background-repeat: no-repeat;
       cursor: pointer;
       background-color: var(--input-bg); /* Match input background */
       border: 1px solid var(--accent-color); /* Add border */
-      padding: var(--spacing-sm); /* Add padding */
+      padding: var(--spacing-sm); /* Dynamic padding */
       border-radius: 0.5rem; /* Match input styling */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
-      height: 2.5rem; /* Fixed height for consistent vertical alignment */
-      width: 120%; /* 20% wider to fit "Estimated Application Hours" */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      height: calc(var(--spacing-unit) * 5); /* Dynamic height for alignment */
+      width: 120%; /* 20% wider to fit "Estimated Application Hours" dynamically */
   }
   
   select:focus {
-      box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
+      box-shadow: 0 0 calc(var(--spacing-unit) * 1) var(--secondary-color); /* Dynamic glow effect */
   }
   
   /* Styles filter action buttons */
@@ -241,24 +199,25 @@
   }
   
   .filter-actions button {
-      margin-right: var(--spacing-sm); /* Space between buttons */
+      margin-right: var(--spacing-sm); /* Dynamic space between buttons */
   }
   
   /* Styles the filter summary text */
   #filterSummary {
       text-align: left; /* Left-align summary text */
-      padding: var(--spacing-sm); /* Add padding for separation */
+      padding: var(--spacing-sm); /* Dynamic padding for separation */
       border: 1px solid var(--accent-color); /* Add border for separation */
       border-radius: 0.5rem; /* Match input styling */
       background: var(--background-dark); /* Slightly darker for contrast */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   /* Grid layout for grant cards with dark mode background */
   #grantsContainer {
-      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); /* Consistent card width */
+      grid-template-columns: repeat(auto-fit, minmax(calc(var(--spacing-unit) * 40), 1fr)); /* Dynamic card width */
       justify-content: flex-start; /* Left-align cards */
-      padding: var(--spacing-sm); /* Add padding for separation */
+      padding: var(--spacing-sm); /* Dynamic padding for separation */
+      gap: var(--spacing-md); /* Dynamic gap between cards */
   }
   
   /* Styles individual grant cards with dark mode background */
@@ -268,14 +227,14 @@
       background: var(--input-bg); /* Match input background */
       border: 1px solid var(--accent-color); /* Add border for separation */
       border-radius: 0.5rem; /* Match input styling */
-      padding: var(--spacing-md); /* Add padding for content */
-      margin-bottom: var(--spacing-sm); /* Space between cards */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      padding: var(--spacing-md); /* Dynamic padding for content */
+      margin-bottom: var(--spacing-sm); /* Dynamic space between cards */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   .grant-card:hover {
-      transform: translateY(-0.5rem);
-      box-shadow: 0 0.25rem 0.5rem var(--accent-color); /* Enhanced shadow on hover */
+      transform: translateY(calc(var(--spacing-unit) * -1));
+      box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1) var(--accent-color); /* Dynamic enhanced shadow */
   }
   
   .grant-card h3 {
@@ -293,9 +252,9 @@
       margin-right: var(--spacing-xs);
       background: var(--primary-color); /* Subtle background for tags */
       border: 1px solid var(--accent-color); /* Add border */
-      padding: var(--spacing-xs) var(--spacing-sm); /* Add padding */
+      padding: var(--spacing-xs) var(--spacing-sm); /* Dynamic padding */
       border-radius: 0.25rem; /* Rounded corners */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   /* Styles the favorite button on grant cards */
@@ -304,15 +263,15 @@
       right: var(--spacing-sm);
       background: var(--primary-color);
       border: 1px solid var(--accent-color); /* Add border */
-      padding: var(--spacing-xs); /* Adjust padding */
+      padding: var(--spacing-xs); /* Dynamic padding */
       border-radius: 0.5rem; /* Match input styling */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   .favorite-btn:hover {
       background: var(--secondary-color);
       color: var(--background-dark);
-      box-shadow: 0 0.25rem 0.5rem var(--accent-color); /* Enhanced shadow on hover */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1) var(--accent-color); /* Dynamic enhanced shadow */
   }
   
   .favorite-btn.active {
@@ -333,8 +292,8 @@
       background: var(--input-bg); /* Match input background */
       border: 1px solid var(--accent-color); /* Add border for separation */
       border-radius: 0.75rem; /* Larger radius for modal */
-      padding: var(--spacing-lg); /* Add padding for content */
-      box-shadow: 0 0.25rem 0.75rem var(--shadow-color); /* Subtle shadow */
+      padding: var(--spacing-lg); /* Dynamic padding for content */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   .modal-content.solid {
@@ -344,11 +303,11 @@
   /* Styles modal buttons */
   .modal-buttons {
       justify-content: flex-start; /* Left-align modal buttons */
-      margin-top: var(--spacing-md); /* Add space above buttons */
+      margin-top: var(--spacing-md); /* Dynamic space above buttons */
   }
   
   .modal-buttons button {
-      margin-right: var(--spacing-sm); /* Space between buttons */
+      margin-right: var(--spacing-sm); /* Dynamic space between buttons */
   }
   
   /* Styles the loading indicator */
@@ -357,19 +316,16 @@
       background: var(--input-bg); /* Match input background */
       border: 1px solid var(--accent-color); /* Add border */
       border-radius: 0.5rem; /* Match input styling */
-      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
   }
   
   .loading::before {
-      width: 1.25rem;
-      height: 1.25rem;
+      width: calc(var(--spacing-unit) * 2.5);
+      height: calc(var(--spacing-unit) * 2.5);
       margin-right: var(--spacing-xs);
       background: var(--secondary-color); /* Visible loading indicator */
   }
   
   @media (max-width: var(--breakpoint-mobile)) {
-      .checkbox-group { 
-          height: auto; /* Ensure dynamic height on mobile */
-      }
-      .grant-card { padding: var(--spacing-sm); } /* Reduce padding on mobile */
+      .grant-card { padding: var(--spacing-sm); } /* Dynamic padding on mobile */
   }
