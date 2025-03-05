@@ -80,30 +80,30 @@
                     <!-- Single Column for Search Bar and Inputs/Sort Dropdowns with Even Spacing -->
                     <div class="filter-group" style="margin-bottom: 15px;">
                         <div class="search-bar">
-                            <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants" style="width: 100%;">
+                            <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
                         </div>
                     </div>
                     <div class="filter-group" style="margin-bottom: 15px;">
                         <label for="targetAward">Target Award Amount</label>
-                        <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000" required aria-label="Target award amount" style="width: 100%;">
+                        <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000" required aria-label="Target award amount">
                     </div>
                     <div class="filter-group" style="margin-bottom: 15px;">
                         <label for="maxHours">Max Application Hours (Up To)</label>
-                        <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours" style="width: 100%;">
+                        <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours">
                     </div>
                     <div class="filter-group" style="margin-bottom: 15px;">
                         <label for="deadline">Application Deadline</label>
-                        <input type="date" id="deadline" aria-label="Application deadline" style="width: 100%;">
+                        <input type="date" id="deadline" aria-label="Application deadline">
                     </div>
                     <div class="filter-group sort-group-wrapper" style="margin-bottom: 15px;">
                         <label>Primary Sort</label>
-                        <div class="sort-group" style="width: 100%; gap: 10px;">
-                            <select id="sort1Attr" aria-label="Primary sort attribute" style="flex: 1; min-width: 200px;">
+                        <div class="sort-group">
+                            <select id="sort1Attr" aria-label="Primary sort attribute">
                                 <option value="grantName">Grant Name</option>
                                 <option value="estimatedApplicationHours">Estimated Application Hours</option>
                                 <!-- Add other options dynamically via JavaScript -->
                             </select>
-                            <select id="sort1Dir" aria-label="Primary sort direction" style="flex: 1; min-width: 120px;">
+                            <select id="sort1Dir" aria-label="Primary sort direction">
                                 <option value="ascending">Ascending</option>
                                 <option value="descending">Descending</option>
                             </select>
@@ -111,24 +111,24 @@
                     </div>
                     <div class="filter-group sort-group-wrapper">
                         <label>Secondary Sort</label>
-                        <div class="sort-group" style="width: 100%; gap: 10px;">
-                            <select id="sort2Attr" aria-label="Secondary sort attribute" style="flex: 1; min-width: 200px;">
+                        <div class="sort-group">
+                            <select id="sort2Attr" aria-label="Secondary sort attribute">
                                 <option value="none">None</option>
                                 <option value="estimatedApplicationHours">Estimated Application Hours</option>
                                 <!-- Add other options dynamically via JavaScript -->
                             </select>
-                            <select id="sort2Dir" aria-label="Secondary sort direction" style="flex: 1; min-width: 120px;">
+                            <select id="sort2Dir" aria-label="Secondary sort direction">
                                 <option value="ascending">Ascending</option>
                                 <option value="descending">Descending</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="filter-actions" style="justify-content: center; margin-top: 15px;">
+                <div class="filter-actions">
                     <button id="applyFilters">Apply Filters</button>
                     <button id="resetFilters">Reset Filters</button>
                 </div>
-                <div id="filterSummary" style="margin-top: 15px; text-align: center;">Showing 50 grants | Grant Types: All, Funding Sources: All</div>
+                <div id="filterSummary">Showing 50 grants | Grant Types: All, Funding Sources: All</div>
             </div>
             <!-- Container for displaying grant cards -->
             <div id="grantsContainer" role="region" aria-live="polite"></div>
