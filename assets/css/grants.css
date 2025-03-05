@@ -4,14 +4,14 @@
 
 /* Core theming variables */
 :root {
-    /* Colors */
-    --primary-color: #1E3A5F;        /* Deep midnight blue (professional, calming) */
-    --secondary-color: #4CAF50;      /* Vibrant green (engaging, modern) */
-    --text-color: #E5E7EB;           /* Soft white-gray (readable on dark backgrounds) */
-    --background-dark: #0F172A;      /* Rich charcoal black (deep, professional dark mode) */
-    --input-bg: #1F2937;             /* Slightly lighter dark gray (subtle contrast for inputs) */
-    --accent-color: #A5D6A7;         /* Light mint green (subtle, engaging highlight) */
-    --shadow-color: rgba(165, 214, 167, 0.3); /* Soft green shadow for depth */
+    /* Colors (Inspired by X's dark mode palette) */
+    --primary-color: #1E3A5F;        /* Deep midnight blue (retained for consistency with existing design, can adjust to X's black #000000 if preferred) */
+    --secondary-color: #1DA1F2;      /* X's signature blue (engaging, modern accent for buttons, hover states, titles) */
+    --text-color: #FFFFFF;           /* Pure white (crisp, readable on dark backgrounds, matching X's text) */
+    --background-dark: #14171A;      /* Deep dark gray (X's dark mode background, professional and cohesive) */
+    --input-bg: #2C2F33;             /* Slightly lighter dark gray (subtle contrast for inputs, inspired by X's neutral grays) */
+    --accent-color: #17BF63;         /* X's green (subtle, engaging highlight for borders, checkboxes) */
+    --shadow-color: rgba(29, 161, 242, 0.3); /* Blue-tinted shadow matching X's blue for depth */
 
     /* Typography */
     --font-family: 'Arial', 'Helvetica', sans-serif;
