@@ -215,7 +215,7 @@ main {
 /* Styles checkboxes for grant type and funding source */
 .checkbox-group {
     display: grid;
-    gap: 0.0625rem; /* Reduced to 1px for minimal spacing between rows */
+    gap: 0.015625rem; /* Reduced to 1px for minimal spacing between rows */
     padding: var(--spacing-sm);
     background: var(--input-bg);
     border: 2px solid var(--accent-color);
