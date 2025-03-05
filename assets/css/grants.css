@@ -248,11 +248,11 @@ main {
     cursor: pointer;
 }
 
-/* Grid layout for filter inputs with staggered, nicer layout */
+/* Grid layout for filter inputs with clean, organized layout */
 .filter-grid {
     display: grid;
     grid-template-areas:
-        "checkboxes checkboxes"
+        "checkboxes1 checkboxes2"
         "search search"
         "inputs inputs"
         "sort1 sort2";
@@ -261,15 +261,19 @@ main {
 
 /* Style checkbox groups */
 .filter-group.checkboxes {
-    grid-area: checkboxes;
+    margin-bottom: var(--spacing-md);
 }
 
-/* Style search bar */
+.filter-group.checkboxes:nth-child(1) { grid-area: checkboxes1; }
+.filter-group.checkboxes:nth-child(2) { grid-area: checkboxes2; }
+
+/* Style search bar and inputs row */
 .filter-row {
     grid-area: search;
     display: flex;
     gap: var(--spacing-sm);
     align-items: center;
+    margin-bottom: var(--spacing-md);
 }
 
 .filter-row .search-bar {
@@ -286,6 +290,7 @@ main {
     display: grid;
     gap: var(--spacing-sm);
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjust for responsiveness */
+    margin-bottom: var(--spacing-md);
 }
 
 /* Style sort groups */
@@ -295,8 +300,8 @@ main {
     gap: var(--spacing-xs);
 }
 
-.sort-group-wrapper:nth-child(3) { grid-area: sort1; }
-.sort-group-wrapper:nth-child(4) { grid-area: sort2; }
+.sort-group-wrapper:nth-child(5) { grid-area: sort1; }
+.sort-group-wrapper:nth-child(6) { grid-area: sort2; }
 
 .sort-group {
     display: grid;
@@ -578,7 +583,8 @@ input[type="number"] {
     main { padding: var(--spacing-md); margin: var(--spacing-md) 0; }
     .filter-grid {
         grid-template-areas:
-            "checkboxes"
+            "checkboxes1"
+            "checkboxes2"
             "search"
             "inputs"
             "sort1"
