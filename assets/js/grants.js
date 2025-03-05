@@ -52,7 +52,7 @@ class GrantsManager {
             
             attributes = this.extractAttributes(allGrants[0]);
             this.setupFilterControls();
-            this.updateSuggestions();
+            // Removed updateSuggestions call since datalist is removed
             this.displayGrants();
             this.startCountdowns();
             this.trackEvent('Grants Loaded', { count: allGrants.length });
@@ -152,13 +152,6 @@ class GrantsManager {
             filterConfig.filters[groupId === 'typeFilter' ? 'Grant Type' : 'Funding Source'] = 
                 checkedValues.length === checkboxes.length ? ['All'] : checkedValues;
         });
-    }
-
-    // Updates search suggestions based on grant names
-    updateSuggestions() {
-        const datalist = document.getElementById('grantSuggestions');
-        const suggestions = allGrants.map(g => g['Grant Name']).filter(Boolean);
-        datalist.innerHTML = [...new Set(suggestions)].map(s => `<option value="${s}">`).join('');
     }
 
     // Applies saved filter values to the UI
@@ -321,7 +314,7 @@ class GrantsManager {
         }, { threshold: 0.1 });
         document.querySelectorAll('.grant-card').forEach(card => {
             card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
+            card.style.transform = 'translateY(1.25rem)';
             card.addEventListener('click', (e) => {
                 if (!e.target.closest('.favorite-btn')) this.showGrantModal(card.dataset.grantId);
             });
@@ -349,7 +342,7 @@ class GrantsManager {
         }, 1000);
     }
 
-    // Displays a modal with detailed grant information with solid background
+    // Displays a modal with detailed grant information with dark mode background
     showGrantModal(grantId) {
         const grant = allGrants.find(g => g.grantId === grantId);
         if (!grant) {
