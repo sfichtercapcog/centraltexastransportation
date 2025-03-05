@@ -15,15 +15,15 @@
 
     /* Typography variables */
     --font-family: 'Poppins', 'Arial', sans-serif; /* Primary font with fallback */
-    --font-size-base: 18px;          /* Base font size for accessibility */
+    --font-size-base: 1rem;          /* Base font size (16px) for accessibility */
     --line-height-base: 1.7;         /* Line height for readability */
 
-    /* Spacing variables */
-    --spacing-xs: 4px;               /* Reduced extra small spacing */
-    --spacing-sm: 8px;               /* Reduced small spacing */
-    --spacing-md: 16px;              /* Reduced medium spacing */
-    --spacing-lg: 32px;              /* Reduced large spacing */
-    --spacing-xl: 48px;              /* Reduced extra large spacing */
+    /* Spacing variables (in rem for zoom stability) */
+    --spacing-xs: 0.25rem;           /* 4px */
+    --spacing-sm: 0.5rem;            /* 8px */
+    --spacing-md: 1rem;              /* 16px */
+    --spacing-lg: 2rem;              /* 32px */
+    --spacing-xl: 3rem;              /* 48px */
 
     /* Responsive breakpoints */
     --breakpoint-tablet: 768px;      /* Tablet breakpoint */
@@ -66,7 +66,7 @@ body {
 /* Styles the skip-to-content link for accessibility */
 .skip-link {
     position: absolute;
-    top: -40px;
+    top: -var(--spacing-md);
     left: 0;
     background: var(--accent-color);
     color: var(--background-light);
@@ -154,15 +154,15 @@ main {
 .controls {
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid var(--accent-color);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-lg);
     box-shadow: 0 2px 8px var(--shadow-color);
     transition: max-height 0.5s ease-in-out;
 }
 
-.controls.collapsed { max-height: 60px; overflow: hidden; }
-.controls.expanded { max-height: 800px; }
+.controls.collapsed { max-height: 3.75rem; overflow: hidden; }
+.controls.expanded { max-height: 50rem; }
 
 /* Hides elements when needed */
 .hidden { display: none; }
@@ -172,7 +172,7 @@ main {
     background: var(--primary-color);
     color: var(--text-color);
     padding: var(--spacing-sm);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     cursor: pointer;
     text-align: center;
     margin-bottom: var(--spacing-md);
@@ -188,7 +188,7 @@ main {
 .search-bar input {
     width: 100%;
     padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-md);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border: 2px solid var(--accent-color);
     background: var(--input-bg);
     color: var(--text-color);
@@ -217,17 +217,19 @@ main {
     padding: var(--spacing-sm);
     background: var(--input-bg);
     border: 2px solid var(--accent-color);
-    border-radius: 8px;
+    border-radius: 0.5rem;
+    max-height: 12rem; /* Limit height for consistency */
+    overflow-y: auto;
 }
 
 .checkbox-group input[type="checkbox"] {
     margin-right: var(--spacing-xs);
     vertical-align: middle;
     appearance: none; /* Removes default checkbox styling */
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
     border: 2px solid var(--accent-color);
-    border-radius: 4px;
+    border-radius: 0.25rem;
     background: var(--background-light);
     cursor: pointer;
 }
@@ -248,7 +250,7 @@ main {
     cursor: pointer;
 }
 
-/* Grid layout for filter inputs with clean, organized layout */
+/* Grid layout for filter inputs with clean, organized layout and fixed spacing */
 .filter-grid {
     display: grid;
     grid-template-areas:
@@ -256,7 +258,8 @@ main {
         "search search"
         "inputs inputs"
         "sort1 sort2";
-    gap: var(--spacing-sm); /* Reduced gap for tighter layout */
+    gap: var(--spacing-sm); /* Consistent gap */
+    max-width: 100%; /* Prevent overflow */
 }
 
 /* Style checkbox groups */
@@ -274,14 +277,17 @@ main {
     gap: var(--spacing-sm);
     align-items: center;
     margin-bottom: var(--spacing-md);
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
 
 .filter-row .search-bar {
     flex: 2; /* Make search bar wider */
+    min-width: 15rem; /* Minimum width for stability */
 }
 
 .filter-row .filter-group {
-    flex: 1; /* Equal width for other inputs */
+    flex: 1;
+    min-width: 10rem; /* Minimum width for stability */
 }
 
 /* Style numeric and date inputs */
@@ -289,7 +295,7 @@ main {
     grid-area: inputs;
     display: grid;
     gap: var(--spacing-sm);
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjust for responsiveness */
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); /* Consistent minimum width */
     margin-bottom: var(--spacing-md);
 }
 
@@ -314,14 +320,14 @@ select {
     appearance: none;
     width: 100%;
     padding: var(--spacing-sm);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border: 2px solid var(--accent-color);
     background: var(--input-bg);
     color: var(--text-color);
     background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
                      linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
-    background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
-    background-size: 5px 5px, 5px 5px;
+    background-position: calc(100% - 1.25rem) calc(1em + 2px), calc(100% - 0.9375rem) calc(1em + 2px);
+    background-size: 0.3125rem 0.3125rem; /* Smaller arrow size */
     background-repeat: no-repeat;
     font-size: 1rem;
     cursor: pointer;
@@ -343,7 +349,7 @@ select:focus {
 /* Styles text and number inputs */
 .filter-group input {
     padding: var(--spacing-sm);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border: 2px solid var(--accent-color);
     background: var(--input-bg);
     color: var(--text-color);
@@ -383,7 +389,7 @@ input[type="number"] {
     font-size: 1rem;
     font-weight: bold;
     color: var(--background-light);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     text-transform: uppercase;
@@ -404,7 +410,7 @@ input[type="number"] {
 /* Grid layout for grant cards with semi-transparent background */
 #grantsContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); /* Consistent card width */
     gap: var(--spacing-lg);
     padding-bottom: var(--spacing-lg);
 }
@@ -413,7 +419,7 @@ input[type="number"] {
 .grant-card {
     background: rgba(255, 255, 255, 0.1); /* Reverted to semi-transparent */
     border: 2px solid var(--accent-color);
-    border-radius: 12px;
+    border-radius: 0.75rem;
     padding: var(--spacing-md);
     box-shadow: 0 2px 8px var(--shadow-color);
     transition: all 0.3s ease-in-out;
@@ -421,7 +427,7 @@ input[type="number"] {
 }
 
 .grant-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-0.5rem);
     box-shadow: 0 4px 16px var(--shadow-color);
     border-color: var(--secondary-color);
 }
@@ -442,7 +448,7 @@ input[type="number"] {
 .tag {
     display: inline-block;
     padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: 4px;
+    border-radius: 0.25rem;
     color: var(--background-light);
     font-size: 0.85rem;
     margin-right: var(--spacing-xs);
@@ -484,8 +490,8 @@ input[type="number"] {
     background: rgba(255, 255, 255, 0.1); /* Reverted to semi-transparent for consistency */
     border: 2px solid var(--accent-color);
     padding: var(--spacing-lg);
-    border-radius: 12px;
-    max-width: 800px;
+    border-radius: 0.75rem;
+    max-width: 50rem;
     width: 90%;
     max-height: 85vh;
     overflow-y: auto;
@@ -512,7 +518,7 @@ input[type="number"] {
     font-size: 1rem;
     font-weight: bold;
     color: var(--background-light);
-    border-radius: 8px;
+    border-radius: 0.5rem;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     text-transform: uppercase;
@@ -531,8 +537,8 @@ input[type="number"] {
     background: var(--primary-color);
     color: var(--text-color);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -555,8 +561,8 @@ input[type="number"] {
 .loading::before {
     content: "";
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
     border: 2px solid var(--accent-color);
     border-top-color: transparent;
     border-radius: 50%;
@@ -569,7 +575,7 @@ input[type="number"] {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(1.25rem); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -590,10 +596,13 @@ input[type="number"] {
             "sort1"
             "sort2";
     }
-    .filter-row { flex-direction: column; gap: var(--spacing-sm); }
-    .filter-row .search-bar, .filter-row .filter-group { flex: auto; width: 100%; }
+    .filter-row {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    .filter-row .search-bar, .filter-row .filter-group { flex: auto; width: 100%; min-width: auto; }
     .sort-group { grid-template-columns: 1fr; }
-    .checkbox-group { grid-template-columns: 1fr; }
+    .checkbox-group { grid-template-columns: 1fr; max-height: 10rem; }
 }
 
 /* Responsive adjustments for mobile screens */
@@ -604,7 +613,7 @@ input[type="number"] {
     .container { padding: 0 var(--spacing-md); }
     .hero h1 { font-size: 2rem; }
     .hero p { font-size: 1rem; }
-    .checkbox-group { grid-template-columns: 1fr; }
+    .checkbox-group { grid-template-columns: 1fr; max-height: 8rem; }
 }
 
 /* Disables transitions for users preferring reduced motion */
