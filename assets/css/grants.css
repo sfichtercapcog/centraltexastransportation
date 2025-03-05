@@ -5,13 +5,13 @@
 /* Core theming variables */
 :root {
     /* Colors */
-    --primary-color: #2C3E50;        /* Deep navy blue */
-    --secondary-color: #3498DB;      /* Vibrant blue */
-    --text-color: #ECF0F1;           /* Light gray */
-    --background-dark: #1a1a1a;      /* Dark gray */
-    --input-bg: #2a2a2a;             /* Lighter dark gray */
-    --accent-color: #00ff00;         /* Bright green (matches screenshot) */
-    --shadow-color: rgba(0, 255, 0, 0.2); /* Green shadow */
+    --primary-color: #1E3A5F;        /* Deep midnight blue (professional, calming) */
+    --secondary-color: #4CAF50;      /* Vibrant green (engaging, modern) */
+    --text-color: #E5E7EB;           /* Soft white-gray (readable on dark backgrounds) */
+    --background-dark: #0F172A;      /* Rich charcoal black (deep, professional dark mode) */
+    --input-bg: #1F2937;             /* Slightly lighter dark gray (subtle contrast for inputs) */
+    --accent-color: #A5D6A7;         /* Light mint green (subtle, engaging highlight) */
+    --shadow-color: rgba(165, 214, 167, 0.3); /* Soft green shadow for depth */
 
     /* Typography */
     --font-family: 'Arial', 'Helvetica', sans-serif;
