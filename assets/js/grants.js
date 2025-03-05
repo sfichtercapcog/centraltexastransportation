@@ -11,7 +11,7 @@ let filterConfig = {
         'Max Application Hours': null // Maximum application hours filter
     },
     sort: [
-        { attr: 'Grant Name', direction: 'ascending' }, // Primary sort configuration
+        { attr: 'Grant Name', direction: 'ascending' }, // Hardcoded default primary sort
         { attr: null, direction: 'ascending' } // Secondary sort configuration
     ]
 };
@@ -183,7 +183,8 @@ class GrantsManager {
                      grant['Maximum Grant Award'] >= filterConfig.filters['Target Award Amount']);
                 const deadlineMatch = !filterConfig.filters['Application Deadline'] || 
                     (grant['Application Deadline'] === 'Rolling' || 
-                     this.parseDate(grant['Application Deadline'])?.getTime() === filterConfig.filters['Application Deadline'].getTime());
+                     (this.parseDate(grant['Application Deadline']) && 
+                      this.parseDate(grant['Application Deadline']) <= filterConfig.filters['Application Deadline']));
                 const hoursMatch = !filterConfig.filters['Max Application Hours'] || 
                     (grant['Estimated Application Hours'] || 0) <= filterConfig.filters['Max Application Hours'];
                 return textMatch && typeMatch && fundingMatch && awardMatch && deadlineMatch && hoursMatch;
@@ -248,7 +249,7 @@ class GrantsManager {
         if (filterConfig.filters['Grant Type'].length) summary.push(`Types: ${filterConfig.filters['Grant Type'].join(', ')}`);
         if (filterConfig.filters['Funding Source'].length) summary.push(`Sources: ${filterConfig.filters['Funding Source'].join(', ')}`);
         if (filterConfig.filters['Target Award Amount']) summary.push(`Target Award: $${filterConfig.filters['Target Award Amount'].toLocaleString()}`);
-        if (filterConfig.filters['Application Deadline']) summary.push(`Deadline: ${filterConfig.filters['Application Deadline'].toLocaleDateString()}`);
+        if (filterConfig.filters['Application Deadline']) summary.push(`Deadline: On/Before ${filterConfig.filters['Application Deadline'].toLocaleDateString()}`);
         if (filterConfig.filters['Max Application Hours']) summary.push(`Max Hours: Up to ${filterConfig.filters['Max Application Hours']}`);
         this.filterSummary.textContent = `Showing ${count} grants${summary.length ? ' | ' + summary.join(', ') : ''}`;
     }
@@ -351,12 +352,19 @@ class GrantsManager {
         document.getElementById('favoriteBtn')?.addEventListener('click', () => toggleFavorite());
         document.getElementById('copyDetailsBtn')?.addEventListener('click', copyGrantDetails);
         document.getElementById('closeGrantModal')?.addEventListener('click', () => closeModal('grantModal'));
+        // Add Enter key listener to filter inputs
+        const filterInputs = document.querySelectorAll('#filterControls input, #filterControls select');
+        filterInputs.forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') this.applyFilters();
+            });
+        });
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeAllModals();
         });
     }
 
-    // Resets filters to default values
+    // Resets filters to default values, ensuring Grant Name ascending as primary sort
     resetFilters() {
         filterConfig = {
             textSearch: '',
@@ -368,7 +376,7 @@ class GrantsManager {
                 'Max Application Hours': null
             },
             sort: [
-                { attr: 'Grant Name', direction: 'ascending' },
+                { attr: 'Grant Name', direction: 'ascending' }, // Hardcoded default
                 { attr: null, direction: 'ascending' }
             ]
         };
@@ -387,13 +395,19 @@ class GrantsManager {
         }
     }
 
-    // Loads saved data from local storage
+    // Loads saved data from local storage, ensuring default sort persists if not set
     loadSavedData() {
         try {
             const savedFavorites = localStorage.getItem('favorites');
             if (savedFavorites) favorites = JSON.parse(savedFavorites);
             const savedConfig = localStorage.getItem('filterConfig');
-            if (savedConfig) filterConfig = JSON.parse(savedConfig);
+            if (savedConfig) {
+                filterConfig = JSON.parse(savedConfig);
+                // Ensure primary sort defaults to Grant Name ascending if not set
+                if (!filterConfig.sort[0].attr) {
+                    filterConfig.sort[0] = { attr: 'Grant Name', direction: 'ascending' };
+                }
+            }
         } catch (err) {
             console.error('Failed to load saved data:', err);
         }

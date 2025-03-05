@@ -226,6 +226,12 @@ select:focus {
     outline: none;
 }
 
+/* Remove scrollbars for multiple select elements */
+select[multiple] {
+    overflow: hidden;
+    height: auto; /* Controlled by size attribute */
+}
+
 /* Positions the search icon */
 .search-bar i {
     position: absolute;
@@ -242,12 +248,14 @@ select:focus {
     gap: var(--spacing-md);
 }
 
+/* Styles labels within filter groups */
 .filter-group label {
     font-size: 0.9rem;
     margin-bottom: 6px;
     display: block;
 }
 
+/* Styles text and number inputs */
 .filter-group input {
     padding: 10px;
     border-radius: 8px;
@@ -263,11 +271,30 @@ select:focus {
     outline: none;
 }
 
+/* Remove number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* Styles the sort group for two-column layout */
 .sort-group {
-    display: flex;
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Wider field, narrower direction */
     gap: 12px;
 }
 
+/* Ensures sort group wrapper aligns properly */
+.sort-group-wrapper {
+    margin-bottom: var(--spacing-md);
+}
+
+/* Styles filter action buttons */
 .filter-actions {
     display: flex;
     gap: 12px;
@@ -475,6 +502,7 @@ select:focus {
     nav ul { flex-direction: column; align-items: center; }
     nav ul li { margin: var(--spacing-sm) 0; }
     main { padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+    .sort-group { grid-template-columns: 1fr; /* Stack on smaller screens */ }
 }
 
 /* Responsive adjustments for mobile screens */

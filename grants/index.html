@@ -65,11 +65,11 @@
                 <div class="filter-grid">
                     <div class="filter-group">
                         <label for="typeFilter">Grant Type</label>
-                        <select id="typeFilter" multiple aria-label="Filter by grant type"></select>
+                        <select id="typeFilter" multiple size="5" aria-label="Filter by grant type"></select>
                     </div>
                     <div class="filter-group">
                         <label for="fundingFilter">Funding Source</label>
-                        <select id="fundingFilter" multiple aria-label="Filter by funding source"></select>
+                        <select id="fundingFilter" multiple size="5" aria-label="Filter by funding source"></select>
                     </div>
                     <div class="filter-group">
                         <label for="targetAward">Target Award Amount</label>
@@ -83,7 +83,7 @@
                         <label for="maxHours">Max Application Hours (Up To)</label>
                         <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours">
                     </div>
-                    <div class="filter-group">
+                    <div class="filter-group sort-group-wrapper">
                         <label>Primary Sort</label>
                         <div class="sort-group">
                             <select id="sort1Attr" aria-label="Primary sort attribute"></select>
@@ -93,7 +93,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="filter-group">
+                    <div class="filter-group sort-group-wrapper">
                         <label>Secondary Sort</label>
                         <div class="sort-group">
                             <select id="sort2Attr" aria-label="Secondary sort attribute"></select>
