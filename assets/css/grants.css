@@ -5,7 +5,7 @@
 /* Core theming variables */
 :root {
     /* Colors (Inspired by X's dark mode palette) */
-    --primary-color: #1E3A5F;        /* Deep midnight blue (retained for consistency with existing design, can adjust to X's black #000000 if preferred) */
+    --primary-color: #1E3A5F;        /* Deep midnight blue (retained for consistency, can adjust to X's black #000000 if preferred) */
     --secondary-color: #1DA1F2;      /* X's signature blue (engaging, modern accent for buttons, hover states, titles) */
     --text-color: #FFFFFF;           /* Pure white (crisp, readable on dark backgrounds, matching X's text) */
     --background-dark: #14171A;      /* Deep dark gray (X's dark mode background, professional and cohesive) */
@@ -514,6 +514,27 @@ select:focus {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(1.25rem); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Footer styling */
+footer {
+    background: var(--background-dark);
+    padding: var(--spacing-md);
+    text-align: center; /* Center the footer text */
+}
+footer p {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    text-align: center; /* Ensure the paragraph text is centered */
+}
+footer a {
+    color: var(--secondary-color); /* X's blue for links */
+    text-decoration: none;
+}
+footer a:hover,
+footer a:focus {
+    text-decoration: underline;
+    color: var(--accent-color); /* X's green for hover/focus */
 }
 
 /* Tablet adjustments */
