@@ -1,153 +1,533 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Character encoding and responsive viewport settings -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Metadata for SEO -->
-    <meta name="description" content="Grants Nexus - Your hub for transportation funding opportunities in Central Texas">
-    <meta name="keywords" content="grants, transportation, funding, Central Texas">
-    <!-- Content Security Policy: Adjusted for fonts and production safety -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com; script-src 'self'; font-src 'self' https://cdnjs.cloudflare.com;">
-    <title>Grants Nexus - Central Texas Transportation</title>
-    <!-- External dependencies -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="/assets/css/grants.css">
-</head>
-<body>
-    <!-- Accessibility link to skip navigation -->
-    <a href="#main" class="skip-link">Skip to main content</a>
-    <!-- Header with navigation -->
-    <header>
-        <nav>
-            <ul role="navigation">
-                <li><a href="/" aria-label="Home">Home</a></li>
-                <li><a href="/grants/" aria-current="page">Grants</a></li>
-                <li><a href="/projects/">Projects</a></li>
-                <li><a href="/data-portal/">Data Portal</a></li>
-                <li><a href="/reports/">Reports</a></li>
-                <li><a href="/blog/">Blog</a></li>
-                <li><a href="/about/">About</a></li>
-                <li><a href="/contact/">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-    <!-- Main content area -->
-    <main id="main">
-        <!-- Hero section with title and subtitle -->
-        <section class="hero" role="banner">
-            <h1>Grants Nexus</h1>
-            <p>Central Texas Transportation Funding Hub</p>
-        </section>
-        <!-- Dashboard section for grant browsing -->
-        <section class="dashboard" role="main">
-            <!-- Initial prompt modal -->
-            <div id="initialPrompt" class="modal" role="dialog" aria-labelledby="promptTitle">
-                <div class="modal-content" tabindex="-1">
-                    <h2 id="promptTitle">Welcome to Grants Nexus</h2>
-                    <p>Do you want to view all grants or search/filter for specific grants?</p>
-                    <div class="modal-buttons">
-                        <button id="viewAllBtn">View All Grants</button>
-                        <button id="filterBtn">Search/Filter Grants</button>
-                        <button class="close-btn" id="closeInitialPrompt" aria-label="Close prompt"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>
-            </div>
-            <!-- Filter controls, initially hidden -->
-            <div class="controls expanded hidden" id="filterControls">
-                <div class="toggle-filters" id="toggleFiltersBtn">
-                    <i class="fas fa-filter"></i> Toggle Filters
-                </div>
-                <div class="filter-grid">
-                    <!-- Checkbox Groups at the Top (Side by Side) -->
-                    <div class="filter-group checkboxes">
-                        <label>Grant Type</label>
-                        <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
-                            <input type="checkbox" id="typeAll" name="typeAll" value="all">
-                            <label for="typeAll">All</label><br>
-                            <!-- Dynamically populated by JavaScript -->
-                        </div>
-                    </div>
-                    <div class="filter-group checkboxes">
-                        <label>Funding Source</label>
-                        <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
-                            <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
-                            <label for="fundingAll">All</label><br>
-                            <!-- Dynamically populated by JavaScript -->
-                        </div>
-                    </div>
+/* ==========================================================================
+   Grants.css - Global Styles for Grants Nexus Application
+   ========================================================================== */
 
-                    <!-- Search Bar and Inputs in a Row Below -->
-                    <div class="filter-row">
-                        <div class="search-bar">
-                            <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <div class="filter-group">
-                            <label for="targetAward">Target Award Amount</label>
-                            <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000" required aria-label="Target award amount">
-                        </div>
-                        <div class="filter-group">
-                            <label for="deadline">Application Deadline</label>
-                            <input type="date" id="deadline" aria-label="Application deadline">
-                        </div>
-                        <div class="filter-group">
-                            <label for="maxHours">Max Application Hours (Up To)</label>
-                            <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours">
-                        </div>
-                    </div>
+/* Core theming variables */
+:root {
+    /* Colors */
+    --primary-color: #2C3E50;        /* Deep navy blue */
+    --secondary-color: #3498DB;      /* Vibrant blue */
+    --text-color: #ECF0F1;           /* Light gray */
+    --background-dark: #1A252F;      /* Dark gray */
+    --input-bg: #2D3E50;             /* Lighter dark gray */
+    --accent-color: #27AE60;         /* Subtle green */
+    --shadow-color: rgba(39, 174, 96, 0.2); /* Green shadow */
 
-                    <!-- Sort Dropdowns Below, Stacked Vertically for Clarity -->
-                    <div class="filter-group sort-group-wrapper">
-                        <label>Primary Sort</label>
-                        <div class="sort-group">
-                            <select id="sort1Attr" aria-label="Primary sort attribute"></select>
-                            <select id="sort1Dir" aria-label="Primary sort direction">
-                                <option value="ascending">Ascending</option>
-                                <option value="descending">Descending</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="filter-group sort-group-wrapper">
-                        <label>Secondary Sort</label>
-                        <div class="sort-group">
-                            <select id="sort2Attr" aria-label="Secondary sort attribute"></select>
-                            <select id="sort2Dir" aria-label="Secondary sort direction">
-                                <option value="ascending">Ascending</option>
-                                <option value="descending">Descending</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="filter-actions">
-                    <button id="applyFilters">Apply Filters</button>
-                    <button id="resetFilters">Reset Filters</button>
-                </div>
-                <div id="filterSummary"></div>
-            </div>
-            <!-- Container for displaying grant cards -->
-            <div id="grantsContainer" role="region" aria-live="polite"></div>
-        </section>
-        <!-- Modal for detailed grant information with solid background -->
-        <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
-            <div class="modal-content solid" tabindex="-1">
-                <h2 id="modalTitle">Grant Details</h2>
-                <div id="modalDetails"></div>
-                <div class="modal-buttons">
-                    <button id="favoriteBtn">Add to Favorites</button>
-                    <button id="copyDetailsBtn">Copy Details</button>
-                    <button class="close-btn" id="closeGrantModal" aria-label="Close modal"><i class="fas fa-times"></i></button>
-                </div>
-            </div>
-        </div>
-    </main>
-    <!-- Footer with copyright and links -->
-    <footer role="contentinfo">
-        <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy</a> | <a href="/terms/">Terms</a> | <a href="/accessibility/">Accessibility</a></p>
-    </footer>
-    <!-- Datalist for search suggestions -->
-    <datalist id="grantSuggestions"></datalist>
-    <!-- External JavaScript file -->
-    <script src="/assets/js/grants.js"></script>
-</body>
-</html>
+    /* Typography */
+    --font-family: 'Arial', 'Helvetica', sans-serif;
+    --font-size-base: 1rem;          /* 16px */
+    --line-height-base: 1.5;
+
+    /* Spacing */
+    --spacing-xxs: 0.125rem;         /* 2px */
+    --spacing-xs: 0.25rem;           /* 4px */
+    --spacing-sm: 0.5rem;            /* 8px */
+    --spacing-md: 1rem;              /* 16px */
+    --spacing-lg: 2rem;              /* 32px */
+    --spacing-xl: 3rem;              /* 48px */
+
+    /* Breakpoints */
+    --breakpoint-tablet: 768px;
+    --breakpoint-mobile: 480px;
+}
+
+/* Reset and box-sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Base HTML styles */
+html {
+    font-size: var(--font-size-base);
+    scroll-behavior: smooth;
+}
+
+/* Body styling */
+body {
+    font-family: var(--font-family);
+    font-size: 1rem;
+    line-height: var(--line-height-base);
+    color: var(--text-color);
+    background-color: var(--background-dark);
+    background-image: linear-gradient(135deg, #1A252F 0%, #2C3E50 100%);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Centered container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-xl);
+}
+
+/* Skip link for accessibility */
+.skip-link {
+    position: absolute;
+    top: -var(--spacing-md);
+    left: 0;
+    background: var(--accent-color);
+    color: var(--background-dark);
+    padding: var(--spacing-xs);
+    z-index: 1001;
+    transition: top 0.3s ease-in-out;
+}
+.skip-link:focus { top: 0; }
+
+/* Sticky header */
+header {
+    background: var(--background-dark);
+    padding: var(--spacing-md);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* Navigation layout */
+nav ul {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
+}
+nav ul li { margin: 0 var(--spacing-sm); }
+nav ul li a {
+    color: var(--text-color);
+    font-weight: 600;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 0.5rem;
+    background: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+}
+nav ul li a:hover,
+nav ul li a:focus {
+    background: var(--secondary-color);
+    color: var(--background-dark);
+    transform: scale(1.05);
+}
+
+/* Hero section */
+.hero {
+    padding: var(--spacing-lg) var(--spacing-md);
+    color: var(--text-color);
+    background: var(--background-dark);
+}
+.hero h1 {
+    font-size: 3rem;
+    color: var(--secondary-color);
+    margin-bottom: var(--spacing-sm);
+    text-align: left;
+}
+.hero p {
+    font-size: 1.25rem;
+    text-align: left;
+}
+
+/* Main content */
+main {
+    background: var(--background-dark);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+.dashboard { padding: var(--spacing-md); }
+
+/* Filter controls */
+.controls {
+    background: var(--background-dark);
+    border: 2px solid var(--accent-color);
+    border-radius: 0.5rem;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: max-height 0.5s ease-in-out;
+}
+.controls.collapsed { max-height: 3.75rem; overflow: hidden; }
+.controls.expanded { max-height: 50rem; }
+
+/* Hidden elements */
+.hidden { display: none; }
+
+/* Toggle filters button */
+.toggle-filters {
+    background: var(--primary-color);
+    color: var(--text-color);
+    padding: var(--spacing-sm);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+    display: none;
+}
+
+/* Base input styles */
+.input-base {
+    padding: var(--spacing-sm);
+    border-radius: 0.5rem;
+    border: 2px solid var(--accent-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+.input-base:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--shadow-color);
+    outline: none;
+}
+
+/* Search bar */
+.search-bar {
+    position: relative;
+    margin-bottom: var(--spacing-md);
+}
+.search-bar input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    @extend .input-base; /* Use SCSS or manually copy .input-base styles */
+}
+.search-bar i {
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-color);
+}
+
+/* Checkbox group */
+.checkbox-group {
+    display: grid;
+    gap: var(--spacing-xxs);
+    padding: var(--spacing-sm);
+    background: var(--input-bg);
+    border: 2px solid var(--accent-color);
+    border-radius: 0.5rem;
+    max-height: 12rem;
+    overflow-y: auto;
+    width: 100%;
+}
+.checkbox-group input[type="checkbox"] {
+    margin-right: var(--spacing-xs);
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--accent-color);
+    border-radius: 0.25rem;
+    background: var(--background-dark);
+    cursor: pointer;
+}
+.checkbox-group input[type="checkbox"]:checked {
+    background: var(--secondary-color);
+}
+.checkbox-group input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+.checkbox-group label {
+    font-size: 1rem;
+    color: var(--text-color);
+    cursor: pointer;
+    display: inline-block;
+}
+
+/* Filter grid */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--spacing-sm);
+}
+
+/* Filter row */
+.filter-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+.filter-row .search-bar,
+.filter-row .filter-group { flex: 1; min-width: 10rem; }
+
+/* Filter group */
+.filter-group {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+.filter-group label {
+    font-size: 0.9rem;
+    margin-right: var(--spacing-sm);
+}
+.filter-group input {
+    width: 100%;
+    @extend .input-base; /* Use SCSS or manually copy .input-base styles */
+}
+
+/* Remove number input spinners */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Sort group */
+.sort-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+}
+select {
+    appearance: none;
+    width: 100%;
+    padding: var(--spacing-sm);
+    border-radius: 0.5rem;
+    border: 2px solid var(--accent-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
+                     linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
+    background-position: calc(100% - 1.25rem) calc(1em + 2px), calc(100% - 0.9375rem) calc(1em + 2px);
+    background-size: 0.3125rem 0.3125rem;
+    background-repeat: no-repeat;
+    font-size: 1rem;
+    cursor: pointer;
+}
+select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--shadow-color);
+    outline: none;
+}
+
+/* Filter actions */
+.filter-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+    justify-content: flex-start;
+}
+
+/* Buttons in controls */
+.controls button {
+    background: var(--primary-color);
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+}
+.controls button:hover {
+    background: var(--secondary-color);
+    color: var(--background-dark);
+    transform: scale(1.05);
+    box-shadow: 0 0 8px var(--shadow-color);
+}
+
+/* Filter summary */
+#filterSummary {
+    margin-top: var(--spacing-md);
+    font-size: 0.9rem;
+    color: var(--text-color);
+    text-align: left;
+}
+
+/* Grants grid */
+#grantsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+}
+
+/* Grant card */
+.grant-card {
+    background: var(--input-bg);
+    border: 2px solid var(--accent-color);
+    border-radius: 0.75rem;
+    padding: var(--spacing-md);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: all 0.3s ease-in-out;
+    position: relative;
+}
+.grant-card:hover {
+    transform: translateY(-0.5rem);
+    box-shadow: 0 4px 16px var(--shadow-color);
+    border-color: var(--secondary-color);
+}
+.grant-card h3 {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+.grant-card p {
+    color: var(--text-color);
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Tags */
+.tag {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 0.25rem;
+    color: var(--background-dark);
+    font-size: 0.85rem;
+    margin-right: var(--spacing-xs);
+}
+.tag.formula { background: var(--accent-color); }
+.tag.discretionary,
+.tag.competitive { background: var(--secondary-color); }
+
+/* Favorite button */
+.favorite-btn {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.favorite-btn.active { color: #FFD700; }
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.modal-content {
+    background: var(--input-bg);
+    border: 2px solid var(--accent-color);
+    padding: var(--spacing-lg);
+    border-radius: 0.75rem;
+    max-width: 50rem;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* Modal buttons */
+.modal-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-start;
+    margin-top: var(--spacing-md);
+}
+.modal-buttons button {
+    background: var(--primary-color);
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+}
+.modal-buttons button:hover {
+    background: var(--secondary-color);
+    color: var(--background-dark);
+    transform: scale(1.05);
+    box-shadow: 0 0 8px var(--shadow-color);
+}
+
+/* Modal close button */
+.close-btn {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    background: var(--primary-color);
+    color: var(--text-color);
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--accent-color);
+    transition: all 0.3s ease-in-out;
+}
+.close-btn:hover {
+    background: var(--secondary-color);
+    transform: rotate(90deg);
+}
+
+/* Loading indicator */
+.loading {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: var(--spacing-md);
+}
+.loading::before {
+    content: "";
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--accent-color);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: var(--spacing-xs);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(1.25rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tablet adjustments */
+@media (max-width: var(--breakpoint-tablet)) {
+    .toggle-filters { display: block; }
+    .controls.collapsed .filter-grid,
+    .controls.collapsed .filter-actions,
+    .controls.collapsed #filterSummary { display: none; }
+    .container { padding: 0 var(--spacing-md); }
+    nav ul { flex-direction: column; align-items: center; }
+    nav ul li { margin: var(--spacing-sm) 0; }
+    main { padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+    .filter-grid { grid-template-columns: 1fr; }
+    .filter-row { flex-direction: column; }
+    .filter-row .search-bar,
+    .filter-row .filter-group { flex: auto; width: 100%; min-width: auto; }
+    .sort-group { grid-template-columns: 1fr; }
+    .checkbox-group { max-height: 10rem; }
+}
+
+/* Mobile adjustments */
+@media (max-width: var(--breakpoint-mobile)) {
+    .toggle-filters { display: block; }
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    #grantsContainer { grid-template-columns: 1fr; }
+    .container { padding: 0 var(--spacing-md); }
+    .hero h1 { font-size: 2rem; }
+    .hero p { font-size: 1rem; }
+    .checkbox-group { max-height: 8rem; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; transform: none !important; }
+}
