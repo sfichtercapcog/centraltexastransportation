@@ -1,10 +1,5 @@
-AWS.config.update({
-    accessKeyId: 'AKIAVA5YK7KIZJQU22UW',
-    secretAccessKey: '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',
-    region: 'us-east-1'
-});
+// Removed AWS SDK imports since we're not using DynamoDB anymore
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
 let allGrants = [];
 let attributes = [];
 let filterConfig = {
@@ -12,9 +7,9 @@ let filterConfig = {
     filters: {
         'Grant Type': [],
         'Funding Source': [],
-        'Target Award Amount': null, // Single value to check against min/max range
-        'Application Deadline': null, // Single date
-        'Max Application Hours': null // Single value for "up to"
+        'Target Award Amount': null,
+        'Application Deadline': null,
+        'Max Application Hours': null
     },
     sort: [
         { attr: 'Grant Name', direction: 'ascending' },
@@ -42,10 +37,17 @@ class GrantsManager {
     async loadGrants() {
         this.showLoading();
         try {
-            const params = { TableName: 'grants' };
-            const data = await this.scanDynamoDB(params);
-            allGrants = data.Items || [];
-            if (!allGrants.length) throw new Error('No grants found in database');
+            // Fetch local grants.json file instead of DynamoDB scan
+            const response = await fetch('./grants.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            allGrants = await response.json();
+            
+            if (!Array.isArray(allGrants) || !allGrants.length) {
+                throw new Error('No grants found in JSON file or invalid format');
+            }
+            
             attributes = this.extractAttributes(allGrants[0]);
             this.setupFilterControls();
             this.updateSuggestions();
@@ -54,32 +56,11 @@ class GrantsManager {
             this.trackEvent('Grants Loaded', { count: allGrants.length });
         } catch (err) {
             console.error('Error loading grants:', err);
-            this.showError(`Failed to load grants: ${err.message}. Please try again.`);
+            this.showError(`Failed to load grants: ${err.message}. Please check grants.json and try again.`);
         }
     }
 
-    async scanDynamoDB(params) {
-        let items = [];
-        let lastEvaluatedKey = null;
-        try {
-            do {
-                const response = await dynamodb.scan({
-                    ...params,
-                    ExclusiveStartKey: lastEvaluatedKey
-                }).promise();
-                items = items.concat(response.Items);
-                lastEvaluatedKey = response.LastEvaluatedKey;
-            } while (lastEvaluatedKey);
-        } catch (err) {
-            if (err.code === 'ThrottlingException') {
-                console.warn('Throttling detected, retrying...');
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                return this.scanDynamoDB(params);
-            }
-            throw err;
-        }
-        return { Items: items };
-    }
+    // Removed scanDynamoDB method since we're not using DynamoDB
 
     extractAttributes(sampleGrant) {
         return Object.keys(sampleGrant).filter(k => k !== 'grantId');
@@ -138,7 +119,8 @@ class GrantsManager {
             if (option) option.selected = true;
         });
         document.getElementById('targetAward').value = filterConfig.filters['Target Award Amount'] || '';
-        document.getElementById('deadline').value = filterConfig.filters['Application Deadline'] ? filterConfig.filters['Application Deadline'].toISOString().split('T')[0] : '';
+        document.getElementById('deadline').value = filterConfig.filters['Application Deadline'] ? 
+            filterConfig.filters['Application Deadline'].toISOString().split('T')[0] : '';
         document.getElementById('maxHours').value = filterConfig.filters['Max Application Hours'] || '';
     }
 
@@ -179,7 +161,7 @@ class GrantsManager {
                      grant['Maximum Grant Award'] >= filterConfig.filters['Target Award Amount']);
                 const deadlineMatch = !filterConfig.filters['Application Deadline'] || 
                     (grant['Application Deadline'] === 'Rolling' || 
-                     this.parseDate(grant['Application Deadline']) === filterConfig.filters['Application Deadline']);
+                     this.parseDate(grant['Application Deadline'])?.getTime() === filterConfig.filters['Application Deadline'].getTime());
                 const hoursMatch = !filterConfig.filters['Max Application Hours'] || 
                     (grant['Estimated Application Hours'] || 0) <= filterConfig.filters['Max Application Hours'];
                 return textMatch && typeMatch && fundingMatch && awardMatch && deadlineMatch && hoursMatch;
@@ -192,7 +174,8 @@ class GrantsManager {
                 const valB = attr === 'Application Deadline' && b[attr] === 'Rolling' ? '9999-12-31' : b[attr] || '';
                 let comparison = 0;
                 if (attr === 'Application Deadline') {
-                    comparison = (this.parseDate(valA) || new Date('9999-12-31')) - (this.parseDate(valB) || new Date('9999-12-31'));
+                    comparison = (this.parseDate(valA)?.getTime() || new Date('9999-12-31').getTime()) - 
+                                (this.parseDate(valB)?.getTime() || new Date('9999-12-31').getTime());
                 } else if (typeof valA === 'number') {
                     comparison = valA - valB;
                 } else {
@@ -218,7 +201,8 @@ class GrantsManager {
 
     createGrantCard(grant) {
         const isFavorite = favorites.includes(grant.grantId);
-        const deadlineClass = this.parseDate(grant['Application Deadline']) && this.parseDate(grant['Application Deadline']) < new Date() ? 'passed' : '';
+        const deadlineClass = this.parseDate(grant['Application Deadline']) && 
+            this.parseDate(grant['Application Deadline']) < new Date() ? 'passed' : '';
         return `
             <div class="grant-card" tabindex="0" data-grant-id="${grant.grantId}">
                 <h3>${grant['Grant Name'] || 'Untitled'}</h3>
@@ -292,7 +276,7 @@ class GrantsManager {
         modalContent.dataset.grantId = grantId;
         document.getElementById('modalTitle').textContent = grant['Grant Name'] || 'Untitled';
         document.getElementById('modalDetails').innerHTML = attributes.map(attr =>
-            `<p><strong>${attr}:</strong> ${attr.includes('Award') && grant[attr] !== undefined ? `$${grant[attr].toLocaleString()}` : grant[attr] !== undefined ? grant[attr].toLocaleString() : 'N/A'}</p>`
+            `<p><strong>${attr}:</strong> ${attr.includes('Award') && grant[attr] !== undefined ? `$${grant[attr].toLocaleString()}` : grant[attr] !== undefined ? grant[attr].toString() : 'N/A'}</p>`
         ).join('');
         document.getElementById('favoriteBtn').textContent = favorites.includes(grantId) ? 'Remove from Favorites' : 'Add to Favorites';
         modal.style.display = 'flex';
