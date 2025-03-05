@@ -88,12 +88,12 @@ class GrantsManager {
         const uniqueValues = [...new Set(allGrants.map(g => g[attr] || ''))].sort().filter(v => v);
         container.innerHTML = `
             <input type="checkbox" id="${groupId}All" name="${groupId}All" value="all" ${selectedValues.includes('All') ? 'checked' : ''}>
-            <label for="${groupId}All">All</label><br>
+            <label for="${groupId}All">All</label>
         `;
         uniqueValues.forEach(val => {
             container.innerHTML += `
                 <input type="checkbox" id="${groupId}_${val}" name="${groupId}_${val}" value="${val}" ${selectedValues.includes(val) ? 'checked' : ''}>
-                <label for="${groupId}_${val}">${val}</label><br>
+                <label for="${groupId}_${val}">${val}</label>
             `;
         });
     }
@@ -301,7 +301,7 @@ class GrantsManager {
         }, { threshold: 0.1 });
         document.querySelectorAll('.grant-card').forEach(card => {
             card.style.opacity = '0';
-            card.style.transform = 'translateY(1.25rem)';
+            card.style.transform = 'translateY(calc(var(--spacing-unit) * 1.25))'; /* Dynamic transform */
             card.addEventListener('click', (e) => {
                 if (!e.target.closest('.favorite-btn')) this.showGrantModal(card.dataset.grantId);
             });
@@ -331,7 +331,7 @@ class GrantsManager {
         }, 1000);
     }
 
-    // Displays a modal with detailed grant information
+    // Displays a modal with detailed grant information, centered with no overlap
     showGrantModal(grantId) {
         const grant = allGrants.find(g => g.grantId === grantId);
         if (!grant) {
@@ -340,6 +340,7 @@ class GrantsManager {
         }
         const modal = document.getElementById('grantModal');
         const modalContent = modal.querySelector('.modal-content');
+        if (!modalContent) return; // Safety check
         modalContent.classList.add('solid');
         modalContent.dataset.grantId = grantId;
         document.getElementById('modalTitle').textContent = grant['Grant Name'] || 'Untitled';
@@ -349,7 +350,7 @@ class GrantsManager {
             grant[attr] !== undefined ? grant[attr].toString() : 'N/A'}</p>`
         ).join('');
         document.getElementById('favoriteBtn').textContent = favorites.includes(grantId) ? 'Remove from Favorites' : 'Add to Favorites';
-        modal.style.display = 'flex';
+        modal.style.display = 'flex'; // Ensure modal is shown only on explicit click
         modalContent.focus();
         this.trapFocus(modal);
     }

@@ -14,7 +14,7 @@
 <body>
     <header>
         <nav aria-label="Main navigation">
-            <ul>
+            <ul class="nav-list">
                 <li><a href="/">Home</a></li>
                 <li><a href="/grants/" aria-current="page">Grants</a></li>
                 <li><a href="/projects/">Projects</a></li>
@@ -76,7 +76,7 @@
                     </div>
                     <div class="filter-group sort-group-wrapper">
                         <label>Primary Sort</label>
-                        <div class="sort-group">
+                        <div class="sort-group" role="group" aria-label="Primary sort options">
                             <select id="sort1Attr" aria-label="Primary sort attribute">
                                 <option value="Grant Name" selected>Grant Name</option>
                             </select>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="filter-group sort-group-wrapper">
                         <label>Secondary Sort</label>
-                        <div class="sort-group">
+                        <div class="sort-group" role="group" aria-label="Secondary sort options">
                             <select id="sort2Attr" aria-label="Secondary sort attribute">
                                 <option value="" selected>None</option>
                             </select>
@@ -103,7 +103,7 @@
                     <button id="applyFilters">Apply Filters</button>
                     <button id="resetFilters">Reset Filters</button>
                 </div>
-                <div id="filterSummary" aria-live="polite"></div>
+                <div id="filterSummary" class="filter-summary" aria-live="polite"></div>
             </div>
             <div id="grantsContainer" class="grid-container" role="region" aria-live="polite"></div>
         </section>

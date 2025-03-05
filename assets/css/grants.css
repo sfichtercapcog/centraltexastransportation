@@ -15,6 +15,8 @@
       transition: max-height 0.5s ease-in-out;
       border: 1px solid var(--accent-color); /* Add border for separation */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      padding: var(--spacing-sm); /* Dynamic padding for separation */
+      overflow: hidden; /* Prevent overflow causing overlap */
   }
   
   .controls.collapsed { max-height: calc(var(--spacing-unit) * 7.5); overflow: hidden; } /* Dynamic height */
@@ -33,11 +35,12 @@
       padding: var(--spacing-sm) var(--spacing-md);
       border-radius: clamp(0.25rem, 0.5vw, 0.5rem); /* Dynamic radius */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      min-width: clamp(6rem, 10vw, 8rem); /* Prevent overlap on button */
   }
   
   @media (max-width: var(--breakpoint-tablet)) {
       .toggle-filters { display: block; }
-      .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed #filterSummary { display: none; }
+      .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed .filter-summary { display: none; }
   }
   
   /* Positions and styles the search bar */
@@ -64,6 +67,7 @@
       flex-direction: column; /* Stack items vertically */
       gap: var(--spacing-xs); /* Dynamic, minimal gap between rows */
       height: auto; /* Dynamic height to fit content, no scrollbars */
+      min-width: clamp(10rem, 20vw, 15rem); /* Prevent overlap on checkbox groups */
   }
   
   /* Dynamically size checkbox groups based on content (taller of the two) */
@@ -79,7 +83,7 @@
       }
   }
   
-  /* Grid layout for filter inputs with clean, organized layout and dynamic spacing */
+  /* Grid layout for filter inputs with clean, organized layout and dynamic spacing, no overlap */
   .filter-grid {
       display: grid;
       grid-template-areas:
@@ -90,6 +94,7 @@
       gap: var(--spacing-sm); /* Dynamic gap */
       max-width: 100%; /* Prevent overflow */
       padding: var(--spacing-sm); /* Dynamic padding for separation */
+      grid-template-columns: minmax(clamp(10rem, 30vw, 20rem), 1fr) minmax(clamp(10rem, 30vw, 20rem), 1fr); /* Dynamic columns, no overlap */
   }
   
   /* Style checkbox groups */
@@ -99,6 +104,7 @@
       flex-direction: column;
       align-items: flex-start; /* Left-align checkbox groups */
       justify-content: flex-start; /* Ensure content starts at the top */
+      min-width: clamp(10rem, 20vw, 15rem); /* Prevent overlap */
   }
   
   .filter-group.checkboxes:nth-child(1) { grid-area: checkboxes1; }
@@ -113,16 +119,17 @@
       justify-content: flex-start; /* Ensure content starts at the left */
       margin-bottom: var(--spacing-md);
       flex-wrap: wrap; /* Allow wrapping on smaller screens */
+      min-width: clamp(20rem, 40vw, 30rem); /* Prevent overlap on inputs */
   }
   
   .filter-row .search-bar {
       flex: 1; /* Match width of other inputs */
-      min-width: clamp(8rem, 15vw, 10rem); /* Dynamic minimum width */
+      min-width: clamp(8rem, 15vw, 12rem); /* Dynamic minimum width, no overlap */
   }
   
   .filter-row .filter-group {
       flex: 1;
-      min-width: clamp(8rem, 15vw, 10rem); /* Dynamic minimum width */
+      min-width: clamp(8rem, 15vw, 12rem); /* Dynamic minimum width, no overlap */
       display: flex;
       align-items: center; /* Vertically center inputs with labels */
   }
@@ -135,6 +142,7 @@
       align-items: center; /* Vertically center labels and inputs */
       justify-content: flex-start; /* Ensure content starts at the left */
       margin-bottom: var(--spacing-md);
+      min-width: clamp(8rem, 15vw, 12rem); /* Prevent overlap */
   }
   
   .filter-group label {
@@ -144,25 +152,27 @@
       align-items: center; /* Vertically center label text */
       color: var(--text-color); /* Ensure label visibility */
       height: calc(var(--spacing-unit) * 5); /* Dynamic height, ~2.5rem */
-      min-width: clamp(10rem, 20vw, 15rem); /* Dynamic minimum width for labels */
+      min-width: clamp(10rem, 20vw, 15rem); /* Prevent overlap on labels */
   }
   
   .filter-group input {
       width: 100%;
       flex: 1; /* Allow input to fill remaining space */
       height: calc(var(--spacing-unit) * 5); /* Dynamic height for alignment */
+      min-width: clamp(8rem, 15vw, 12rem); /* Prevent overlap on inputs */
   }
   
   .filter-group input:focus {
       box-shadow: 0 0 calc(var(--spacing-unit) * 1) var(--secondary-color); /* Dynamic glow effect */
   }
   
-  /* Style sort groups */
+  /* Style sort groups with no overlap */
   .filter-group.sort-group-wrapper {
       display: flex;
       flex-direction: column;
       gap: var(--spacing-xs);
       align-items: flex-start; /* Left-align sort groups */
+      min-width: clamp(15rem, 25vw, 20rem); /* Prevent overlap */
   }
   
   .sort-group-wrapper:nth-child(5) { grid-area: sort1; }
@@ -170,10 +180,11 @@
   
   .sort-group {
       display: grid;
-      grid-template-columns: 1fr 1fr; /* Match secondary sort width (equal columns) */
+      grid-template-columns: minmax(clamp(10rem, 20vw, 15rem), 1fr) minmax(clamp(10rem, 20vw, 15rem), 1fr); /* Dynamic columns, no overlap */
       gap: var(--spacing-sm);
       align-items: center; /* Vertically center dropdowns */
       justify-content: flex-start; /* Ensure content starts at the left */
+      min-width: clamp(20rem, 40vw, 30rem); /* Prevent overlap on sort groups */
   }
   
   select {
@@ -191,44 +202,51 @@
       border-radius: clamp(0.25rem, 0.5vw, 0.5rem); /* Dynamic radius */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
       height: calc(var(--spacing-unit) * 5); /* Dynamic height for alignment */
-      width: clamp(12rem, 120%, 20rem); /* Dynamic width, 20% wider than "Estimated Application Hours" */
+      width: clamp(12rem, 120%, 20rem); /* Dynamic width, 20% wider than "Estimated Application Hours", no overlap */
+      min-width: clamp(10rem, 20vw, 15rem); /* Prevent overlap on dropdowns */
   }
   
   select:focus {
       box-shadow: 0 0 calc(var(--spacing-unit) * 1) var(--secondary-color); /* Dynamic glow effect */
   }
   
-  /* Styles filter action buttons */
+  /* Styles filter action buttons with no overlap */
   .filter-actions {
       display: flex;
       gap: var(--spacing-sm);
       margin-top: var(--spacing-md);
       justify-content: flex-start; /* Left-align buttons */
+      min-width: clamp(20rem, 40vw, 30rem); /* Prevent overlap */
   }
   
   .filter-actions button {
       margin-right: var(--spacing-sm); /* Dynamic space between buttons */
+      min-width: clamp(6rem, 10vw, 8rem); /* Prevent overlap on buttons */
   }
   
-  /* Styles the filter summary text */
-  #filterSummary {
+  /* Styles the filter summary text with increased spacing above */
+  .filter-summary {
       text-align: left; /* Left-align summary text */
       padding: var(--spacing-sm); /* Dynamic padding for separation */
       border: 1px solid var(--accent-color); /* Add border for separation */
       border-radius: clamp(0.25rem, 0.5vw, 0.5rem); /* Dynamic radius */
       background: var(--background-dark); /* Slightly darker for contrast */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      margin-top: var(--spacing-md); /* Increased dynamic space above filter summary */
+      min-width: clamp(20rem, 40vw, 30rem); /* Prevent overlap */
   }
   
-  /* Grid layout for grant cards with dark mode background */
+  /* Grid layout for grant cards with dark mode background, no overlap */
   #grantsContainer {
-      grid-template-columns: repeat(auto-fit, minmax(clamp(15rem, 20vw, 25rem), 1fr)); /* Dynamic card width */
+      grid-template-columns: repeat(auto-fit, minmax(clamp(15rem, 20vw, 25rem), 1fr)); /* Dynamic card width, no overlap */
       justify-content: flex-start; /* Left-align cards */
       padding: var(--spacing-sm); /* Dynamic padding for separation */
       gap: var(--spacing-md); /* Dynamic gap between cards */
+      align-items: start; /* Prevent vertical overlap */
+      min-width: clamp(30rem, 60vw, 50rem); /* Prevent overlap on container */
   }
   
-  /* Styles individual grant cards with dark mode background */
+  /* Styles individual grant cards with dark mode background, no overlap */
   .grant-card {
       transition: all 0.3s ease-in-out;
       position: relative;
@@ -238,6 +256,8 @@
       padding: var(--spacing-md); /* Dynamic padding for content */
       margin-bottom: var(--spacing-sm); /* Dynamic space between cards */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      min-width: clamp(15rem, 20vw, 25rem); /* Prevent overlap on cards */
+      max-width: clamp(20rem, 25vw, 30rem); /* Prevent overcrowding */
   }
   
   .grant-card:hover {
@@ -263,6 +283,7 @@
       padding: var(--spacing-xs) var(--spacing-sm); /* Dynamic padding */
       border-radius: clamp(0.125rem, 0.25vw, 0.25rem); /* Dynamic radius */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      min-width: clamp(5rem, 10vw, 8rem); /* Prevent overlap on tags */
   }
   
   /* Styles the favorite button on grant cards */
@@ -274,6 +295,7 @@
       padding: var(--spacing-xs); /* Dynamic padding */
       border-radius: clamp(0.25rem, 0.5vw, 0.5rem); /* Dynamic radius */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      min-width: clamp(2rem, 5vw, 3rem); /* Prevent overlap on button */
   }
   
   .favorite-btn:hover {
@@ -287,35 +309,48 @@
       color: var(--background-dark);
   }
   
-  /* Styles modal overlays */
+  /* Styles modal overlays, centered with no unexpected positioning */
   .modal {
       background: rgba(0, 0, 0, 0.75);
-      align-items: center;
-      justify-content: center;
+      display: flex; /* Ensure flex for centering */
+      align-items: center; /* Center vertically */
+      justify-content: center; /* Center horizontally */
+      position: fixed; /* Fixed positioning to prevent bottom sticking */
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       z-index: 2000;
+      overflow: auto; /* Allow scrolling if content overflows */
   }
   
-  /* Styles modal content */
+  /* Styles modal content, centered and no overlap */
   .modal-content {
       background: var(--input-bg); /* Match input background */
       border: 1px solid var(--accent-color); /* Add border for separation */
       border-radius: clamp(0.5rem, 1vw, 0.75rem); /* Dynamic radius */
       padding: var(--spacing-lg); /* Dynamic padding for content */
       box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1.5) var(--shadow-color); /* Dynamic shadow */
+      max-width: clamp(20rem, 80vw, 40rem); /* Prevent overlap, dynamic width */
+      max-height: clamp(20rem, 80vh, 40rem); /* Prevent overlap, dynamic height */
+      margin: var(--spacing-md) auto; /* Dynamic margin for centering */
   }
   
   .modal-content.solid {
       background: var(--background-dark); /* Darker for solid effect */
   }
   
-  /* Styles modal buttons */
+  /* Styles modal buttons with no overlap */
   .modal-buttons {
       justify-content: flex-start; /* Left-align modal buttons */
       margin-top: var(--spacing-md); /* Dynamic space above buttons */
+      gap: var(--spacing-sm); /* Dynamic gap between buttons */
+      min-width: clamp(20rem, 40vw, 30rem); /* Prevent overlap */
   }
   
   .modal-buttons button {
       margin-right: var(--spacing-sm); /* Dynamic space between buttons */
+      min-width: clamp(6rem, 10vw, 8rem); /* Prevent overlap on buttons */
   }
   
   /* Styles the loading indicator */
@@ -325,6 +360,7 @@
       border: 1px solid var(--accent-color); /* Add border */
       border-radius: clamp(0.25rem, 0.5vw, 0.5rem); /* Dynamic radius */
       box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+      min-width: clamp(10rem, 20vw, 15rem); /* Prevent overlap */
   }
   
   .loading::before {
@@ -336,4 +372,5 @@
   
   @media (max-width: var(--breakpoint-mobile)) {
       .grant-card { padding: var(--spacing-sm); } /* Dynamic padding on mobile */
+      .modal-content { max-width: clamp(15rem, 70vw, 25rem); } /* Smaller modal on mobile */
   }

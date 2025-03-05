@@ -99,7 +99,7 @@ a:focus {
 }
 
 /* ========================================================================== 
-   Layout - Clean, Dynamic, and Responsive
+   Layout - Clean, Dynamic, and Responsive with No Overlap
    ========================================================================== */
 .container {
   max-width: clamp(800px, 90vw, 1200px); /* Dynamic max-width */
@@ -109,8 +109,9 @@ a:focus {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(clamp(15rem, 20vw, 25rem), 1fr)); /* Dynamic card width */
+  grid-template-columns: repeat(auto-fit, minmax(clamp(15rem, 20vw, 25rem), 1fr)); /* Dynamic card width, no overlap */
   gap: var(--spacing-md); /* Dynamic gap */
+  align-items: start; /* Prevent vertical overlap */
 }
 
 /* ========================================================================== 
@@ -126,31 +127,33 @@ header {
   box-shadow: 0 calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1.5) var(--shadow-color);
 }
 
-nav ul {
+nav ul.nav-list {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   list-style: none;
   gap: var(--spacing-sm); /* Dynamic gap between nav items */
+  align-items: center; /* Prevent vertical overlap */
 }
 
-nav ul li {
+nav ul.nav-list li {
   margin: 0 var(--spacing-sm);
 }
 
-nav ul li a {
+nav ul.nav-list li a {
   color: var(--text-color);
   font-weight: 600;
   padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: 0.5rem;
+  border-radius: clamp(0.25rem, 0.5vw, 0.5rem); /* Dynamic radius */
   transition: all 0.3s ease-in-out;
   background: var(--primary-color);
   border: 1px solid var(--accent-color); /* Add border for visual separation */
   box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+  min-width: clamp(4rem, 8vw, 6rem); /* Prevent overlap on nav items */
 }
 
-nav ul li a:hover,
-nav ul li a:focus {
+nav ul.nav-list li a:hover,
+nav ul.nav-list li a:focus {
   background: var(--secondary-color);
   color: var(--background-dark);
   transform: scale(1.05);
@@ -208,6 +211,7 @@ button {
   transition: all 0.3s ease-in-out;
   text-transform: uppercase;
   box-shadow: 0 calc(var(--spacing-unit) * 0.25) calc(var(--spacing-unit) * 0.5) var(--shadow-color); /* Dynamic shadow */
+  min-width: clamp(6rem, 10vw, 8rem); /* Prevent overlap on buttons */
 }
 
 button:hover,
@@ -238,6 +242,7 @@ select {
   height: calc(var(--spacing-unit) * 5); /* Dynamic height, ~2.5rem */
   display: flex;
   align-items: center; /* Center vertically within input */
+  min-width: clamp(8rem, 15vw, 12rem); /* Prevent overlap on inputs */
 }
 
 input[type="text"]:focus,
@@ -314,7 +319,7 @@ input[type="checkbox"]:hover:not(:checked) {
 }
 
 /* ========================================================================== 
-   Responsive Design - Fully Dynamic and Adaptive
+   Responsive Design - Fully Dynamic and Adaptive with No Overlap
    ========================================================================== */
 @media (max-width: var(--breakpoint-tablet)) {
   :root {
@@ -324,18 +329,23 @@ input[type="checkbox"]:hover:not(:checked) {
     padding: 0 calc(var(--spacing-unit) * 2); /* Dynamic padding */
   }
 
-  nav ul {
+  nav ul.nav-list {
     flex-direction: column;
     align-items: center;
   }
 
-  nav ul li {
+  nav ul.nav-list li {
     margin: var(--spacing-sm) 0;
+    min-width: clamp(4rem, 15vw, 6rem); /* Prevent overlap on mobile */
   }
 
   main {
     padding: var(--spacing-md);
     margin: var(--spacing-md) 0;
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(12rem, 15vw, 20rem), 1fr)); /* Smaller cards on tablets */
   }
 }
 
@@ -354,6 +364,10 @@ input[type="checkbox"]:hover:not(:checked) {
   input[type="checkbox"] {
     width: calc(var(--spacing-unit) * 2);
     height: calc(var(--spacing-unit) * 2);
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(10rem, 12vw, 15rem), 1fr)); /* Smaller cards on mobile */
   }
 }
 
