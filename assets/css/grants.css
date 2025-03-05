@@ -55,13 +55,14 @@
   
   /* Styles checkboxes for grant type and funding source */
   .checkbox-group {
-      max-height: 12rem; /* Limit height for consistency */
-      overflow-y: auto;
       width: 100%; /* Ensure full width under label */
-      padding: var(--spacing-sm); /* Add padding for separation */
+      padding: var(--spacing-xs); /* Reduce padding for tighter spacing */
       border: 1px solid var(--accent-color); /* Add border for separation */
       border-radius: 0.5rem; /* Match input styling */
       box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      display: flex; /* Use flex to control layout */
+      flex-direction: column; /* Stack items vertically */
+      gap: 0.25rem; /* Minimal gap between rows, removing newline space */
   }
   
   .checkbox-group input[type="checkbox"] {
@@ -89,6 +90,29 @@
   .checkbox-group label {
       margin-left: var(--spacing-xs); /* Space before label text */
       color: var(--text-color); /* Ensure text visibility */
+      line-height: 1.2; /* Tighten line height to reduce vertical space */
+      display: inline-flex; /* Ensure labels align tightly with checkboxes */
+      align-items: center; /* Vertically center label text with checkbox */
+  }
+  
+  /* Dynamically adjust height to fit content, removing scrollbars */
+  .checkbox-group {
+      max-height: none; /* Remove max-height to fit content */
+      overflow: hidden; /* Remove scrollbars */
+      height: auto; /* Allow height to adjust dynamically */
+  }
+  
+  /* Ensure height matches the taller of the two checkbox groups */
+  #typeFilter.checkbox-group,
+  #fundingFilter.checkbox-group {
+      height: auto; /* Default to auto */
+  }
+  
+  @media (min-width: var(--breakpoint-tablet)) {
+      #typeFilter.checkbox-group,
+      #fundingFilter.checkbox-group {
+          height: calc(100% + var(--spacing-xs)); /* Adjust to fit content, slight padding */
+      }
   }
   
   /* Grid layout for filter inputs with clean, organized layout and fixed spacing */
@@ -121,7 +145,7 @@
       grid-area: search;
       display: flex;
       gap: var(--spacing-sm);
-      align-items: flex-start; /* Left-align items in row */
+      align-items: center; /* Vertically center items in row for alignment */
       justify-content: flex-start; /* Ensure content starts at the left */
       margin-bottom: var(--spacing-md);
       flex-wrap: wrap; /* Allow wrapping on smaller screens */
@@ -135,6 +159,8 @@
   .filter-row .filter-group {
       flex: 1;
       min-width: 10rem; /* Minimum width for consistency */
+      display: flex;
+      align-items: center; /* Vertically center inputs with labels */
   }
   
   /* Style numeric and date inputs */
@@ -142,7 +168,7 @@
       grid-area: inputs;
       display: flex;
       gap: var(--spacing-sm);
-      align-items: flex-start; /* Left-align labels and inputs */
+      align-items: center; /* Vertically center labels and inputs */
       justify-content: flex-start; /* Ensure content starts at the left */
       margin-bottom: var(--spacing-md);
   }
@@ -151,13 +177,15 @@
       margin-right: var(--spacing-sm);
       margin-bottom: 0; /* Remove extra margin for alignment */
       display: flex;
-      align-items: center; /* Vertically center label text, but left-align overall */
+      align-items: center; /* Vertically center label text */
       color: var(--text-color); /* Ensure label visibility */
+      height: 2.5rem; /* Match input height for vertical alignment */
   }
   
   .filter-group input {
       width: 100%;
       flex: 1; /* Allow input to fill remaining space */
+      height: 2.5rem; /* Fixed height for consistent vertical alignment */
   }
   
   .filter-group input:focus {
@@ -179,7 +207,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr; /* Match secondary sort width (equal columns) */
       gap: var(--spacing-sm);
-      align-items: flex-start; /* Left-align dropdowns */
+      align-items: center; /* Vertically center dropdowns */
       justify-content: flex-start; /* Ensure content starts at the left */
   }
   
@@ -196,6 +224,8 @@
       padding: var(--spacing-sm); /* Add padding */
       border-radius: 0.5rem; /* Match input styling */
       box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+      height: 2.5rem; /* Fixed height for consistent vertical alignment */
+      width: 120%; /* 20% wider to fit "Estimated Application Hours" */
   }
   
   select:focus {
@@ -338,6 +368,8 @@
   }
   
   @media (max-width: var(--breakpoint-mobile)) {
-      .checkbox-group { max-height: 8rem; }
+      .checkbox-group { 
+          height: auto; /* Ensure dynamic height on mobile */
+      }
       .grant-card { padding: var(--spacing-sm); } /* Reduce padding on mobile */
   }

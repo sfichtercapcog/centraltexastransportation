@@ -233,6 +233,7 @@ select {
   box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow for depth */
   width: 100%; /* Ensure full width for consistency */
   transition: all 0.3s ease-in-out;
+  height: 2.5rem; /* Fixed height for consistent vertical alignment */
 }
 
 input[type="text"]:focus,
