@@ -59,25 +59,27 @@
                     <i class="fas fa-filter"></i> Toggle Filters
                 </div>
                 <div class="filter-grid">
-                    <!-- Checkbox Groups at the Top (Side by Side) -->
-                    <div class="filter-group checkboxes">
-                        <label>Grant Type</label>
-                        <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
-                            <input type="checkbox" id="typeAll" name="typeAll" value="all">
-                            <label for="typeAll">All</label><br>
-                            <!-- Dynamically populated by JavaScript -->
+                    <!-- Checkbox Groups Side by Side -->
+                    <div class="checkbox-row">
+                        <div class="filter-group checkboxes">
+                            <label>Grant Type</label>
+                            <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
+                                <input type="checkbox" id="typeAll" name="typeAll" value="all">
+                                <label for="typeAll">All</label><br>
+                                <!-- Dynamically populated by JavaScript -->
+                            </div>
                         </div>
-                    </div>
-                    <div class="filter-group checkboxes">
-                        <label>Funding Source</label>
-                        <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
-                            <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
-                            <label for="fundingAll">All</label><br>
-                            <!-- Dynamically populated by JavaScript -->
+                        <div class="filter-group checkboxes">
+                            <label>Funding Source</label>
+                            <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
+                                <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
+                                <label for="fundingAll">All</label><br>
+                                <!-- Dynamically populated by JavaScript -->
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Search Bar and Inputs in a Row Below -->
+                    <!-- Search Bar and Inputs in a Horizontal Row -->
                     <div class="filter-row">
                         <div class="search-bar">
                             <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
@@ -97,7 +99,7 @@
                         </div>
                     </div>
 
-                    <!-- Sort Dropdowns Below, Stacked Vertically for Clarity -->
+                    <!-- Sort Dropdowns Stacked Vertically -->
                     <div class="filter-group sort-group-wrapper">
                         <label>Primary Sort</label>
                         <div class="sort-group">

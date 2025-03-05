@@ -8,10 +8,10 @@
     --primary-color: #2C3E50;        /* Deep navy blue */
     --secondary-color: #3498DB;      /* Vibrant blue */
     --text-color: #ECF0F1;           /* Light gray */
-    --background-dark: #1A252F;      /* Dark gray */
-    --input-bg: #2D3E50;             /* Lighter dark gray */
-    --accent-color: #27AE60;         /* Subtle green */
-    --shadow-color: rgba(39, 174, 96, 0.2); /* Green shadow */
+    --background-dark: #1a1a1a;      /* Dark gray */
+    --input-bg: #2a2a2a;             /* Lighter dark gray */
+    --accent-color: #00ff00;         /* Bright green (matches screenshot) */
+    --shadow-color: rgba(0, 255, 0, 0.2); /* Green shadow */
 
     /* Typography */
     --font-family: 'Arial', 'Helvetica', sans-serif;
@@ -51,7 +51,6 @@ body {
     line-height: var(--line-height-base);
     color: var(--text-color);
     background-color: var(--background-dark);
-    background-image: linear-gradient(135deg, #1A252F 0%, #2C3E50 100%);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -187,7 +186,7 @@ main {
 }
 .search-bar input {
     width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     border-radius: 0.5rem;
     border: 2px solid var(--accent-color);
     background: var(--input-bg);
@@ -201,11 +200,11 @@ main {
 }
 .search-bar i {
     position: absolute;
-    right: var(--spacing-md); /* Fixed: Moved to right side */
+    right: var(--spacing-md);
     top: 50%;
     transform: translateY(-50%);
     color: var(--accent-color);
-    pointer-events: none; /* Prevents icon from blocking input clicks */
+    pointer-events: none;
 }
 
 /* Checkbox group */
@@ -244,35 +243,48 @@ main {
     display: inline-block;
 }
 
-/* Filter grid */
+/* Filter grid (checkboxes side by side) */
 .filter-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: var(--spacing-sm);
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; /* Fixed pixel value for screenshot consistency */
+    padding: var(--spacing-md);
 }
 
-/* Filter row */
+/* Checkbox row for side-by-side placement */
+.checkbox-row {
+    display: flex;
+    gap: 10px;
+}
+
+/* Filter row (search and inputs horizontal) */
 .filter-row {
     display: flex;
-    gap: var(--spacing-sm);
-    align-items: flex-start;
+    gap: 10px;
+    align-items: center;
     margin-bottom: var(--spacing-md);
     flex-wrap: wrap;
 }
 .filter-row .search-bar,
-.filter-row .filter-group { flex: 1; min-width: 10rem; }
+.filter-row .filter-group {
+    flex: 1;
+    min-width: 10rem;
+    border: 2px solid var(--accent-color);
+    border-radius: 0.5rem;
+    padding: var(--spacing-xs);
+}
 
 /* Filter group (e.g., Target Award Amount) */
 .filter-group {
     display: flex;
     gap: var(--spacing-sm);
-    align-items: center; /* Fixed: Vertically aligns label and input */
+    align-items: center;
     margin-bottom: var(--spacing-md);
 }
 .filter-group label {
     font-size: 0.9rem;
     margin-right: var(--spacing-sm);
-    white-space: nowrap; /* Prevents label wrapping */
+    white-space: nowrap;
 }
 .filter-group input {
     width: 100%;
@@ -297,11 +309,16 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] { -moz-appearance: textfield; }
 
-/* Sort group */
+/* Sort group (stacked vertically) */
+.sort-group-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: var(--spacing-md);
+}
 .sort-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-sm);
+    display: flex;
+    gap: 5px;
 }
 select {
     appearance: none;
@@ -533,7 +550,8 @@ select:focus {
     .filter-row { flex-direction: column; }
     .filter-row .search-bar,
     .filter-row .filter-group { flex: auto; width: 100%; min-width: auto; }
-    .sort-group { grid-template-columns: 1fr; }
+    .sort-group-wrapper { flex-direction: column; }
+    .sort-group { flex-direction: column; }
     .checkbox-group { max-height: 10rem; }
 }
 
