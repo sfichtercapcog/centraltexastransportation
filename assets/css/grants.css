@@ -193,8 +193,8 @@ main {
     display: grid;
     gap: var(--spacing-xxs);
     padding: var(--spacing-sm);
-    background: var(--input-bg);
-    border: 2px solid var(--accent-color);
+    background: var(--input-bg); /* Changed from border to background for blending */
+    border: none; /* Removed green border */
     border-radius: 0.5rem;
     max-height: 12rem;
     overflow-y: auto;
@@ -244,7 +244,7 @@ main {
 .filter-row .search-bar,
 .filter-row .filter-group {
     flex: 1;
-    min-width: 200px; /* Ensure wider minimum width for consistency */
+    min-width: 250px; /* Increased width for search bar and consistency with other inputs */
     border: 2px solid var(--accent-color);
     border-radius: 0.5rem;
     padding: var(--spacing-xs);
@@ -285,11 +285,11 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 input[type="number"] { -moz-appearance: textfield; }
 
-/* Sort group (stacked vertically) */
+/* Sort group (side by side for Primary and Secondary Sort) */
 .sort-group-wrapper {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row; /* Changed to row for side-by-side sorting */
+    gap: 20px; /* Increased gap for better spacing */
     margin-bottom: 15px; /* Consistent spacing */
 }
 .sort-group {
