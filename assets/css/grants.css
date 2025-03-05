@@ -168,7 +168,6 @@ main {
 
 /* Search bar */
 .search-bar {
-    position: relative;
     margin-bottom: var(--spacing-md);
 }
 .search-bar input {
@@ -229,28 +228,23 @@ main {
 .filter-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 20px; /* Increased gap for even spacing */
     padding: var(--spacing-md);
-}
-
-/* Checkbox row for side-by-side placement */
-.checkbox-row {
-    display: flex;
-    gap: 10px;
 }
 
 /* Filter row (search and inputs horizontal) */
 .filter-row {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     align-items: center;
     margin-bottom: var(--spacing-md);
     flex-wrap: wrap;
+    justify-content: space-between; /* Ensure even distribution */
 }
 .filter-row .search-bar,
 .filter-row .filter-group {
     flex: 1;
-    min-width: 10rem;
+    min-width: 200px; /* Ensure wider minimum width for consistency */
     border: 2px solid var(--accent-color);
     border-radius: 0.5rem;
     padding: var(--spacing-xs);
@@ -261,7 +255,7 @@ main {
     display: flex;
     gap: var(--spacing-sm);
     align-items: center;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 15px; /* Consistent spacing between groups */
 }
 .filter-group label {
     font-size: 0.9rem;
@@ -296,11 +290,12 @@ input[type="number"] { -moz-appearance: textfield; }
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 15px; /* Consistent spacing */
 }
 .sort-group {
     display: flex;
-    gap: 5px;
+    gap: 10px; /* Increased gap for better spacing */
+    width: 100%;
 }
 select {
     appearance: none;
@@ -329,7 +324,7 @@ select:focus {
 .filter-actions {
     display: flex;
     gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
+    margin-top: 15px; /* Consistent spacing */
     justify-content: center; /* Center the buttons */
 }
 
@@ -355,7 +350,7 @@ select:focus {
 
 /* Filter summary */
 #filterSummary {
-    margin-top: var(--spacing-md);
+    margin-top: 15px; /* Consistent spacing */
     font-size: 0.9rem;
     color: var(--text-color);
     text-align: center; /* Center the filter summary */

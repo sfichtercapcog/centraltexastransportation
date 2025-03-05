@@ -58,8 +58,8 @@
                 </div>
                 <div class="filter-grid">
                     <!-- Checkbox Groups Side by Side with Wider Width -->
-                    <div class="filter-row" style="justify-content: space-between; gap: 20px;">
-                        <div class="filter-group checkboxes" style="flex: 1; min-width: 200px;">
+                    <div class="filter-row">
+                        <div class="filter-group checkboxes">
                             <label>Grant Type</label>
                             <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
                                 <input type="checkbox" id="typeAll" name="typeAll" value="all">
@@ -67,7 +67,7 @@
                                 <!-- Dynamically populated by JavaScript -->
                             </div>
                         </div>
-                        <div class="filter-group checkboxes" style="flex: 1; min-width: 200px;">
+                        <div class="filter-group checkboxes">
                             <label>Funding Source</label>
                             <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
                                 <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
@@ -78,24 +78,24 @@
                     </div>
 
                     <!-- Single Column for Search Bar and Inputs/Sort Dropdowns with Even Spacing -->
-                    <div class="filter-group" style="margin-bottom: 15px;">
+                    <div class="filter-group">
                         <div class="search-bar">
                             <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
                         </div>
                     </div>
-                    <div class="filter-group" style="margin-bottom: 15px;">
+                    <div class="filter-group">
                         <label for="targetAward">Target Award Amount</label>
                         <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000" required aria-label="Target award amount">
                     </div>
-                    <div class="filter-group" style="margin-bottom: 15px;">
+                    <div class="filter-group">
                         <label for="maxHours">Max Application Hours (Up To)</label>
                         <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours">
                     </div>
-                    <div class="filter-group" style="margin-bottom: 15px;">
+                    <div class="filter-group">
                         <label for="deadline">Application Deadline</label>
                         <input type="date" id="deadline" aria-label="Application deadline">
                     </div>
-                    <div class="filter-group sort-group-wrapper" style="margin-bottom: 15px;">
+                    <div class="filter-group sort-group-wrapper">
                         <label>Primary Sort</label>
                         <div class="sort-group">
                             <select id="sort1Attr" aria-label="Primary sort attribute">
