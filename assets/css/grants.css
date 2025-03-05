@@ -248,17 +248,90 @@ main {
     cursor: pointer;
 }
 
-/* Grid layout for filter inputs with reduced spacing */
+/* Grid layout for filter inputs with staggered, nicer layout */
 .filter-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Reduced width for tighter fit */
-    gap: var(--spacing-sm); /* Reduced gap */
+    grid-template-areas:
+        "checkboxes checkboxes"
+        "search search"
+        "inputs inputs"
+        "sort1 sort2";
+    gap: var(--spacing-sm); /* Reduced gap for tighter layout */
+}
+
+/* Style checkbox groups */
+.filter-group.checkboxes {
+    grid-area: checkboxes;
+}
+
+/* Style search bar */
+.filter-row {
+    grid-area: search;
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.filter-row .search-bar {
+    flex: 2; /* Make search bar wider */
+}
+
+.filter-row .filter-group {
+    flex: 1; /* Equal width for other inputs */
+}
+
+/* Style numeric and date inputs */
+.filter-group {
+    grid-area: inputs;
+    display: grid;
+    gap: var(--spacing-sm);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjust for responsiveness */
+}
+
+/* Style sort groups */
+.filter-group.sort-group-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.sort-group-wrapper:nth-child(3) { grid-area: sort1; }
+.sort-group-wrapper:nth-child(4) { grid-area: sort2; }
+
+.sort-group {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Wider field, narrower direction */
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+select {
+    appearance: none;
+    width: 100%;
+    padding: var(--spacing-sm);
+    border-radius: 8px;
+    border: 2px solid var(--accent-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
+                     linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--shadow-color);
+    outline: none;
 }
 
 /* Styles labels within filter groups */
 .filter-group label {
     font-size: 0.9rem;
-    margin-bottom: var(--spacing-xs); /* Reduced margin */
+    margin-bottom: var(--spacing-xs);
     display: block;
 }
 
@@ -273,12 +346,6 @@ main {
     font-size: 1rem;
 }
 
-.filter-group input:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 8px var(--shadow-color);
-    outline: none;
-}
-
 /* Remove number input spinners */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -290,22 +357,16 @@ input[type="number"] {
     -moz-appearance: textfield; /* Firefox */
 }
 
-/* Styles the sort group for two-column layout */
-.sort-group {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* Wider field, narrower direction */
-    gap: var(--spacing-sm); /* Reduced gap */
-}
-
-/* Ensures sort group wrapper aligns properly */
-.sort-group-wrapper {
-    margin-bottom: var(--spacing-sm); /* Reduced margin */
+.filter-group input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--shadow-color);
+    outline: none;
 }
 
 /* Styles filter action buttons */
 .filter-actions {
     display: flex;
-    gap: var(--spacing-sm); /* Reduced gap */
+    gap: var(--spacing-sm);
     margin-top: var(--spacing-md);
 }
 
@@ -433,7 +494,7 @@ input[type="number"] {
 /* Styles modal buttons */
 .modal-buttons {
     display: flex;
-    gap: var(--spacing-sm); /* Reduced gap */
+    gap: var(--spacing-sm);
     justify-content: flex-end;
     margin-top: var(--spacing-md);
 }
@@ -515,8 +576,18 @@ input[type="number"] {
     nav ul { flex-direction: column; align-items: center; }
     nav ul li { margin: var(--spacing-sm) 0; }
     main { padding: var(--spacing-md); margin: var(--spacing-md) 0; }
-    .sort-group { grid-template-columns: 1fr; /* Stack on smaller screens */ }
-    .checkbox-group { grid-template-columns: 1fr; /* Stack checkboxes on smaller screens */ }
+    .filter-grid {
+        grid-template-areas:
+            "checkboxes"
+            "search"
+            "inputs"
+            "sort1"
+            "sort2";
+    }
+    .filter-row { flex-direction: column; gap: var(--spacing-sm); }
+    .filter-row .search-bar, .filter-row .filter-group { flex: auto; width: 100%; }
+    .sort-group { grid-template-columns: 1fr; }
+    .checkbox-group { grid-template-columns: 1fr; }
 }
 
 /* Responsive adjustments for mobile screens */
@@ -527,7 +598,7 @@ input[type="number"] {
     .container { padding: 0 var(--spacing-md); }
     .hero h1 { font-size: 2rem; }
     .hero p { font-size: 1rem; }
-    .checkbox-group { grid-template-columns: 1fr; /* Ensure single column on mobile */ }
+    .checkbox-group { grid-template-columns: 1fr; }
 }
 
 /* Disables transitions for users preferring reduced motion */

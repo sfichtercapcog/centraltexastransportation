@@ -164,49 +164,30 @@ class GrantsManager {
     // Applies saved filter values to the UI
     applySavedFilters() {
         document.getElementById('searchInput').value = filterConfig.textSearch;
-        this.formatNumberInput('targetAward', filterConfig.filters['Target Award Amount']);
-        this.formatNumberInput('maxHours', filterConfig.filters['Max Application Hours']);
+        document.getElementById('targetAward').value = filterConfig.filters['Target Award Amount'] || '';
+        document.getElementById('maxHours').value = filterConfig.filters['Max Application Hours'] || '';
         document.getElementById('deadline').value = filterConfig.filters['Application Deadline'] ? 
             filterConfig.filters['Application Deadline'].toISOString().split('T')[0] : '';
-    }
-
-    // Formats number inputs with commas dynamically, fixing glitch
-    formatNumberInput(inputId, value) {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.value = value ? value.toLocaleString() : '';
-            input.addEventListener('input', (e) => {
-                let rawValue = e.target.value.replace(/,/g, '');
-                // Prevent non-numeric input except for minus sign at start
-                rawValue = rawValue.replace(/[^0-9-]/g, '');
-                if (rawValue === '-') rawValue = ''; // Handle negative sign alone
-                const numValue = parseFloat(rawValue) || 0;
-                e.target.value = numValue.toLocaleString();
-                filterConfig.filters[inputId === 'targetAward' ? 'Target Award Amount' : 'Max Application Hours'] = numValue || null;
-            });
-        }
     }
 
     // Applies user-defined filters and updates the display
     applyFilters() {
         const targetAward = document.getElementById('targetAward');
         const maxHours = document.getElementById('maxHours');
-        const rawTarget = targetAward.value.replace(/,/g, '');
-        const rawHours = maxHours.value.replace(/,/g, '');
-        if (rawTarget && !targetAward.checkValidity()) {
+        if (targetAward.value && !targetAward.checkValidity()) {
             alert('Please enter a valid target award amount (positive number).');
             return;
         }
-        if (rawHours && !maxHours.checkValidity()) {
+        if (maxHours.value && !maxHours.checkValidity()) {
             alert('Please enter a valid max application hours (positive number).');
             return;
         }
 
         filterConfig.textSearch = document.getElementById('searchInput')?.value.toLowerCase() || '';
         this.updateFilterConfigFromCheckboxes();
-        filterConfig.filters['Target Award Amount'] = parseFloat(rawTarget) || null;
+        filterConfig.filters['Target Award Amount'] = parseFloat(targetAward?.value) || null;
         filterConfig.filters['Application Deadline'] = this.parseDate(document.getElementById('deadline')?.value) || null;
-        filterConfig.filters['Max Application Hours'] = parseFloat(rawHours) || null;
+        filterConfig.filters['Max Application Hours'] = parseFloat(maxHours?.value) || null;
         filterConfig.sort[0] = {
             attr: document.getElementById('sort1Attr')?.value || 'Grant Name',
             direction: document.getElementById('sort1Dir')?.value || 'ascending'

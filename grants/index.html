@@ -58,12 +58,9 @@
                 <div class="toggle-filters" id="toggleFiltersBtn">
                     <i class="fas fa-filter"></i> Toggle Filters
                 </div>
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
-                    <i class="fas fa-search"></i>
-                </div>
                 <div class="filter-grid">
-                    <div class="filter-group">
+                    <!-- Checkbox Groups at the Top -->
+                    <div class="filter-group checkboxes">
                         <label>Grant Type</label>
                         <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
                             <input type="checkbox" id="typeAll" name="typeAll" value="all">
@@ -71,7 +68,7 @@
                             <!-- Dynamically populated by JavaScript -->
                         </div>
                     </div>
-                    <div class="filter-group">
+                    <div class="filter-group checkboxes">
                         <label>Funding Source</label>
                         <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
                             <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
@@ -79,18 +76,28 @@
                             <!-- Dynamically populated by JavaScript -->
                         </div>
                     </div>
-                    <div class="filter-group">
-                        <label for="targetAward">Target Award Amount</label>
-                        <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000" required aria-label="Target award amount">
+
+                    <!-- Search and Numeric/Date Inputs in a Row -->
+                    <div class="filter-row">
+                        <div class="search-bar">
+                            <input type="text" id="searchInput" placeholder="Search Grants..." list="grantSuggestions" aria-label="Search grants">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="filter-group">
+                            <label for="targetAward">Target Award Amount</label>
+                            <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000" required aria-label="Target award amount">
+                        </div>
+                        <div class="filter-group">
+                            <label for="deadline">Application Deadline</label>
+                            <input type="date" id="deadline" aria-label="Application deadline">
+                        </div>
+                        <div class="filter-group">
+                            <label for="maxHours">Max Application Hours (Up To)</label>
+                            <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours">
+                        </div>
                     </div>
-                    <div class="filter-group">
-                        <label for="deadline">Application Deadline</label>
-                        <input type="date" id="deadline" aria-label="Application deadline">
-                    </div>
-                    <div class="filter-group">
-                        <label for="maxHours">Max Application Hours (Up To)</label>
-                        <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours">
-                    </div>
+
+                    <!-- Sort Dropdowns Below -->
                     <div class="filter-group sort-group-wrapper">
                         <label>Primary Sort</label>
                         <div class="sort-group">
