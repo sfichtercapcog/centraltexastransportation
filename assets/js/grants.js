@@ -235,7 +235,7 @@ class GrantsManager {
                 <p><strong>Award:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
                 <p class="deadline ${deadlineClass}"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
                 <p class="countdown" data-deadline="${grant['Application Deadline']}"></p>
-                <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${grant.grantId}')" aria-label="${isFavorite ? 'Remove from' : 'Add to'} favorites">
+                <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-grant-id="${grant.grantId}" aria-label="${isFavorite ? 'Remove from' : 'Add to'} favorites">
                     <i class="fas fa-star"></i>
                 </button>
             </div>`;
@@ -270,6 +270,8 @@ class GrantsManager {
             card.addEventListener('click', (e) => {
                 if (!e.target.closest('.favorite-btn')) this.showGrantModal(card.dataset.grantId);
             });
+            const favBtn = card.querySelector('.favorite-btn');
+            favBtn.addEventListener('click', () => toggleFavorite(favBtn.dataset.grantId));
             observer.observe(card);
         });
     }
@@ -342,6 +344,13 @@ class GrantsManager {
         document.getElementById('searchInput')?.addEventListener('input', debounce(() => this.applyFilters(), 300));
         document.getElementById('applyFilters')?.addEventListener('click', () => this.applyFilters());
         document.getElementById('resetFilters')?.addEventListener('click', () => this.resetFilters());
+        document.getElementById('viewAllBtn')?.addEventListener('click', () => handleInitialPrompt('viewAll'));
+        document.getElementById('filterBtn')?.addEventListener('click', () => handleInitialPrompt('filter'));
+        document.getElementById('closeInitialPrompt')?.addEventListener('click', () => closeModal('initialPrompt'));
+        document.getElementById('toggleFiltersBtn')?.addEventListener('click', toggleFilters);
+        document.getElementById('favoriteBtn')?.addEventListener('click', () => toggleFavorite());
+        document.getElementById('copyDetailsBtn')?.addEventListener('click', copyGrantDetails);
+        document.getElementById('closeGrantModal')?.addEventListener('click', () => closeModal('grantModal'));
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') this.closeAllModals();
         });
@@ -412,7 +421,7 @@ function handleInitialPrompt(choice) {
         grantsManager.loadGrants();
     } else if (choice === 'filter') {
         closeModal('initialPrompt');
-        controls.style.display = 'block';
+        controls.classList.remove('hidden');
         controls.classList.remove('collapsed');
         controls.classList.add('expanded');
         grantsManager.loadGrants().then(() => grantsManager.applyFilters());

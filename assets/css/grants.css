@@ -164,6 +164,9 @@ main {
 .controls.collapsed { max-height: 60px; overflow: hidden; }
 .controls.expanded { max-height: 800px; }
 
+/* Hides elements when needed */
+.hidden { display: none; }
+
 /* Styles the toggle button for filters on smaller screens */
 .toggle-filters {
     background: var(--primary-color);
