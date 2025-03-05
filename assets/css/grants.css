@@ -1,165 +1,13 @@
 /* ========================================================================== 
-   Grants.css - Global Styles for Grants Nexus Application
+   Grants.css - Specific Styles for Grants Nexus Dashboard
    ========================================================================== */
 
-/* Defines CSS custom properties for consistent theming across the application */
-:root {
-    /* Color variables for a modern, engaging, dark mode aesthetic */
-    --primary-color: #2C3E50;        /* Deep navy blue for buttons and accents */
-    --secondary-color: #3498DB;      /* Vibrant blue for highlights */
-    --text-color: #ECF0F1;           /* Light gray for readability on dark background */
-    --background-dark: #1A252F;      /* Dark gray background for dark mode */
-    --input-bg: #2D3E50;             /* Slightly lighter dark gray for inputs */
-    --accent-color: #27AE60;         /* Subtle green for borders and interactive elements */
-    --shadow-color: rgba(39, 174, 96, 0.2); /* Subtle green shadow for depth */
-
-    /* Typography variables */
-    --font-family: 'Arial', 'Helvetica', sans-serif; /* Professional, neutral font with fallback */
-    --font-size-base: 1rem;          /* Base font size (16px) for accessibility */
-    --line-height-base: 1.5;         /* Adjusted line height for professionalism */
-
-    /* Spacing variables (in rem for zoom stability) */
-    --spacing-xs: 0.25rem;           /* 4px */
-    --spacing-sm: 0.5rem;            /* 8px */
-    --spacing-md: 1rem;              /* 16px */
-    --spacing-lg: 2rem;              /* 32px */
-    --spacing-xl: 3rem;              /* 48px */
-
-    /* Responsive breakpoints */
-    --breakpoint-tablet: 768px;      /* Tablet breakpoint */
-    --breakpoint-mobile: 480px;      /* Mobile breakpoint */
-}
-
-/* Resets default margins and padding, ensures box-sizing is consistent */
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-/* Sets base font size and enables smooth scrolling */
-html {
-    font-size: var(--font-size-base);
-    scroll-behavior: smooth;
-}
-
-/* Defines body styling with dark mode background and font smoothing */
-body {
-    font-family: var(--font-family);
-    font-size: 1rem;
-    line-height: var(--line-height-base);
-    color: var(--text-color);
-    background-color: var(--background-dark);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-image: linear-gradient(135deg, #1A252F, #2C3E50); /* Subtle dark gradient */
-    background-attachment: fixed;
-}
-
-/* Centers content with maximum width and padding */
-.container { 
-    max-width: 1200px; 
-    margin: 0 auto; 
-    padding: 0 var(--spacing-xl);
-}
-
-/* Styles the skip-to-content link for accessibility */
-.skip-link {
-    position: absolute;
-    top: -var(--spacing-md);
-    left: 0;
-    background: var(--accent-color);
-    color: var(--background-dark);
-    padding: var(--spacing-xs);
-    z-index: 1001;
-}
-
-.skip-link:focus {
-    top: 0;
-}
-
-/* Styles the sticky header with navigation */
-header {
-    background: var(--background-dark);
-    padding: var(--spacing-md);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-/* Flexbox layout for navigation list */
-nav ul {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    list-style: none;
-}
-
-/* Spacing for navigation items */
-nav ul li {
-    margin: 0 var(--spacing-sm);
-}
-
-/* Styles navigation links with neutral dark blue background */
-nav ul li a {
-    color: var(--text-color);
-    font-weight: 600;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: 0.5rem;
-    transition: all 0.3s ease-in-out;
-    background: var(--primary-color);
-    text-decoration: none;
-}
-
-nav ul li a:hover,
-nav ul li a:focus {
-    background: var(--secondary-color);
-    color: var(--background-dark);
-    transform: scale(1.05);
-}
-
-/* Styles the hero section with title and subtitle */
-.hero {
-    padding: var(--spacing-lg) var(--spacing-md);
-    color: var(--text-color);
-    text-shadow: none; /* Remove shadow for professionalism */
-    background: var(--background-dark);
-}
-
-.hero h1 {
-    font-size: 3rem;
-    color: var(--secondary-color);
-    text-transform: none; /* Remove uppercase for neutrality */
-    margin-bottom: var(--spacing-sm);
-    text-align: left;
-}
-
-.hero p {
-    font-size: 1.25rem;
-    text-align: left;
-    color: var(--text-color);
-}
-
-/* Styles the main content area */
-main {
-    background: var(--background-dark);
-    padding: var(--spacing-lg);
-    margin: var(--spacing-lg) 0;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
+/* Grants-specific layouts and customizations */
 .dashboard { padding: var(--spacing-md); }
 
 /* Styles the filter controls container */
 .controls {
-    background: var(--background-dark);
-    border: 2px solid var(--accent-color);
     border-radius: 0.5rem;
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    box-shadow: 0 2px 8px var(--shadow-color);
     transition: max-height 0.5s ease-in-out;
 }
 
@@ -171,67 +19,39 @@ main {
 
 /* Styles the toggle button for filters on smaller screens */
 .toggle-filters {
-    background: var(--primary-color);
-    color: var(--text-color);
-    padding: var(--spacing-sm);
-    border-radius: 0.5rem;
     cursor: pointer;
     text-align: center;
-    margin-bottom: var(--spacing-md);
     display: none;
+}
+
+@media (max-width: var(--breakpoint-tablet)) {
+    .toggle-filters { display: block; }
+    .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed #filterSummary { display: none; }
 }
 
 /* Positions and styles the search bar */
 .search-bar {
     position: relative;
-    margin-bottom: var(--spacing-md);
 }
 
-.search-bar input {
-    width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) var(--spacing-md);
-    border-radius: 0.5rem;
-    border: 2px solid var(--accent-color);
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 1rem;
-}
-
-.search-bar input:focus {
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 8px var(--shadow-color);
-    outline: none;
-}
-
-/* Centers the search icon vertically in the search bar */
 .search-bar i {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    color: var(--accent-color);
 }
 
 /* Styles checkboxes for grant type and funding source */
 .checkbox-group {
-    display: grid;
-    gap: 0.015625rem; /* Reduced to 1px for minimal spacing between rows */
-    padding: var(--spacing-sm);
-    background: var(--input-bg);
-    border: 2px solid var(--accent-color);
-    border-radius: 0.5rem;
     max-height: 12rem; /* Limit height for consistency */
     overflow-y: auto;
     width: 100%; /* Ensure full width under label */
 }
 
 .checkbox-group input[type="checkbox"] {
-    margin-right: var(--spacing-xs);
-    vertical-align: middle;
     appearance: none; /* Removes default checkbox styling */
     width: 1rem;
     height: 1rem;
-    border: 2px solid var(--accent-color);
     border-radius: 0.25rem;
     background: var(--background-dark);
     cursor: pointer;
@@ -245,14 +65,6 @@ main {
 .checkbox-group input[type="checkbox"]:focus {
     outline: none;
     box-shadow: 0 0 8px var(--shadow-color);
-}
-
-.checkbox-group label {
-    font-size: 1rem;
-    color: var(--text-color);
-    cursor: pointer;
-    display: inline-block; /* Ensure labels align with checkboxes */
-    margin-bottom: 0; /* Remove extra margin to fit under label */
 }
 
 /* Grid layout for filter inputs with clean, organized layout and fixed spacing */
@@ -311,7 +123,6 @@ main {
 }
 
 .filter-group label {
-    font-size: 0.9rem;
     margin-right: var(--spacing-sm);
     margin-bottom: 0; /* Remove extra margin for alignment */
     display: flex;
@@ -319,31 +130,12 @@ main {
 }
 
 .filter-group input {
-    padding: var(--spacing-sm);
-    border-radius: 0.5rem;
-    border: 2px solid var(--accent-color);
-    background: var(--input-bg);
-    color: var(--text-color);
     width: 100%;
-    font-size: 1rem;
     flex: 1; /* Allow input to fill remaining space */
 }
 
-/* Remove number input spinners */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="number"] {
-    -moz-appearance: textfield; /* Firefox */
-}
-
 .filter-group input:focus {
-    border-color: var(--secondary-color);
     box-shadow: 0 0 8px var(--shadow-color);
-    outline: none;
 }
 
 /* Style sort groups */
@@ -367,25 +159,16 @@ input[type="number"] {
 
 select {
     appearance: none;
-    width: 100%;
-    padding: var(--spacing-sm);
-    border-radius: 0.5rem;
-    border: 2px solid var(--accent-color);
-    background: var(--input-bg);
-    color: var(--text-color);
     background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
                      linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
     background-position: calc(100% - 1.25rem) calc(1em + 2px), calc(100% - 0.9375rem) calc(1em + 2px);
     background-size: 0.3125rem 0.3125rem; /* Smaller arrow size */
     background-repeat: no-repeat;
-    font-size: 1rem;
     cursor: pointer;
 }
 
 select:focus {
-    border-color: var(--secondary-color);
     box-shadow: 0 0 8px var(--shadow-color);
-    outline: none;
 }
 
 /* Styles filter action buttons */
@@ -396,248 +179,70 @@ select:focus {
     justify-content: flex-start; /* Left-align buttons */
 }
 
-/* Styles buttons within filter controls */
-.controls button {
-    background: var(--primary-color);
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--text-color);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-transform: uppercase;
-}
-
-.controls button:hover {
-    background: var(--secondary-color);
-    color: var(--background-dark);
-    transform: scale(1.05);
-    box-shadow: 0 0 8px var(--shadow-color);
-}
-
 /* Styles the filter summary text */
 #filterSummary {
-    margin-top: var(--spacing-md);
-    font-size: 0.9rem;
-    color: var(--text-color);
     text-align: left; /* Left-align summary text */
 }
 
 /* Grid layout for grant cards with dark mode background */
 #grantsContainer {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); /* Consistent card width */
-    gap: var(--spacing-lg);
-    padding-bottom: var(--spacing-lg);
     justify-content: flex-start; /* Left-align cards */
 }
 
 /* Styles individual grant cards with dark mode background */
 .grant-card {
-    background: var(--input-bg); /* Dark gray for professionalism */
-    border: 2px solid var(--accent-color);
-    border-radius: 0.75rem;
-    padding: var(--spacing-md);
-    box-shadow: 0 2px 8px var(--shadow-color);
     transition: all 0.3s ease-in-out;
     position: relative;
 }
 
 .grant-card:hover {
     transform: translateY(-0.5rem);
-    box-shadow: 0 4px 16px var(--shadow-color);
-    border-color: var(--secondary-color);
 }
 
 .grant-card h3 {
-    color: var(--secondary-color);
-    font-size: 1.5rem;
     margin-bottom: var(--spacing-sm);
-    text-shadow: none; /* Remove shadow for professionalism */
 }
 
 .grant-card p {
-    color: var(--text-color);
     margin-bottom: var(--spacing-xs);
 }
 
 /* Styles tags within grant cards */
 .tag {
-    display: inline-block;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: 0.25rem;
-    color: var(--background-dark);
-    font-size: 0.85rem;
     margin-right: var(--spacing-xs);
 }
 
-.tag.formula { background: var(--accent-color); }
-.tag.discretionary { background: var(--secondary-color); }
-.tag.competitive { background: var(--secondary-color); }
-
 /* Styles the favorite button on grant cards */
 .favorite-btn {
-    position: absolute;
     top: var(--spacing-sm);
     right: var(--spacing-sm);
-    background: none;
-    border: none;
-    color: var(--text-color);
-    font-size: 1.2rem;
-    cursor: pointer;
 }
-
-.favorite-btn.active { color: #FFD700; /* Gold for favorites, neutral and professional */ }
 
 /* Styles modal overlays */
 .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     background: rgba(0, 0, 0, 0.75);
     align-items: center;
     justify-content: center;
     z-index: 2000;
 }
 
-.modal-content {
-    background: var(--input-bg); /* Dark gray for professionalism */
-    border: 2px solid var(--accent-color);
-    padding: var(--spacing-lg);
-    border-radius: 0.75rem;
-    max-width: 50rem;
-    width: 90%;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-.modal-content.solid {
-    background: var(--input-bg); /* Consistent with dark theme */
-}
-
 /* Styles modal buttons */
 .modal-buttons {
-    display: flex;
-    gap: var(--spacing-sm);
     justify-content: flex-start; /* Left-align modal buttons */
-    margin-top: var(--spacing-md);
-}
-
-/* Styles buttons within modals */
-.modal-buttons button {
-    background: var(--primary-color);
-    border: none;
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--text-color);
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-transform: uppercase;
-}
-
-.modal-buttons button:hover {
-    background: var(--secondary-color);
-    color: var(--background-dark);
-    transform: scale(1.05);
-    box-shadow: 0 0 8px var(--shadow-color);
-}
-
-/* Styles the modal close button */
-.close-btn {
-    position: absolute;
-    top: var(--spacing-sm);
-    right: var(--spacing-sm);
-    background: var(--primary-color);
-    color: var(--text-color);
-    border-radius: 50%;
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--accent-color);
-    transition: all 0.3s ease-in-out;
-}
-
-.close-btn:hover {
-    background: var(--secondary-color);
-    transform: rotate(90deg);
 }
 
 /* Styles the loading indicator */
 .loading {
-    text-align: center;
-    font-size: 1.2rem;
     padding: var(--spacing-md);
 }
 
 .loading::before {
-    content: "";
-    display: inline-block;
     width: 1.25rem;
     height: 1.25rem;
-    border: 2px solid var(--accent-color);
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
     margin-right: var(--spacing-xs);
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(1.25rem); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive adjustments for tablet screens */
-@media (max-width: var(--breakpoint-tablet)) {
-    .toggle-filters { display: block; }
-    .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed #filterSummary { display: none; }
-    .container { padding: 0 var(--spacing-md); }
-    nav ul { flex-direction: column; align-items: center; }
-    nav ul li { margin: var(--spacing-sm) 0; }
-    main { padding: var(--spacing-md); margin: var(--spacing-md) 0; }
-    .filter-grid {
-        grid-template-areas:
-            "checkboxes1"
-            "checkboxes2"
-            "search"
-            "inputs"
-            "sort1"
-            "sort2";
-    }
-    .filter-row {
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-    .filter-row .search-bar, .filter-row .filter-group { flex: auto; width: 100%; min-width: auto; }
-    .sort-group { grid-template-columns: 1fr; }
-    .checkbox-group { grid-template-columns: 1fr; max-height: 10rem; }
-}
-
-/* Responsive adjustments for mobile screens */
 @media (max-width: var(--breakpoint-mobile)) {
-    h1 { font-size: 1.75rem; }
-    h2 { font-size: 1.5rem; }
-    #grantsContainer { grid-template-columns: 1fr; }
-    .container { padding: 0 var(--spacing-md); }
-    .hero h1 { font-size: 2rem; }
-    .hero p { font-size: 1rem; }
-    .checkbox-group { grid-template-columns: 1fr; max-height: 8rem; }
-}
-
-/* Disables transitions for users preferring reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; transform: none !important; }
+    .checkbox-group { max-height: 8rem; }
 }
