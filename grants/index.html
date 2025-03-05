@@ -12,15 +12,15 @@
     <title>Grants Nexus - Central Texas Transportation</title>
     <!-- External dependencies -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="/assets/css/global.css"> <!-- Load global styles first -->
-    <link rel="stylesheet" href="/assets/css/grants.css"> <!-- Load grants-specific styles second -->
+    <link rel="stylesheet" href="/assets/css/global.css">
+    <link rel="stylesheet" href="/assets/css/grants.css">
 </head>
 <body>
     <!-- Header with navigation -->
     <header>
-        <nav>
-            <ul role="navigation">
-                <li><a href="/" aria-label="Home">Home</a></li>
+        <nav aria-label="Main navigation">
+            <ul>
+                <li><a href="/">Home</a></li>
                 <li><a href="/grants/" aria-current="page">Grants</a></li>
                 <li><a href="/projects/">Projects</a></li>
                 <li><a href="/data-portal/">Data Portal</a></li>
@@ -31,72 +31,63 @@
             </ul>
         </nav>
     </header>
+
     <!-- Main content area -->
     <main id="main">
-        <!-- Hero section with title and subtitle -->
-        <section class="hero" role="banner">
+        <!-- Hero section -->
+        <section class="hero">
             <h1>Grants Nexus</h1>
             <p>Central Texas Transportation Funding Hub</p>
         </section>
+
         <!-- Dashboard section for grant browsing -->
-        <section class="dashboard" role="main">
-            <!-- Initial prompt modal -->
-            <div id="initialPrompt" class="modal" role="dialog" aria-labelledby="promptTitle">
-                <div class="modal-content" tabindex="-1">
-                    <h2 id="promptTitle">Welcome to Grants Nexus</h2>
-                    <p>Do you want to view all grants or search/filter for specific grants?</p>
-                    <div class="modal-buttons">
-                        <button id="viewAllBtn">View All Grants</button>
-                        <button id="filterBtn">Search/Filter Grants</button>
-                        <button class="close-btn" id="closeInitialPrompt" aria-label="Close prompt"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>
-            </div>
-            <!-- Filter controls, initially hidden -->
-            <div class="controls expanded hidden" id="filterControls">
-                <div class="toggle-filters" id="toggleFiltersBtn">
+        <section class="dashboard">
+            <!-- Filter controls, always visible -->
+            <div class="controls expanded" id="filterControls">
+                <button class="toggle-filters" id="toggleFiltersBtn">
                     <i class="fas fa-filter"></i> Toggle Filters
-                </div>
+                </button>
                 <div class="filter-grid">
-                    <!-- Checkbox Groups at the Top (Side by Side) -->
+                    <!-- Checkbox groups for grant type and funding source -->
                     <div class="filter-group checkboxes">
                         <label>Grant Type</label>
                         <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
                             <input type="checkbox" id="typeAll" name="typeAll" value="all">
-                            <label for="typeAll">All</label><br>
-                            <!-- Dynamically populated by JavaScript -->
+                            <label for="typeAll">All</label>
+                            <!-- Additional checkboxes populated by JavaScript -->
                         </div>
                     </div>
                     <div class="filter-group checkboxes">
                         <label>Funding Source</label>
                         <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
                             <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
-                            <label for="fundingAll">All</label><br>
-                            <!-- Dynamically populated by JavaScript -->
+                            <label for="fundingAll">All</label>
+                            <!-- Additional checkboxes populated by JavaScript -->
                         </div>
                     </div>
 
-                    <!-- Search Bar and Inputs in a Row Below -->
+                    <!-- Search bar and filter inputs -->
                     <div class="filter-row">
                         <div class="search-bar">
-                            <input type="text" id="searchInput" placeholder="Search Grants..." aria-label="Search grants">
-                            <i class="fas fa-search"></i>
+                            <label for="searchInput" class="sr-only">Search grants</label>
+                            <input type="text" id="searchInput" placeholder="Search Grants...">
+                            <i class="fas fa-search" aria-hidden="true"></i>
                         </div>
                         <div class="filter-group">
                             <label for="targetAward">Target Award Amount</label>
-                            <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000" required aria-label="Target award amount">
+                            <input type="number" id="targetAward" placeholder="e.g., 200000" min="0" step="1000">
                         </div>
                         <div class="filter-group">
                             <label for="deadline">Application Deadline</label>
-                            <input type="date" id="deadline" aria-label="Application deadline">
+                            <input type="date" id="deadline">
                         </div>
                         <div class="filter-group">
-                            <label for="maxHours">Max Application Hours (Up To)</label>
-                            <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1" required aria-label="Maximum application hours">
+                            <label for="maxHours">Max Application Hours</label>
+                            <input type="number" id="maxHours" placeholder="e.g., 20" min="0" step="1">
                         </div>
                     </div>
 
-                    <!-- Sort Dropdowns Below, Stacked Vertically for Clarity -->
+                    <!-- Sort dropdowns -->
                     <div class="filter-group sort-group-wrapper">
                         <label>Primary Sort</label>
                         <div class="sort-group">
@@ -118,16 +109,20 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Filter actions -->
                 <div class="filter-actions">
                     <button id="applyFilters">Apply Filters</button>
                     <button id="resetFilters">Reset Filters</button>
                 </div>
-                <div id="filterSummary"></div>
+                <div id="filterSummary" aria-live="polite"></div>
             </div>
-            <!-- Container for displaying grant cards -->
-            <div id="grantsContainer" role="region" aria-live="polite"></div>
+
+            <!-- Grants container -->
+            <div id="grantsContainer" class="grid-container" role="region" aria-live="polite"></div>
         </section>
-        <!-- Modal for detailed grant information with dark mode background -->
+
+        <!-- Grant details modal -->
         <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
             <div class="modal-content solid" tabindex="-1">
                 <h2 id="modalTitle">Grant Details</h2>
@@ -135,16 +130,21 @@
                 <div class="modal-buttons">
                     <button id="favoriteBtn">Add to Favorites</button>
                     <button id="copyDetailsBtn">Copy Details</button>
-                    <button class="close-btn" id="closeGrantModal" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    <button class="close-btn" id="closeGrantModal" aria-label="Close grant details">
+                        <span class="sr-only">Close</span>
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </main>
-    <!-- Footer with copyright and links -->
+
+    <!-- Footer -->
     <footer role="contentinfo">
         <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy</a> | <a href="/terms/">Terms</a> | <a href="/accessibility/">Accessibility</a></p>
     </footer>
-    <!-- External JavaScript file -->
+
+    <!-- External JavaScript -->
     <script src="/assets/js/grants.js"></script>
 </body>
 </html>
