@@ -1,52 +1,54 @@
-// Removed AWS SDK imports since we're not using DynamoDB anymore
-
-let allGrants = [];
-let attributes = [];
+// Global variables for managing application state
+let allGrants = []; // Array of all grant objects loaded from grants.json
+let attributes = []; // List of grant attributes for filtering and sorting
 let filterConfig = {
-    textSearch: '',
+    textSearch: '', // Search term entered by the user
     filters: {
-        'Grant Type': [],
-        'Funding Source': [],
-        'Target Award Amount': null,
-        'Application Deadline': null,
-        'Max Application Hours': null
+        'Grant Type': [], // Selected grant types
+        'Funding Source': [], // Selected funding sources
+        'Target Award Amount': null, // Target award amount filter
+        'Application Deadline': null, // Deadline date filter
+        'Max Application Hours': null // Maximum application hours filter
     },
     sort: [
-        { attr: 'Grant Name', direction: 'ascending' },
-        { attr: null, direction: 'ascending' }
+        { attr: 'Grant Name', direction: 'ascending' }, // Primary sort configuration
+        { attr: null, direction: 'ascending' } // Secondary sort configuration
     ]
 };
-let favorites = [];
+let favorites = []; // Array of grant IDs marked as favorites
 
+// GrantsManager class to encapsulate application logic
 class GrantsManager {
     constructor() {
+        // Initialize DOM element references
         this.container = document.getElementById('grantsContainer');
         this.filterSummary = document.getElementById('filterSummary');
+        // Load saved user preferences from local storage
         this.loadSavedData();
+        // Set up event listeners once the DOM is fully loaded
         document.addEventListener('DOMContentLoaded', () => {
             this.setupEventListeners();
             this.showInitialPrompt();
         });
     }
 
+    // Displays the initial prompt modal to the user
     showInitialPrompt() {
         const prompt = document.getElementById('initialPrompt');
-        if (prompt) prompt.style.display = 'flex';
+        if (prompt) {
+            prompt.style.display = 'flex';
+            prompt.querySelector('.modal-content').focus();
+        }
     }
 
+    // Asynchronously loads grant data from grants.json
     async loadGrants() {
         this.showLoading();
         try {
-            // Fetch local grants.json file instead of DynamoDB scan
-            const response = await fetch('./grants.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            const response = await fetch('/assets/json/grants.json');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             allGrants = await response.json();
-            
-            if (!Array.isArray(allGrants) || !allGrants.length) {
-                throw new Error('No grants found in JSON file or invalid format');
-            }
+            if (!Array.isArray(allGrants) || !allGrants.length) throw new Error('No grants found in JSON file or invalid format');
             
             attributes = this.extractAttributes(allGrants[0]);
             this.setupFilterControls();
@@ -60,20 +62,22 @@ class GrantsManager {
         }
     }
 
-    // Removed scanDynamoDB method since we're not using DynamoDB
-
+    // Extracts attribute keys from a sample grant object, excluding grantId
     extractAttributes(sampleGrant) {
         return Object.keys(sampleGrant).filter(k => k !== 'grantId');
     }
 
+    // Displays a loading indicator in the grants container
     showLoading() {
-        this.container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading Grants...</div>';
+        this.container.innerHTML = '<div class="loading">Loading Grants...</div>';
     }
 
+    // Displays an error message with a retry option
     showError(message) {
         this.container.innerHTML = `<div class="grant-card error"><p>${message} <button onclick="grantsManager.loadGrants()">Retry</button></p></div>`;
     }
 
+    // Initializes filter and sort controls with dynamic options
     setupFilterControls() {
         const controls = document.getElementById('filterControls');
         if (!controls) return;
@@ -86,6 +90,7 @@ class GrantsManager {
         this.applySavedFilters();
     }
 
+    // Populates filter dropdowns with unique values from grant data
     populateFilterOptions(selectId, attr) {
         const select = document.getElementById(selectId);
         if (!select) return;
@@ -93,6 +98,7 @@ class GrantsManager {
         select.innerHTML = uniqueValues.map(val => `<option value="${val}">${val || 'N/A'}</option>`).join('');
     }
 
+    // Populates sort dropdowns with grant attributes
     populateSortOptions(selectId, selectedValue) {
         const select = document.getElementById(selectId);
         if (!select) return;
@@ -100,12 +106,14 @@ class GrantsManager {
             `<option value="${attr}" ${attr === selectedValue ? 'selected' : ''}>${attr}</option>`).join('');
     }
 
+    // Updates search suggestions based on grant names
     updateSuggestions() {
         const datalist = document.getElementById('grantSuggestions');
         const suggestions = allGrants.map(g => g['Grant Name']).filter(Boolean);
         datalist.innerHTML = [...new Set(suggestions)].map(s => `<option value="${s}">`).join('');
     }
 
+    // Applies saved filter values to the UI
     applySavedFilters() {
         document.getElementById('searchInput').value = filterConfig.textSearch;
         const typeSelect = document.getElementById('typeFilter');
@@ -124,13 +132,25 @@ class GrantsManager {
         document.getElementById('maxHours').value = filterConfig.filters['Max Application Hours'] || '';
     }
 
+    // Applies user-defined filters and updates the display
     applyFilters() {
+        const targetAward = document.getElementById('targetAward');
+        const maxHours = document.getElementById('maxHours');
+        if (targetAward.value && !targetAward.checkValidity()) {
+            alert('Please enter a valid target award amount (positive number).');
+            return;
+        }
+        if (maxHours.value && !maxHours.checkValidity()) {
+            alert('Please enter a valid max application hours (positive number).');
+            return;
+        }
+
         filterConfig.textSearch = document.getElementById('searchInput')?.value.toLowerCase() || '';
         filterConfig.filters['Grant Type'] = Array.from(document.getElementById('typeFilter')?.selectedOptions || []).map(opt => opt.value);
         filterConfig.filters['Funding Source'] = Array.from(document.getElementById('fundingFilter')?.selectedOptions || []).map(opt => opt.value);
-        filterConfig.filters['Target Award Amount'] = parseFloat(document.getElementById('targetAward')?.value) || null;
+        filterConfig.filters['Target Award Amount'] = parseFloat(targetAward?.value) || null;
         filterConfig.filters['Application Deadline'] = this.parseDate(document.getElementById('deadline')?.value) || null;
-        filterConfig.filters['Max Application Hours'] = parseFloat(document.getElementById('maxHours')?.value) || null;
+        filterConfig.filters['Max Application Hours'] = parseFloat(maxHours?.value) || null;
         filterConfig.sort[0] = {
             attr: document.getElementById('sort1Attr')?.value || 'Grant Name',
             direction: document.getElementById('sort1Dir')?.value || 'ascending'
@@ -143,12 +163,14 @@ class GrantsManager {
         this.displayGrants();
     }
 
+    // Parses a date string into a Date object
     parseDate(dateStr) {
         if (!dateStr) return null;
         const date = new Date(dateStr);
         return isNaN(date.getTime()) ? null : date;
     }
 
+    // Displays filtered and sorted grants in the UI
     displayGrants() {
         let filteredGrants = allGrants;
         if (document.getElementById('filterControls').style.display !== 'none') {
@@ -193,12 +215,14 @@ class GrantsManager {
         this.observeCards();
     }
 
+    // Performs fuzzy text search across grant attributes
     fuzzySearch(grant, term) {
         if (!term) return true;
         return attributes.some(attr => 
             (grant[attr] || '').toString().toLowerCase().includes(term));
     }
 
+    // Creates HTML for a single grant card
     createGrantCard(grant) {
         const isFavorite = favorites.includes(grant.grantId);
         const deadlineClass = this.parseDate(grant['Application Deadline']) && 
@@ -217,6 +241,7 @@ class GrantsManager {
             </div>`;
     }
 
+    // Updates the filter summary text based on current filters
     updateFilterSummary(count) {
         const summary = [];
         if (filterConfig.textSearch) summary.push(`Search: "${filterConfig.textSearch}"`);
@@ -228,6 +253,7 @@ class GrantsManager {
         this.filterSummary.textContent = `Showing ${count} grants${summary.length ? ' | ' + summary.join(', ') : ''}`;
     }
 
+    // Observes grant cards for lazy loading animations
     observeCards() {
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -248,6 +274,7 @@ class GrantsManager {
         });
     }
 
+    // Updates countdown timers for grant deadlines
     startCountdowns() {
         setInterval(() => {
             document.querySelectorAll('.countdown').forEach(el => {
@@ -265,6 +292,7 @@ class GrantsManager {
         }, 1000);
     }
 
+    // Displays a modal with detailed grant information
     showGrantModal(grantId) {
         const grant = allGrants.find(g => g.grantId === grantId);
         if (!grant) {
@@ -280,8 +308,29 @@ class GrantsManager {
         ).join('');
         document.getElementById('favoriteBtn').textContent = favorites.includes(grantId) ? 'Remove from Favorites' : 'Add to Favorites';
         modal.style.display = 'flex';
+        modalContent.focus();
+        this.trapFocus(modal);
     }
 
+    // Traps keyboard focus within the modal
+    trapFocus(modal) {
+        const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        modal.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+    }
+
+    // Sets up event listeners for user interactions
     setupEventListeners() {
         const debounce = (func, wait) => {
             let timeout;
@@ -298,6 +347,7 @@ class GrantsManager {
         });
     }
 
+    // Resets filters to default values
     resetFilters() {
         filterConfig = {
             textSearch: '',
@@ -318,15 +368,17 @@ class GrantsManager {
         this.filterSummary.textContent = '';
     }
 
+    // Saves filter configuration to local storage
     saveConfig() {
         try {
             localStorage.setItem('filterConfig', JSON.stringify(filterConfig));
         } catch (err) {
-            console.error('Failed to save config:', err);
+            console.error('Failed to save filter configuration:', err);
             alert('Could not save filter configuration.');
         }
     }
 
+    // Loads saved data from local storage
     loadSavedData() {
         try {
             const savedFavorites = localStorage.getItem('favorites');
@@ -338,10 +390,12 @@ class GrantsManager {
         }
     }
 
+    // Closes all open modals
     closeAllModals() {
         document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
     }
 
+    // Logs events for debugging or analytics
     trackEvent(eventName, properties) {
         console.log(`Event: ${eventName}`, properties);
     }
@@ -349,6 +403,7 @@ class GrantsManager {
 
 const grantsManager = new GrantsManager();
 
+// Handles user choice from the initial prompt
 function handleInitialPrompt(choice) {
     const prompt = document.getElementById('initialPrompt');
     const controls = document.getElementById('filterControls');
@@ -364,11 +419,13 @@ function handleInitialPrompt(choice) {
     }
 }
 
+// Closes a specified modal by ID
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = 'none';
 }
 
+// Copies grant details to the clipboard
 function copyGrantDetails() {
     const title = document.getElementById('modalTitle').textContent;
     const details = document.getElementById('modalDetails').innerText;
@@ -380,6 +437,7 @@ function copyGrantDetails() {
     });
 }
 
+// Toggles a grant’s favorite status
 function toggleFavorite(grantId) {
     if (!grantId) {
         const modalContent = document.querySelector('#grantModal .modal-content');
@@ -403,4 +461,11 @@ function toggleFavorite(grantId) {
         console.error('Failed to update favorites:', err);
         alert('Could not update favorites.');
     }
+}
+
+// Toggles visibility of filter controls
+function toggleFilters() {
+    const controls = document.getElementById('filterControls');
+    controls.classList.toggle('collapsed');
+    controls.classList.toggle('expanded');
 }

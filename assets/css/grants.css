@@ -1,0 +1,490 @@
+/* ========================================================================== 
+   Grants.css - Global Styles for Grants Nexus Application
+   ========================================================================== */
+
+/* Defines CSS custom properties for consistent theming across the application */
+:root {
+    /* Color variables for theming */
+    --primary-color: #5f00ba;        /* Primary purple for buttons and accents */
+    --secondary-color: #ff66c4;      /* Secondary pink for highlights */
+    --text-color: #f0f0f0;           /* Off-white text for WCAG AA contrast */
+    --background-light: #0d0331;     /* Dark blue background */
+    --input-bg: #1c0553;             /* Dark indigo for input fields */
+    --accent-color: #00ffff;         /* Cyan for interactive elements */
+    --shadow-color: rgba(0, 255, 255, 0.2); /* Subtle cyan shadow for depth */
+
+    /* Typography variables */
+    --font-family: 'Poppins', 'Arial', sans-serif; /* Primary font with fallback */
+    --font-size-base: 18px;          /* Base font size for accessibility */
+    --line-height-base: 1.7;         /* Line height for readability */
+
+    /* Spacing variables */
+    --spacing-xs: 8px;               /* Extra small spacing */
+    --spacing-sm: 12px;              /* Small spacing */
+    --spacing-md: 24px;              /* Medium spacing */
+    --spacing-lg: 48px;              /* Large spacing */
+    --spacing-xl: 60px;              /* Extra large spacing */
+
+    /* Responsive breakpoints */
+    --breakpoint-tablet: 768px;      /* Tablet breakpoint */
+    --breakpoint-mobile: 480px;      /* Mobile breakpoint */
+}
+
+/* Resets default margins and padding, ensures box-sizing is consistent */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Sets base font size and enables smooth scrolling */
+html {
+    font-size: var(--font-size-base);
+    scroll-behavior: smooth;
+}
+
+/* Defines body styling with background gradient and font smoothing */
+body {
+    font-family: var(--font-family);
+    font-size: 1rem;
+    line-height: var(--line-height-base);
+    color: var(--text-color);
+    background-color: var(--background-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image: linear-gradient(135deg, #0d0331, #4b0082, #ff66c4, #00ffff);
+    background-attachment: fixed;
+}
+
+/* Centers content with maximum width and padding */
+.container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 0 var(--spacing-xl);
+}
+
+/* Styles the skip-to-content link for accessibility */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--accent-color);
+    color: var(--background-light);
+    padding: 8px;
+    z-index: 1001;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Styles the sticky header with navigation */
+header {
+    background: rgba(18, 2, 63, 0.9);
+    padding: var(--spacing-md);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* Flexbox layout for navigation list */
+nav ul {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
+}
+
+/* Spacing for navigation items */
+nav ul li {
+    margin: 0 var(--spacing-sm);
+}
+
+/* Styles navigation links with gradient background */
+nav ul li a {
+    color: var(--text-color);
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    text-decoration: none;
+}
+
+nav ul li a:hover,
+nav ul li a:focus {
+    background: var(--accent-color);
+    color: var(--background-light);
+    transform: scale(1.1);
+}
+
+/* Styles the hero section with title and subtitle */
+.hero {
+    padding: var(--spacing-lg) var(--spacing-md);
+    color: var(--text-color);
+    text-shadow: 1px 1px 6px var(--shadow-color);
+}
+
+.hero h1 {
+    font-size: 3rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-sm);
+    text-align: left;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    text-align: left;
+}
+
+/* Styles the main content area */
+main {
+    background: rgba(255, 255, 255, 0.1);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.dashboard { padding: var(--spacing-md); }
+
+/* Styles the filter controls container */
+.controls {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--accent-color);
+    border-radius: 12px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: max-height 0.5s ease-in-out;
+}
+
+.controls.collapsed { max-height: 60px; overflow: hidden; }
+.controls.expanded { max-height: 800px; }
+
+/* Styles the toggle button for filters on smaller screens */
+.toggle-filters {
+    background: var(--primary-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+    display: none;
+}
+
+/* Positions the search bar */
+.search-bar {
+    position: relative;
+    margin-bottom: var(--spacing-md);
+}
+
+/* Styles the search input field */
+#searchInput {
+    width: 100%;
+    padding: 12px 40px 12px 12px;
+    border-radius: 8px;
+    border: 2px solid var(--accent-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+#searchInput:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--shadow-color);
+    outline: none;
+}
+
+/* Styles select dropdowns with custom arrow */
+select {
+    appearance: none;
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid var(--accent-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
+                     linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--shadow-color);
+    outline: none;
+}
+
+/* Positions the search icon */
+.search-bar i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-color);
+}
+
+/* Grid layout for filter inputs */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.filter-group input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid var(--accent-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    width: 100%;
+}
+
+.filter-group input:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 8px var(--shadow-color);
+    outline: none;
+}
+
+.sort-group {
+    display: flex;
+    gap: 12px;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: var(--spacing-md);
+}
+
+/* Styles buttons within filter controls */
+.controls button {
+    background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--background-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+}
+
+.controls button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px var(--shadow-color);
+}
+
+/* Styles the filter summary text */
+#filterSummary {
+    margin-top: var(--spacing-md);
+    font-size: 0.9rem;
+    color: var(--accent-color);
+}
+
+/* Grid layout for grant cards */
+#grantsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+}
+
+/* Styles individual grant cards */
+.grant-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--accent-color);
+    border-radius: 12px;
+    padding: var(--spacing-md);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: all 0.3s ease-in-out;
+    position: relative;
+}
+
+.grant-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 4px 16px var(--shadow-color);
+    border-color: var(--secondary-color);
+}
+
+.grant-card h3 {
+    color: var(--accent-color);
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    text-shadow: 1px 1px 6px var(--shadow-color);
+}
+
+.grant-card p {
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+/* Styles tags within grant cards */
+.tag {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: var(--background-light);
+    font-size: 0.85rem;
+    margin-right: 8px;
+}
+
+.tag.formula { background: var(--accent-color); }
+.tag.discretionary { background: var(--secondary-color); }
+.tag.competitive { background: var(--primary-color); }
+
+/* Styles the favorite button on grant cards */
+.favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.favorite-btn.active { color: #f1c40f; }
+
+/* Styles modal overlays */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--accent-color);
+    padding: var(--spacing-lg);
+    border-radius: 12px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: var(--spacing-md);
+}
+
+/* Styles buttons within modals */
+.modal-buttons button {
+    background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--background-light);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-transform: uppercase;
+}
+
+.modal-buttons button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px var(--shadow-color);
+}
+
+/* Styles the modal close button */
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--primary-color);
+    color: var(--text-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--accent-color);
+    transition: all 0.3s ease-in-out;
+}
+
+.close-btn:hover {
+    background: var(--secondary-color);
+    transform: rotate(90deg);
+}
+
+/* Styles the loading indicator */
+.loading {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: var(--spacing-md);
+}
+
+.loading::before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--accent-color);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments for tablet screens */
+@media (max-width: var(--breakpoint-tablet)) {
+    .toggle-filters { display: block; }
+    .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed #filterSummary { display: none; }
+    .container { padding: 0 var(--spacing-md); }
+    nav ul { flex-direction: column; align-items: center; }
+    nav ul li { margin: var(--spacing-sm) 0; }
+    main { padding: var(--spacing-md); margin: var(--spacing-md) 0; }
+}
+
+/* Responsive adjustments for mobile screens */
+@media (max-width: var(--breakpoint-mobile)) {
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    #grantsContainer { grid-template-columns: 1fr; }
+    .container { padding: 0 var(--spacing-md); }
+    .hero h1 { font-size: 2rem; }
+    .hero p { font-size: 1rem; }
+}
+
+/* Disables transitions for users preferring reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; transform: none !important; }
+}
