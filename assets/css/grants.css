@@ -215,7 +215,7 @@ main {
 /* Styles checkboxes for grant type and funding source */
 .checkbox-group {
     display: grid;
-    gap: var(--spacing-xs); /* Reduced gap between rows */
+    gap: 0.0625rem; /* Reduced to 1px for minimal spacing between rows */
     padding: var(--spacing-sm);
     background: var(--input-bg);
     border: 2px solid var(--accent-color);
@@ -272,7 +272,8 @@ main {
     margin-bottom: var(--spacing-md);
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Align to start for consistent positioning */
+    align-items: flex-start; /* Left-align checkbox groups */
+    justify-content: flex-start; /* Ensure content starts at the top */
 }
 
 .filter-group.checkboxes:nth-child(1) { grid-area: checkboxes1; }
@@ -283,7 +284,8 @@ main {
     grid-area: search;
     display: flex;
     gap: var(--spacing-sm);
-    align-items: center;
+    align-items: flex-start; /* Left-align items in row */
+    justify-content: flex-start; /* Ensure content starts at the left */
     margin-bottom: var(--spacing-md);
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
 }
@@ -303,7 +305,8 @@ main {
     grid-area: inputs;
     display: flex;
     gap: var(--spacing-sm);
-    align-items: center; /* Vertically center-align labels and inputs */
+    align-items: flex-start; /* Left-align labels and inputs */
+    justify-content: flex-start; /* Ensure content starts at the left */
     margin-bottom: var(--spacing-md);
 }
 
@@ -312,7 +315,7 @@ main {
     margin-right: var(--spacing-sm);
     margin-bottom: 0; /* Remove extra margin for alignment */
     display: flex;
-    align-items: center; /* Vertically center label */
+    align-items: center; /* Vertically center label text, but left-align overall */
 }
 
 .filter-group input {
@@ -348,6 +351,7 @@ input[type="number"] {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+    align-items: flex-start; /* Left-align sort groups */
 }
 
 .sort-group-wrapper:nth-child(5) { grid-area: sort1; }
@@ -357,7 +361,8 @@ input[type="number"] {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Match secondary sort width (equal columns) */
     gap: var(--spacing-sm);
-    align-items: center;
+    align-items: flex-start; /* Left-align dropdowns */
+    justify-content: flex-start; /* Ensure content starts at the left */
 }
 
 select {
@@ -388,6 +393,7 @@ select:focus {
     display: flex;
     gap: var(--spacing-sm);
     margin-top: var(--spacing-md);
+    justify-content: flex-start; /* Left-align buttons */
 }
 
 /* Styles buttons within filter controls */
@@ -416,6 +422,7 @@ select:focus {
     margin-top: var(--spacing-md);
     font-size: 0.9rem;
     color: var(--text-color);
+    text-align: left; /* Left-align summary text */
 }
 
 /* Grid layout for grant cards with dark mode background */
@@ -424,6 +431,7 @@ select:focus {
     grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); /* Consistent card width */
     gap: var(--spacing-lg);
     padding-bottom: var(--spacing-lg);
+    justify-content: flex-start; /* Left-align cards */
 }
 
 /* Styles individual grant cards with dark mode background */
@@ -517,7 +525,7 @@ select:focus {
 .modal-buttons {
     display: flex;
     gap: var(--spacing-sm);
-    justify-content: flex-end;
+    justify-content: flex-start; /* Left-align modal buttons */
     margin-top: var(--spacing-md);
 }
 
