@@ -136,8 +136,6 @@
                 <div class="grant-card">
                     <h3>FHWA Arterial Road Upgrade</h3>
                     <p>Discretionary | Funding: FHWA | Award: $400,000 - $3,000,000 | Deadline: 01/15/2026</p>
-                    <span class="tag formula">Formula</span>
-                    <span class="tag discretionary">Discretionary</span>
                     <button class="favorite-btn"><i class="fas fa-star"></i></button>
                 </div>
                 <!-- Add more grant cards as needed -->
@@ -147,13 +145,7 @@
         <div id="grantModal" class="modal" role="dialog" aria-labelledby="modalTitle">
             <div class="modal-content solid" tabindex="-1">
                 <h2 id="modalTitle">Grant Details</h2>
-                <div id="modalDetails" class="grant-card">
-                    <h3>FHWA Arterial Road Upgrade</h3>
-                    <p>Type: Discretionary<br>Funding Source: FHWA<br>Award Range: $400,000 - $3,000,000<br>Deadline: 01/15/2026</p>
-                    <span class="tag formula">Formula</span>
-                    <span class="tag discretionary">Discretionary</span>
-                    <button class="favorite-btn"><i class="fas fa-star"></i></button>
-                </div>
+                <div id="modalDetails"></div>
                 <div class="modal-buttons">
                     <button id="favoriteBtn">Add to Favorites</button>
                     <button id="copyDetailsBtn">Copy Details</button>
@@ -167,7 +159,7 @@
         <p>© 2025 Central Texas Transportation | <a href="/privacy/">Privacy</a> | <a href="/terms/">Terms</a> | <a href="/accessibility/">Accessibility</a></p>
     </footer>
     <!-- Datalist for search suggestions -->
-    <datalist id="grantDetails"></datalist>
+    <datalist id="grantSuggestions"></datalist>
     <!-- External JavaScript file -->
     <script src="/assets/js/grants.js"></script>
 </body>
