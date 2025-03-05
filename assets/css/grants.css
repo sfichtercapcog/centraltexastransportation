@@ -179,14 +179,13 @@ main {
     display: none;
 }
 
-/* Positions the search bar */
+/* Positions and styles the search bar */
 .search-bar {
     position: relative;
     margin-bottom: var(--spacing-md);
 }
 
-/* Styles the search input field */
-#searchInput {
+.search-bar input {
     width: 100%;
     padding: 12px 40px 12px 12px;
     border-radius: 8px;
@@ -196,10 +195,19 @@ main {
     font-size: 1rem;
 }
 
-#searchInput:focus {
+.search-bar input:focus {
     border-color: var(--secondary-color);
     box-shadow: 0 0 8px var(--shadow-color);
     outline: none;
+}
+
+/* Centers the search icon vertically in the search bar */
+.search-bar i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-color);
 }
 
 /* Styles select dropdowns with custom arrow */
@@ -226,7 +234,45 @@ select:focus {
     outline: none;
 }
 
-/* Remove scrollbars for multiple select elements */
+/* Styles checkboxes for grant type and funding source */
+.checkbox-group {
+    display: grid;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    background: var(--input-bg);
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: var(--spacing-xs);
+    vertical-align: middle;
+    appearance: none; /* Removes default checkbox styling */
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--accent-color);
+    border-radius: 4px;
+    background: var(--background-light);
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+    background: var(--accent-color);
+    border-color: var(--secondary-color);
+}
+
+.checkbox-group input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 8px var(--shadow-color);
+}
+
+.checkbox-group label {
+    font-size: 1rem;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+/* Remove scrollbars for multiple select elements (no longer needed with checkboxes) */
 select[multiple] {
     overflow: hidden;
     height: auto; /* Controlled by size attribute */
@@ -327,7 +373,7 @@ input[type="number"] {
     color: var(--accent-color);
 }
 
-/* Grid layout for grant cards */
+/* Grid layout for grant cards with solid background */
 #grantsContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -335,9 +381,9 @@ input[type="number"] {
     padding-bottom: var(--spacing-lg);
 }
 
-/* Styles individual grant cards */
+/* Styles individual grant cards with solid background */
 .grant-card {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--input-bg); /* Solid background instead of transparent */
     border: 2px solid var(--accent-color);
     border-radius: 12px;
     padding: var(--spacing-md);
@@ -503,6 +549,7 @@ input[type="number"] {
     nav ul li { margin: var(--spacing-sm) 0; }
     main { padding: var(--spacing-md); margin: var(--spacing-md) 0; }
     .sort-group { grid-template-columns: 1fr; /* Stack on smaller screens */ }
+    .checkbox-group { grid-template-columns: 1fr; /* Stack checkboxes on smaller screens */ }
 }
 
 /* Responsive adjustments for mobile screens */
@@ -513,6 +560,7 @@ input[type="number"] {
     .container { padding: 0 var(--spacing-md); }
     .hero h1 { font-size: 2rem; }
     .hero p { font-size: 1rem; }
+    .checkbox-group { grid-template-columns: 1fr; /* Ensure single column on mobile */ }
 }
 
 /* Disables transitions for users preferring reduced motion */

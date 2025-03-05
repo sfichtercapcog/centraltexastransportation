@@ -4,8 +4,8 @@ let attributes = []; // List of grant attributes for filtering and sorting
 let filterConfig = {
     textSearch: '', // Search term entered by the user
     filters: {
-        'Grant Type': [], // Selected grant types
-        'Funding Source': [], // Selected funding sources
+        'Grant Type': ['All of the Above'], // Default to all grant types
+        'Funding Source': ['All of the Above'], // Default to all funding sources
         'Target Award Amount': null, // Target award amount filter
         'Application Deadline': null, // Deadline date filter
         'Max Application Hours': null // Maximum application hours filter
@@ -81,21 +81,31 @@ class GrantsManager {
     setupFilterControls() {
         const controls = document.getElementById('filterControls');
         if (!controls) return;
-        this.populateFilterOptions('typeFilter', 'Type of Grant');
-        this.populateFilterOptions('fundingFilter', 'Funding Source');
+        this.populateCheckboxOptions('typeFilter', 'Type of Grant', filterConfig.filters['Grant Type']);
+        this.populateCheckboxOptions('fundingFilter', 'Funding Source', filterConfig.filters['Funding Source']);
         this.populateSortOptions('sort1Attr', filterConfig.sort[0].attr);
         this.populateSortOptions('sort2Attr', filterConfig.sort[1].attr);
         document.getElementById('sort1Dir').value = filterConfig.sort[0].direction;
         document.getElementById('sort2Dir').value = filterConfig.sort[1].direction;
         this.applySavedFilters();
+        this.setupCheckboxListeners();
     }
 
-    // Populates filter dropdowns with unique values from grant data
-    populateFilterOptions(selectId, attr) {
-        const select = document.getElementById(selectId);
-        if (!select) return;
-        const uniqueValues = [...new Set(allGrants.map(g => g[attr] || ''))].sort();
-        select.innerHTML = uniqueValues.map(val => `<option value="${val}">${val || 'N/A'}</option>`).join('');
+    // Populates checkbox options for grant type and funding source
+    populateCheckboxOptions(groupId, attr, selectedValues) {
+        const container = document.getElementById(groupId);
+        if (!container) return;
+        const uniqueValues = [...new Set(allGrants.map(g => g[attr] || ''))].sort().filter(v => v);
+        container.innerHTML = `
+            <input type="checkbox" id="${groupId}All" name="${groupId}All" value="all" ${selectedValues.includes('All of the Above') ? 'checked' : ''}>
+            <label for="${groupId}All">All of the Above</label><br>
+        `;
+        uniqueValues.forEach(val => {
+            container.innerHTML += `
+                <input type="checkbox" id="${groupId}_${val}" name="${groupId}_${val}" value="${val}" ${selectedValues.includes(val) ? 'checked' : ''}>
+                <label for="${groupId}_${val}">${val}</label><br>
+            `;
+        });
     }
 
     // Populates sort dropdowns with grant attributes
@@ -104,6 +114,44 @@ class GrantsManager {
         if (!select) return;
         select.innerHTML = '<option value="">None</option>' + attributes.map(attr => 
             `<option value="${attr}" ${attr === selectedValue ? 'selected' : ''}>${attr}</option>`).join('');
+    }
+
+    // Sets up event listeners for checkbox interactions
+    setupCheckboxListeners() {
+        ['typeFilter', 'fundingFilter'].forEach(groupId => {
+            const allCheckbox = document.getElementById(`${groupId}All`);
+            const checkboxes = document.querySelectorAll(`#${groupId} input[type="checkbox"]:not(#${groupId}All)`);
+            allCheckbox?.addEventListener('change', () => {
+                checkboxes.forEach(cb => cb.checked = allCheckbox.checked);
+                this.updateFilterConfigFromCheckboxes();
+                this.applyFilters();
+            });
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', () => {
+                    if (!Array.from(checkboxes).some(cb => cb.checked)) {
+                        allCheckbox.checked = true;
+                    } else if (Array.from(checkboxes).every(cb => cb.checked)) {
+                        allCheckbox.checked = true;
+                    } else {
+                        allCheckbox.checked = false;
+                    }
+                    this.updateFilterConfigFromCheckboxes();
+                    this.applyFilters();
+                });
+            });
+        });
+    }
+
+    // Updates filterConfig based on checkbox states
+    updateFilterConfigFromCheckboxes() {
+        ['typeFilter', 'fundingFilter'].forEach(groupId => {
+            const checkboxes = document.querySelectorAll(`#${groupId} input[type="checkbox"]:not(#${groupId}All)`);
+            const checkedValues = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            filterConfig.filters[groupId === 'typeFilter' ? 'Grant Type' : 'Funding Source'] = 
+                checkedValues.length === checkboxes.length ? ['All of the Above'] : checkedValues;
+        });
     }
 
     // Updates search suggestions based on grant names
@@ -116,41 +164,46 @@ class GrantsManager {
     // Applies saved filter values to the UI
     applySavedFilters() {
         document.getElementById('searchInput').value = filterConfig.textSearch;
-        const typeSelect = document.getElementById('typeFilter');
-        const fundingSelect = document.getElementById('fundingFilter');
-        filterConfig.filters['Grant Type'].forEach(val => {
-            const option = typeSelect.querySelector(`option[value="${val}"]`);
-            if (option) option.selected = true;
-        });
-        filterConfig.filters['Funding Source'].forEach(val => {
-            const option = fundingSelect.querySelector(`option[value="${val}"]`);
-            if (option) option.selected = true;
-        });
-        document.getElementById('targetAward').value = filterConfig.filters['Target Award Amount'] || '';
+        this.formatNumberInput('targetAward', filterConfig.filters['Target Award Amount']);
+        this.formatNumberInput('maxHours', filterConfig.filters['Max Application Hours']);
         document.getElementById('deadline').value = filterConfig.filters['Application Deadline'] ? 
             filterConfig.filters['Application Deadline'].toISOString().split('T')[0] : '';
-        document.getElementById('maxHours').value = filterConfig.filters['Max Application Hours'] || '';
+    }
+
+    // Formats number inputs with commas dynamically
+    formatNumberInput(inputId, value) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.value = value ? value.toLocaleString() : '';
+            input.addEventListener('input', (e) => {
+                const rawValue = e.target.value.replace(/,/g, '');
+                const numValue = parseFloat(rawValue) || 0;
+                e.target.value = numValue.toLocaleString();
+                filterConfig.filters[inputId === 'targetAward' ? 'Target Award Amount' : 'Max Application Hours'] = numValue || null;
+            });
+        }
     }
 
     // Applies user-defined filters and updates the display
     applyFilters() {
         const targetAward = document.getElementById('targetAward');
         const maxHours = document.getElementById('maxHours');
-        if (targetAward.value && !targetAward.checkValidity()) {
+        const rawTarget = targetAward.value.replace(/,/g, '');
+        const rawHours = maxHours.value.replace(/,/g, '');
+        if (rawTarget && !targetAward.checkValidity()) {
             alert('Please enter a valid target award amount (positive number).');
             return;
         }
-        if (maxHours.value && !maxHours.checkValidity()) {
+        if (rawHours && !maxHours.checkValidity()) {
             alert('Please enter a valid max application hours (positive number).');
             return;
         }
 
         filterConfig.textSearch = document.getElementById('searchInput')?.value.toLowerCase() || '';
-        filterConfig.filters['Grant Type'] = Array.from(document.getElementById('typeFilter')?.selectedOptions || []).map(opt => opt.value);
-        filterConfig.filters['Funding Source'] = Array.from(document.getElementById('fundingFilter')?.selectedOptions || []).map(opt => opt.value);
-        filterConfig.filters['Target Award Amount'] = parseFloat(targetAward?.value) || null;
+        this.updateFilterConfigFromCheckboxes();
+        filterConfig.filters['Target Award Amount'] = parseFloat(rawTarget) || null;
         filterConfig.filters['Application Deadline'] = this.parseDate(document.getElementById('deadline')?.value) || null;
-        filterConfig.filters['Max Application Hours'] = parseFloat(maxHours?.value) || null;
+        filterConfig.filters['Max Application Hours'] = parseFloat(rawHours) || null;
         filterConfig.sort[0] = {
             attr: document.getElementById('sort1Attr')?.value || 'Grant Name',
             direction: document.getElementById('sort1Dir')?.value || 'ascending'
@@ -176,8 +229,12 @@ class GrantsManager {
         if (document.getElementById('filterControls').style.display !== 'none') {
             filteredGrants = allGrants.filter(grant => {
                 const textMatch = this.fuzzySearch(grant, filterConfig.textSearch);
-                const typeMatch = !filterConfig.filters['Grant Type'].length || filterConfig.filters['Grant Type'].includes(grant['Type of Grant'] || '');
-                const fundingMatch = !filterConfig.filters['Funding Source'].length || filterConfig.filters['Funding Source'].includes(grant['Funding Source'] || '');
+                const typeMatch = !filterConfig.filters['Grant Type'].length || 
+                    filterConfig.filters['Grant Type'].includes('All of the Above') || 
+                    filterConfig.filters['Grant Type'].includes(grant['Type of Grant'] || '');
+                const fundingMatch = !filterConfig.filters['Funding Source'].length || 
+                    filterConfig.filters['Funding Source'].includes('All of the Above') || 
+                    filterConfig.filters['Funding Source'].includes(grant['Funding Source'] || '');
                 const awardMatch = !filterConfig.filters['Target Award Amount'] || 
                     (grant['Minimum Grant Award'] <= filterConfig.filters['Target Award Amount'] && 
                      grant['Maximum Grant Award'] >= filterConfig.filters['Target Award Amount']);
@@ -228,6 +285,10 @@ class GrantsManager {
         const isFavorite = favorites.includes(grant.grantId);
         const deadlineClass = this.parseDate(grant['Application Deadline']) && 
             this.parseDate(grant['Application Deadline']) < new Date() ? 'passed' : '';
+        let matchRequirements = grant['Match Requirements'];
+        if (typeof matchRequirements === 'number') {
+            matchRequirements = `${(matchRequirements * 100).toFixed(matchRequirements % 1 !== 0 ? 2 : 0)}%`;
+        }
         return `
             <div class="grant-card" tabindex="0" data-grant-id="${grant.grantId}">
                 <h3>${grant['Grant Name'] || 'Untitled'}</h3>
@@ -236,6 +297,7 @@ class GrantsManager {
                 <p><strong>Award:</strong> $${(grant['Minimum Grant Award'] || 0).toLocaleString()} - $${(grant['Maximum Grant Award'] || 0).toLocaleString()}</p>
                 <p class="deadline ${deadlineClass}"><strong>Deadline:</strong> ${grant['Application Deadline'] || 'N/A'}</p>
                 <p class="countdown" data-deadline="${grant['Application Deadline']}"></p>
+                ${matchRequirements ? `<p><strong>Match Requirements:</strong> ${matchRequirements}</p>` : ''}
                 <button class="favorite-btn ${isFavorite ? 'active' : ''}" data-grant-id="${grant.grantId}" aria-label="${isFavorite ? 'Remove from' : 'Add to'} favorites">
                     <i class="fas fa-star"></i>
                 </button>
@@ -246,11 +308,19 @@ class GrantsManager {
     updateFilterSummary(count) {
         const summary = [];
         if (filterConfig.textSearch) summary.push(`Search: "${filterConfig.textSearch}"`);
-        if (filterConfig.filters['Grant Type'].length) summary.push(`Types: ${filterConfig.filters['Grant Type'].join(', ')}`);
-        if (filterConfig.filters['Funding Source'].length) summary.push(`Sources: ${filterConfig.filters['Funding Source'].join(', ')}`);
+        if (filterConfig.filters['Grant Type'].includes('All of the Above') || filterConfig.filters['Grant Type'].length === 0) {
+            summary.push(`Grant Types: All`);
+        } else if (filterConfig.filters['Grant Type'].length) {
+            summary.push(`Grant Types: ${filterConfig.filters['Grant Type'].join(', ')}`);
+        }
+        if (filterConfig.filters['Funding Source'].includes('All of the Above') || filterConfig.filters['Funding Source'].length === 0) {
+            summary.push(`Funding Sources: All`);
+        } else if (filterConfig.filters['Funding Source'].length) {
+            summary.push(`Funding Sources: ${filterConfig.filters['Funding Source'].join(', ')}`);
+        }
         if (filterConfig.filters['Target Award Amount']) summary.push(`Target Award: $${filterConfig.filters['Target Award Amount'].toLocaleString()}`);
         if (filterConfig.filters['Application Deadline']) summary.push(`Deadline: On/Before ${filterConfig.filters['Application Deadline'].toLocaleDateString()}`);
-        if (filterConfig.filters['Max Application Hours']) summary.push(`Max Hours: Up to ${filterConfig.filters['Max Application Hours']}`);
+        if (filterConfig.filters['Max Application Hours']) summary.push(`Max Hours: Up to ${filterConfig.filters['Max Application Hours'].toLocaleString()}`);
         this.filterSummary.textContent = `Showing ${count} grants${summary.length ? ' | ' + summary.join(', ') : ''}`;
     }
 
@@ -307,7 +377,9 @@ class GrantsManager {
         modalContent.dataset.grantId = grantId;
         document.getElementById('modalTitle').textContent = grant['Grant Name'] || 'Untitled';
         document.getElementById('modalDetails').innerHTML = attributes.map(attr =>
-            `<p><strong>${attr}:</strong> ${attr.includes('Award') && grant[attr] !== undefined ? `$${grant[attr].toLocaleString()}` : grant[attr] !== undefined ? grant[attr].toString() : 'N/A'}</p>`
+            `<p><strong>${attr}:</strong> ${attr.includes('Award') && grant[attr] !== undefined ? `$${grant[attr].toLocaleString()}` : 
+            attr === 'Match Requirements' && typeof grant[attr] === 'number' ? `${(grant[attr] * 100).toFixed(grant[attr] % 1 !== 0 ? 2 : 0)}%` : 
+            grant[attr] !== undefined ? grant[attr].toString() : 'N/A'}</p>`
         ).join('');
         document.getElementById('favoriteBtn').textContent = favorites.includes(grantId) ? 'Remove from Favorites' : 'Add to Favorites';
         modal.style.display = 'flex';
@@ -353,7 +425,7 @@ class GrantsManager {
         document.getElementById('copyDetailsBtn')?.addEventListener('click', copyGrantDetails);
         document.getElementById('closeGrantModal')?.addEventListener('click', () => closeModal('grantModal'));
         // Add Enter key listener to filter inputs
-        const filterInputs = document.querySelectorAll('#filterControls input, #filterControls select');
+        const filterInputs = document.querySelectorAll('#filterControls input, #filterControls select, #filterControls .checkbox-group input');
         filterInputs.forEach(input => {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') this.applyFilters();
@@ -369,8 +441,8 @@ class GrantsManager {
         filterConfig = {
             textSearch: '',
             filters: {
-                'Grant Type': [],
-                'Funding Source': [],
+                'Grant Type': ['All of the Above'],
+                'Funding Source': ['All of the Above'],
                 'Target Award Amount': null,
                 'Application Deadline': null,
                 'Max Application Hours': null
@@ -395,7 +467,7 @@ class GrantsManager {
         }
     }
 
-    // Loads saved data from local storage, ensuring default sort persists if not set
+    // Loads saved data from local storage, ensuring default sort and filters persist
     loadSavedData() {
         try {
             const savedFavorites = localStorage.getItem('favorites');
@@ -403,6 +475,13 @@ class GrantsManager {
             const savedConfig = localStorage.getItem('filterConfig');
             if (savedConfig) {
                 filterConfig = JSON.parse(savedConfig);
+                // Ensure defaults for checkboxes and sort
+                if (!filterConfig.filters['Grant Type'].length || !filterConfig.filters['Grant Type'].includes('All of the Above')) {
+                    filterConfig.filters['Grant Type'] = ['All of the Above'];
+                }
+                if (!filterConfig.filters['Funding Source'].length || !filterConfig.filters['Funding Source'].includes('All of the Above')) {
+                    filterConfig.filters['Funding Source'] = ['All of the Above'];
+                }
                 // Ensure primary sort defaults to Grant Name ascending if not set
                 if (!filterConfig.sort[0].attr) {
                     filterConfig.sort[0] = { attr: 'Grant Name', direction: 'ascending' };

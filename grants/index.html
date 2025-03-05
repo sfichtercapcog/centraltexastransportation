@@ -64,12 +64,20 @@
                 </div>
                 <div class="filter-grid">
                     <div class="filter-group">
-                        <label for="typeFilter">Grant Type</label>
-                        <select id="typeFilter" multiple size="5" aria-label="Filter by grant type"></select>
+                        <label>Grant Type</label>
+                        <div class="checkbox-group" id="typeFilter" role="group" aria-label="Filter by grant type">
+                            <input type="checkbox" id="typeAll" name="typeAll" value="all">
+                            <label for="typeAll">All of the Above</label><br>
+                            <!-- Dynamically populated by JavaScript -->
+                        </div>
                     </div>
                     <div class="filter-group">
-                        <label for="fundingFilter">Funding Source</label>
-                        <select id="fundingFilter" multiple size="5" aria-label="Filter by funding source"></select>
+                        <label>Funding Source</label>
+                        <div class="checkbox-group" id="fundingFilter" role="group" aria-label="Filter by funding source">
+                            <input type="checkbox" id="fundingAll" name="fundingAll" value="all">
+                            <label for="fundingAll">All of the Above</label><br>
+                            <!-- Dynamically populated by JavaScript -->
+                        </div>
                     </div>
                     <div class="filter-group">
                         <label for="targetAward">Target Award Amount</label>
