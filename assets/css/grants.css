@@ -3,246 +3,341 @@
    ========================================================================== */
 
 /* Grants-specific layouts and customizations */
-.dashboard { padding: var(--spacing-md); }
-
-/* Styles the filter controls container */
-.controls {
-    border-radius: 0.5rem;
-    transition: max-height 0.5s ease-in-out;
-}
-
-.controls.collapsed { max-height: 3.75rem; overflow: hidden; }
-.controls.expanded { max-height: 50rem; }
-
-/* Hides elements when needed */
-.hidden { display: none; }
-
-/* Styles the toggle button for filters on smaller screens */
-.toggle-filters {
-    cursor: pointer;
-    text-align: center;
-    display: none;
-}
-
-@media (max-width: var(--breakpoint-tablet)) {
-    .toggle-filters { display: block; }
-    .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed #filterSummary { display: none; }
-}
-
-/* Positions and styles the search bar */
-.search-bar {
-    position: relative;
-}
-
-.search-bar i {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
-/* Styles checkboxes for grant type and funding source */
-.checkbox-group {
-    max-height: 12rem; /* Limit height for consistency */
-    overflow-y: auto;
-    width: 100%; /* Ensure full width under label */
-}
-
-.checkbox-group input[type="checkbox"] {
-    appearance: none; /* Removes default checkbox styling */
-    width: 1rem;
-    height: 1rem;
-    border-radius: 0.25rem;
-    background: var(--background-dark);
-    cursor: pointer;
-}
-
-.checkbox-group input[type="checkbox"]:checked {
-    background: var(--secondary-color);
-    border-color: var(--accent-color);
-}
-
-.checkbox-group input[type="checkbox"]:focus {
-    outline: none;
-    box-shadow: 0 0 8px var(--shadow-color);
-}
-
-/* Grid layout for filter inputs with clean, organized layout and fixed spacing */
-.filter-grid {
-    display: grid;
-    grid-template-areas:
-        "checkboxes1 checkboxes2"
-        "search search"
-        "inputs inputs"
-        "sort1 sort2";
-    gap: var(--spacing-sm); /* Consistent gap */
-    max-width: 100%; /* Prevent overflow */
-}
-
-/* Style checkbox groups */
-.filter-group.checkboxes {
-    margin-bottom: var(--spacing-md);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Left-align checkbox groups */
-    justify-content: flex-start; /* Ensure content starts at the top */
-}
-
-.filter-group.checkboxes:nth-child(1) { grid-area: checkboxes1; }
-.filter-group.checkboxes:nth-child(2) { grid-area: checkboxes2; }
-
-/* Style search bar and inputs row */
-.filter-row {
-    grid-area: search;
-    display: flex;
-    gap: var(--spacing-sm);
-    align-items: flex-start; /* Left-align items in row */
-    justify-content: flex-start; /* Ensure content starts at the left */
-    margin-bottom: var(--spacing-md);
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-}
-
-.filter-row .search-bar {
-    flex: 1; /* Match width of other inputs */
-    min-width: 10rem; /* Minimum width for consistency */
-}
-
-.filter-row .filter-group {
-    flex: 1;
-    min-width: 10rem; /* Minimum width for consistency */
-}
-
-/* Style numeric and date inputs */
-.filter-group {
-    grid-area: inputs;
-    display: flex;
-    gap: var(--spacing-sm);
-    align-items: flex-start; /* Left-align labels and inputs */
-    justify-content: flex-start; /* Ensure content starts at the left */
-    margin-bottom: var(--spacing-md);
-}
-
-.filter-group label {
-    margin-right: var(--spacing-sm);
-    margin-bottom: 0; /* Remove extra margin for alignment */
-    display: flex;
-    align-items: center; /* Vertically center label text, but left-align overall */
-}
-
-.filter-group input {
-    width: 100%;
-    flex: 1; /* Allow input to fill remaining space */
-}
-
-.filter-group input:focus {
-    box-shadow: 0 0 8px var(--shadow-color);
-}
-
-/* Style sort groups */
-.filter-group.sort-group-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    align-items: flex-start; /* Left-align sort groups */
-}
-
-.sort-group-wrapper:nth-child(5) { grid-area: sort1; }
-.sort-group-wrapper:nth-child(6) { grid-area: sort2; }
-
-.sort-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Match secondary sort width (equal columns) */
-    gap: var(--spacing-sm);
-    align-items: flex-start; /* Left-align dropdowns */
-    justify-content: flex-start; /* Ensure content starts at the left */
-}
-
-select {
-    appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
-                     linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
-    background-position: calc(100% - 1.25rem) calc(1em + 2px), calc(100% - 0.9375rem) calc(1em + 2px);
-    background-size: 0.3125rem 0.3125rem; /* Smaller arrow size */
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
-
-select:focus {
-    box-shadow: 0 0 8px var(--shadow-color);
-}
-
-/* Styles filter action buttons */
-.filter-actions {
-    display: flex;
-    gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
-    justify-content: flex-start; /* Left-align buttons */
-}
-
-/* Styles the filter summary text */
-#filterSummary {
-    text-align: left; /* Left-align summary text */
-}
-
-/* Grid layout for grant cards with dark mode background */
-#grantsContainer {
-    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); /* Consistent card width */
-    justify-content: flex-start; /* Left-align cards */
-}
-
-/* Styles individual grant cards with dark mode background */
-.grant-card {
-    transition: all 0.3s ease-in-out;
-    position: relative;
-}
-
-.grant-card:hover {
-    transform: translateY(-0.5rem);
-}
-
-.grant-card h3 {
-    margin-bottom: var(--spacing-sm);
-}
-
-.grant-card p {
-    margin-bottom: var(--spacing-xs);
-}
-
-/* Styles tags within grant cards */
-.tag {
-    margin-right: var(--spacing-xs);
-}
-
-/* Styles the favorite button on grant cards */
-.favorite-btn {
-    top: var(--spacing-sm);
-    right: var(--spacing-sm);
-}
-
-/* Styles modal overlays */
-.modal {
-    background: rgba(0, 0, 0, 0.75);
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-/* Styles modal buttons */
-.modal-buttons {
-    justify-content: flex-start; /* Left-align modal buttons */
-}
-
-/* Styles the loading indicator */
-.loading {
+.dashboard { 
     padding: var(--spacing-md);
-}
-
-.loading::before {
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-right: var(--spacing-xs);
-}
-
-@media (max-width: var(--breakpoint-mobile)) {
-    .checkbox-group { max-height: 8rem; }
-}
+    border: 1px solid var(--accent-color); /* Add border for separation */
+    box-shadow: 0 0.25rem 0.75rem var(--shadow-color); /* Subtle shadow for depth */
+  }
+  
+  /* Styles the filter controls container */
+  .controls {
+      border-radius: 0.5rem;
+      transition: max-height 0.5s ease-in-out;
+      border: 1px solid var(--accent-color); /* Add border for separation */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  .controls.collapsed { max-height: 3.75rem; overflow: hidden; }
+  .controls.expanded { max-height: 50rem; }
+  
+  /* Hides elements when needed */
+  .hidden { display: none; }
+  
+  /* Styles the toggle button for filters on smaller screens */
+  .toggle-filters {
+      cursor: pointer;
+      text-align: center;
+      display: none;
+      background: var(--primary-color);
+      border: 1px solid var(--accent-color); /* Add border */
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  @media (max-width: var(--breakpoint-tablet)) {
+      .toggle-filters { display: block; }
+      .controls.collapsed .filter-grid, .controls.collapsed .filter-actions, .controls.collapsed #filterSummary { display: none; }
+  }
+  
+  /* Positions and styles the search bar */
+  .search-bar {
+      position: relative;
+  }
+  
+  .search-bar i {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--text-color); /* Ensure icon is visible */
+  }
+  
+  /* Styles checkboxes for grant type and funding source */
+  .checkbox-group {
+      max-height: 12rem; /* Limit height for consistency */
+      overflow-y: auto;
+      width: 100%; /* Ensure full width under label */
+      padding: var(--spacing-sm); /* Add padding for separation */
+      border: 1px solid var(--accent-color); /* Add border for separation */
+      border-radius: 0.5rem; /* Match input styling */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+      appearance: none; /* Removes default checkbox styling */
+      width: 1.25rem; /* Larger checkbox for usability */
+      height: 1.25rem;
+      border: 2px solid var(--accent-color); /* Visible border */
+      border-radius: 0.25rem;
+      background: var(--background-dark);
+      cursor: pointer;
+      margin-right: var(--spacing-xs); /* Space after checkbox */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  .checkbox-group input[type="checkbox"]:checked {
+      background: var(--secondary-color);
+      border-color: var(--accent-color);
+  }
+  
+  .checkbox-group input[type="checkbox"]:focus {
+      outline: none;
+      box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
+  }
+  
+  .checkbox-group label {
+      margin-left: var(--spacing-xs); /* Space before label text */
+      color: var(--text-color); /* Ensure text visibility */
+  }
+  
+  /* Grid layout for filter inputs with clean, organized layout and fixed spacing */
+  .filter-grid {
+      display: grid;
+      grid-template-areas:
+          "checkboxes1 checkboxes2"
+          "search search"
+          "inputs inputs"
+          "sort1 sort2";
+      gap: var(--spacing-sm); /* Consistent gap */
+      max-width: 100%; /* Prevent overflow */
+      padding: var(--spacing-sm); /* Add padding for separation */
+  }
+  
+  /* Style checkbox groups */
+  .filter-group.checkboxes {
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* Left-align checkbox groups */
+      justify-content: flex-start; /* Ensure content starts at the top */
+  }
+  
+  .filter-group.checkboxes:nth-child(1) { grid-area: checkboxes1; }
+  .filter-group.checkboxes:nth-child(2) { grid-area: checkboxes2; }
+  
+  /* Style search bar and inputs row */
+  .filter-row {
+      grid-area: search;
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: flex-start; /* Left-align items in row */
+      justify-content: flex-start; /* Ensure content starts at the left */
+      margin-bottom: var(--spacing-md);
+      flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  }
+  
+  .filter-row .search-bar {
+      flex: 1; /* Match width of other inputs */
+      min-width: 10rem; /* Minimum width for consistency */
+  }
+  
+  .filter-row .filter-group {
+      flex: 1;
+      min-width: 10rem; /* Minimum width for consistency */
+  }
+  
+  /* Style numeric and date inputs */
+  .filter-group {
+      grid-area: inputs;
+      display: flex;
+      gap: var(--spacing-sm);
+      align-items: flex-start; /* Left-align labels and inputs */
+      justify-content: flex-start; /* Ensure content starts at the left */
+      margin-bottom: var(--spacing-md);
+  }
+  
+  .filter-group label {
+      margin-right: var(--spacing-sm);
+      margin-bottom: 0; /* Remove extra margin for alignment */
+      display: flex;
+      align-items: center; /* Vertically center label text, but left-align overall */
+      color: var(--text-color); /* Ensure label visibility */
+  }
+  
+  .filter-group input {
+      width: 100%;
+      flex: 1; /* Allow input to fill remaining space */
+  }
+  
+  .filter-group input:focus {
+      box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
+  }
+  
+  /* Style sort groups */
+  .filter-group.sort-group-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+      align-items: flex-start; /* Left-align sort groups */
+  }
+  
+  .sort-group-wrapper:nth-child(5) { grid-area: sort1; }
+  .sort-group-wrapper:nth-child(6) { grid-area: sort2; }
+  
+  .sort-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Match secondary sort width (equal columns) */
+      gap: var(--spacing-sm);
+      align-items: flex-start; /* Left-align dropdowns */
+      justify-content: flex-start; /* Ensure content starts at the left */
+  }
+  
+  select {
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--accent-color) 50%), 
+                       linear-gradient(135deg, var(--accent-color) 50%, transparent 50%);
+      background-position: calc(100% - 1.25rem) calc(1em + 2px), calc(100% - 0.9375rem) calc(1em + 2px);
+      background-size: 0.3125rem 0.3125rem; /* Smaller arrow size */
+      background-repeat: no-repeat;
+      cursor: pointer;
+      background-color: var(--input-bg); /* Match input background */
+      border: 1px solid var(--accent-color); /* Add border */
+      padding: var(--spacing-sm); /* Add padding */
+      border-radius: 0.5rem; /* Match input styling */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  select:focus {
+      box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
+  }
+  
+  /* Styles filter action buttons */
+  .filter-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+      justify-content: flex-start; /* Left-align buttons */
+  }
+  
+  .filter-actions button {
+      margin-right: var(--spacing-sm); /* Space between buttons */
+  }
+  
+  /* Styles the filter summary text */
+  #filterSummary {
+      text-align: left; /* Left-align summary text */
+      padding: var(--spacing-sm); /* Add padding for separation */
+      border: 1px solid var(--accent-color); /* Add border for separation */
+      border-radius: 0.5rem; /* Match input styling */
+      background: var(--background-dark); /* Slightly darker for contrast */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  /* Grid layout for grant cards with dark mode background */
+  #grantsContainer {
+      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); /* Consistent card width */
+      justify-content: flex-start; /* Left-align cards */
+      padding: var(--spacing-sm); /* Add padding for separation */
+  }
+  
+  /* Styles individual grant cards with dark mode background */
+  .grant-card {
+      transition: all 0.3s ease-in-out;
+      position: relative;
+      background: var(--input-bg); /* Match input background */
+      border: 1px solid var(--accent-color); /* Add border for separation */
+      border-radius: 0.5rem; /* Match input styling */
+      padding: var(--spacing-md); /* Add padding for content */
+      margin-bottom: var(--spacing-sm); /* Space between cards */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  .grant-card:hover {
+      transform: translateY(-0.5rem);
+      box-shadow: 0 0.25rem 0.5rem var(--accent-color); /* Enhanced shadow on hover */
+  }
+  
+  .grant-card h3 {
+      margin-bottom: var(--spacing-sm);
+      color: var(--secondary-color); /* Ensure title stands out */
+  }
+  
+  .grant-card p {
+      margin-bottom: var(--spacing-xs);
+      color: var(--text-color); /* Ensure text visibility */
+  }
+  
+  /* Styles tags within grant cards */
+  .tag {
+      margin-right: var(--spacing-xs);
+      background: var(--primary-color); /* Subtle background for tags */
+      border: 1px solid var(--accent-color); /* Add border */
+      padding: var(--spacing-xs) var(--spacing-sm); /* Add padding */
+      border-radius: 0.25rem; /* Rounded corners */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  /* Styles the favorite button on grant cards */
+  .favorite-btn {
+      top: var(--spacing-sm);
+      right: var(--spacing-sm);
+      background: var(--primary-color);
+      border: 1px solid var(--accent-color); /* Add border */
+      padding: var(--spacing-xs); /* Adjust padding */
+      border-radius: 0.5rem; /* Match input styling */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  .favorite-btn:hover {
+      background: var(--secondary-color);
+      color: var(--background-dark);
+      box-shadow: 0 0.25rem 0.5rem var(--accent-color); /* Enhanced shadow on hover */
+  }
+  
+  .favorite-btn.active {
+      background: var(--accent-color);
+      color: var(--background-dark);
+  }
+  
+  /* Styles modal overlays */
+  .modal {
+      background: rgba(0, 0, 0, 0.75);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+  }
+  
+  /* Styles modal content */
+  .modal-content {
+      background: var(--input-bg); /* Match input background */
+      border: 1px solid var(--accent-color); /* Add border for separation */
+      border-radius: 0.75rem; /* Larger radius for modal */
+      padding: var(--spacing-lg); /* Add padding for content */
+      box-shadow: 0 0.25rem 0.75rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  .modal-content.solid {
+      background: var(--background-dark); /* Darker for solid effect */
+  }
+  
+  /* Styles modal buttons */
+  .modal-buttons {
+      justify-content: flex-start; /* Left-align modal buttons */
+      margin-top: var(--spacing-md); /* Add space above buttons */
+  }
+  
+  .modal-buttons button {
+      margin-right: var(--spacing-sm); /* Space between buttons */
+  }
+  
+  /* Styles the loading indicator */
+  .loading {
+      padding: var(--spacing-md);
+      background: var(--input-bg); /* Match input background */
+      border: 1px solid var(--accent-color); /* Add border */
+      border-radius: 0.5rem; /* Match input styling */
+      box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+  }
+  
+  .loading::before {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: var(--spacing-xs);
+      background: var(--secondary-color); /* Visible loading indicator */
+  }
+  
+  @media (max-width: var(--breakpoint-mobile)) {
+      .checkbox-group { max-height: 8rem; }
+      .grant-card { padding: var(--spacing-sm); } /* Reduce padding on mobile */
+  }

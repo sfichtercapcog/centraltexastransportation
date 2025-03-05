@@ -143,6 +143,8 @@ nav ul li a {
   border-radius: 0.5rem;
   transition: all 0.3s ease-in-out;
   background: var(--primary-color);
+  border: 1px solid var(--accent-color); /* Add border for visual separation */
+  box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow for depth */
 }
 
 nav ul li a:hover,
@@ -150,6 +152,7 @@ nav ul li a:focus {
   background: var(--secondary-color);
   color: var(--background-dark);
   transform: scale(1.05);
+  box-shadow: 0 0.25rem 0.5rem var(--shadow-color); /* Enhanced shadow on hover */
 }
 
 /* ========================================================================== 
@@ -162,6 +165,7 @@ main {
   border-radius: 0.75rem;
   box-shadow: 0 0.25rem 0.75rem var(--shadow-color);
   backdrop-filter: blur(0.625rem); /* Reduced blur for subtlety */
+  border: 1px solid var(--accent-color); /* Add border for separation */
 }
 
 /* ========================================================================== 
@@ -172,6 +176,7 @@ footer {
   color: var(--text-color);
   text-align: center;
   padding: var(--spacing-md);
+  border-top: 1px solid var(--accent-color); /* Add top border for separation */
 }
 
 footer a {
@@ -191,7 +196,7 @@ footer a:focus {
    ========================================================================== */
 button {
   background: var(--primary-color);
-  border: none;
+  border: 1px solid var(--accent-color); /* Add border for visual separation */
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: 1rem;
   font-weight: bold;
@@ -200,6 +205,7 @@ button {
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   text-transform: uppercase;
+  box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow for depth */
 }
 
 button:hover,
@@ -207,8 +213,57 @@ button:focus {
   background: var(--secondary-color);
   color: var(--background-dark);
   transform: scale(1.05);
-  box-shadow: 0px 0px 0.625rem var(--accent-color);
+  box-shadow: 0 0.25rem 0.5rem var(--accent-color); /* Enhanced shadow on hover */
   outline: none;
+}
+
+/* ========================================================================== 
+   Inputs and Form Elements - Enhanced Visuals
+   ========================================================================== */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  background: var(--input-bg);
+  border: 1px solid var(--accent-color); /* Add border for separation */
+  padding: var(--spacing-sm);
+  font-size: 1rem;
+  color: var(--text-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow for depth */
+  width: 100%; /* Ensure full width for consistency */
+  transition: all 0.3s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+  border-color: var(--secondary-color); /* Highlight on focus */
+  box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
+  outline: none;
+}
+
+input[type="checkbox"] {
+  appearance: none; /* Remove default checkbox styling */
+  width: 1.25rem; /* Larger checkbox for usability */
+  height: 1.25rem;
+  border: 2px solid var(--accent-color); /* Visible border */
+  border-radius: 0.25rem;
+  background: var(--background-dark);
+  cursor: pointer;
+  margin-right: var(--spacing-xs); /* Space after checkbox */
+  box-shadow: 0 0.125rem 0.25rem var(--shadow-color); /* Subtle shadow */
+}
+
+input[type="checkbox"]:checked {
+  background: var(--secondary-color);
+  border-color: var(--accent-color);
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0.5rem var(--secondary-color); /* Glow effect on focus */
 }
 
 /* ========================================================================== 
